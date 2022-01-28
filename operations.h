@@ -42,8 +42,6 @@ void fully_connect(int isize, int osize, float w[isize][osize], float *b, float 
 
 void decode(float *pred);
 
-void batch_calculate();
-
 void backprop_fc(float I[1280],
         float O[1000],
         int label,

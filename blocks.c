@@ -24,31 +24,13 @@ void S2block(int isize, int osize,              // input and output sizes / dept
              float par_depth_BN[4][ex],
              float par_project[od][1][1][ex],
              float par_project_BN[4][od]) {
-    //Expand
+    // Expand
     conv2d(isize, isize, 1, // input, output, kernel size
             1,              // stride
             0,              // pad input by one pixels de factor centering the kernel
             id, ex,         // number of input and output channels
             idx2D + 1,      // weight import index
             idata, expand, par_expand);
-
-    if (stop == s) {
-        for (int k = 0; k < ex; ++k) {
-        for (int i = 0; i < isize; ++i) {
-        for (int j = 0; j < isize; ++j) {
-            temp_sum[k] += expand[i][j][k];
-        }}}
-        return;
-    }
-
-    if (stop == s+1) {
-        for (int k = 0; k < ex; ++k) {
-        for (int i = 0; i < isize; ++i) {
-        for (int j = 0; j < isize; ++j) {
-            temp_variance[k] += (expand[i][j][k] - par_expand_BN[2][k]) * (expand[i][j][k] - par_expand_BN[2][k]);
-        }}}
-        return;
-    }
 
     batch_normalization(isize,  // input, output
             ex,                 // number of channels
@@ -66,24 +48,6 @@ void S2block(int isize, int osize,              // input and output sizes / dept
             idxDW + 1,              // weight import index
             expand_relu, depth, par_depth);
 
-    if (stop == s+2) {
-        for (int k = 0; k < ex; ++k) {
-        for (int i = 0; i < osize; ++i) {
-        for (int j = 0; j < osize; ++j) {
-            temp_sum[k] += depth[i][j][k];
-        }}}
-        return;
-    }
-
-    if (stop == s+3) {
-        for (int k = 0; k < ex; ++k) {
-        for (int i = 0; i < osize; ++i) {
-        for (int j = 0; j < osize; ++j) {
-            temp_variance[k] += (depth[i][j][k] - par_depth_BN[2][k]) * (depth[i][j][k] - par_depth_BN[2][k]);
-        }}}
-        return;
-    }
-
     batch_normalization(osize,  // input, output
             ex,                 // number of channels
             idxBN + 2,          // weight import index
@@ -100,24 +64,6 @@ void S2block(int isize, int osize,              // input and output sizes / dept
             ex, od,         // number of input and output channels
             idx2D + 2,      // weight import index
             depth_relu, project, par_project);
-
-    if (stop == s+4) {
-        for (int k = 0; k < od; ++k) {
-        for (int i = 0; i < osize; ++i) {
-        for (int j = 0; j < osize; ++j) {
-            temp_sum[k] += project[i][j][k];
-        }}}
-        return;
-    }
-
-    if (stop == s+5) {
-        for (int k = 0; k < od; ++k) {
-        for (int i = 0; i < osize; ++i) {
-        for (int j = 0; j < osize; ++j) {
-            temp_variance[k] += (project[i][j][k] - par_project_BN[2][k]) * (project[i][j][k] - par_project_BN[2][k]);
-        }}}
-        return;
-    }
 
     batch_normalization(osize,  // input, output
             od,                 // number of channels
@@ -144,31 +90,13 @@ void S1block(int size,                          // input and output sizes
              float par_project[pr][1][1][ex],
              float par_project_BN[4][pr]) {
 
-    //Expand
+    // Expand
     conv2d(size, size, 1,   // input, output, kernel size
             1,              // stride
             0,              // pad input by one pixels de factor centering the kernel
             d, ex,          // number of input and output channels
             idx2D + 1,      // weight import index
             idata, expand, par_expand);
-
-    if (stop == s) {
-        for (int k = 0; k < ex; ++k) {
-        for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            temp_sum[k] += expand[i][j][k];
-        }}}
-        return;
-    }
-
-    if (stop == s+1) {
-        for (int k = 0; k < ex; ++k) {
-        for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            temp_variance[k] += (expand[i][j][k] - par_expand_BN[2][k]) * (expand[i][j][k] - par_expand_BN[2][k]);
-        }}}
-        return;
-    }
 
     batch_normalization(size,   // input, output
             ex,                 // number of channels
@@ -186,24 +114,6 @@ void S1block(int size,                          // input and output sizes
             idxDW + 1,      // weight import index
             expand_relu, depth, par_depth);
 
-    if (stop == s+2) {
-        for (int k = 0; k < ex; ++k) {
-        for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            temp_sum[k] += depth[i][j][k];
-        }}}
-        return;
-    }
-
-    if (stop == s+3) {
-        for (int k = 0; k < ex; ++k) {
-        for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            temp_variance[k] += (depth[i][j][k] - par_depth_BN[2][k]) * (depth[i][j][k] - par_depth_BN[2][k]);
-        }}}
-        return;
-    }
-
     batch_normalization(size,   // input, output
             ex,                 // number of channels
             idxBN + 2,          // weight import index
@@ -220,24 +130,6 @@ void S1block(int size,                          // input and output sizes
             ex, pr,         // number of input and output channels
             idx2D + 2,      // weight import index
             depth_relu, project, par_project);
-
-    if (stop == s+4) {
-        for (int k = 0; k < pr; ++k) {
-        for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            temp_sum[k] += project[i][j][k];
-        }}}
-        return;
-    }
-
-    if (stop == s+5) {
-        for (int k = 0; k < pr; ++k) {
-        for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            temp_variance[k] += (project[i][j][k] - par_project_BN[2][k]) * (project[i][j][k] - par_project_BN[2][k]);
-        }}}
-        return;
-    }
 
     batch_normalization(size,   // input, output
             pr,                 // number of channels

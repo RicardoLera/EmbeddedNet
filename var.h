@@ -1,26 +1,25 @@
 #ifndef VAR_H
 #define VAR_H
 
-// Training index
-extern int training;
+// First image boolean, to indicate whether to calculate stochastic BN means and variances
+extern int first_image;
 
 // Count indexes
 extern int epoch_count;
 extern int batch_count;
 
-// Stop count and temporary variables for batch mean and variance calculations
-extern int stop;
-extern float temp_sum[1280];
-extern float temp_variance[1280];
+// Declare image and label
+extern float image[224][224][3];
+extern int label;
 
-// Define batch
-struct images
-{
-    float image[224][224][3];
-    int label;
-};
-// Declare batch
-struct images batch[96];
+// Define image struct
+//struct images
+//{
+//    float image[224][224][3];
+//    int label;
+//};
+// Declare image
+//struct images image;
 
 
                     // The following indexes refer to the output of the respective layers

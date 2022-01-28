@@ -8,12 +8,16 @@
 // for testing
 #include "layers.h"
 
-// Initialize training boolean
-int training;
+// Initialize training boolean              MIGHT BE UNECESSARY
+int first_image = 1;
 
 // Initialize counters
 int epoch_count = 0;
 int batch_count = 0;
+
+// Initialize image and label
+float image[224][224][3];
+int label;
 
 int main( int argc, char *argv[] ) { 
 
@@ -28,17 +32,13 @@ int main( int argc, char *argv[] ) {
 
     if ( strcmp(argv[1],"run") == 0 ) {
 
-        training = 0;
-
         // fill input using data0[y][x][d] syntax (y are lines, x are columns)
         import_image(0);
 
-        inference(batch[0].image);
+        inference(image);
 
     }
     else if ( strcmp(argv[1],"train") == 0 ) {
-
-        training = 1;
 
         train();
     }

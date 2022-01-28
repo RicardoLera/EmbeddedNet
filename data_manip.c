@@ -49,7 +49,7 @@ void import_image(int l) {
                 }
                 s[i] = '\0';
                 float f = atof(s);      // convert to float
-                batch[l].image[y][x][d] = f;     // save on array
+                image[y][x][d] = f;     // save on array
                 c = fgetc(fptr);
             }
         }
@@ -64,6 +64,7 @@ void import_image(int l) {
         exit(EXIT_FAILURE);
     }
 
+    c = fgetc(fptr);
     char* a;    // pointer for strtol
     int i;
     for (i = 0; c != '\n' && c != ' '; ++i) {
@@ -71,7 +72,7 @@ void import_image(int l) {
         c = fgetc(fptr);
     }
     s[i] = '\0';
-    batch[l].label = strtol(s,&a,10);
+    label = strtol(s,&a,10);
     fclose(fptr);
 }
 
@@ -297,7 +298,7 @@ void import_fc(int isize, int osize, float weight[isize][osize], float *bias) {
     }
     fclose(fptr);
 }
-/*
+
 void export(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
     FILE *fptr;
     fptr = fopen(name, "w");
@@ -317,7 +318,7 @@ void export(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d
     fclose(fptr);
     printf("Saved %s\n", name);
 }
-*/
+
 void import(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
     FILE *fptr;
     fptr = fopen(name, "r");

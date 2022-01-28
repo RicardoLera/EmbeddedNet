@@ -45,7 +45,7 @@ void batch_normalization(int size,  // width/height of input
         import_bn(depth,
                 idx,
                 pdata);
-        if (!training) {
+        if (first_image) {
             // fill parameter data using pdata[type][x] syntax
             import_moving(depth,
                     idx,

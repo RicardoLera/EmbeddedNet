@@ -150,25 +150,18 @@ float final_conv2d_relu[7][7][1280];
 float final_pooling[1280];
 float predictions[1000];
 
-int stop;
-float temp_sum[1280];
-float temp_variance[1280];
 
 void inference(float image[224][224][3]) {
 
-    if (stop == 0 || stop == 1) {
-        // Initial Block
-        printf("Entering Initial Block: 224x224x3\n");
+    // Initial Block
+    printf("Entering Initial Block: 224x224x3\n");
 
-        conv2d(224, 112, 3, // input, output, kernel size
-                2,          // stride
-                0,          // pad input by one pixels de factor centering the kernel
-                3, 32,      // number of input and output channels
-                1,          // weight import index
-                image, initial_conv2d, par[0].initial_par_conv2d);
-
-        if (stop == 1) {return;}
-    }
+    conv2d(224, 112, 3, // input, output, kernel size
+            2,          // stride
+            0,          // pad input by one pixels de factor centering the kernel
+            3, 32,      // number of input and output channels
+            1,          // weight import index
+            image, initial_conv2d, par[0].initial_par_conv2d);
 
     batch_normalization(112,    // input, output
             32,                 // number of channels
@@ -179,6 +172,7 @@ void inference(float image[224][224][3]) {
             32, // number of channels
             initial_relu);  // This one goes straight to "operations" because there is no parameter allocation necessary
 
+
     // Expanded Block
     printf("Entering Expanded Block: 112x112x32\n");
 
@@ -187,25 +181,6 @@ void inference(float image[224][224][3]) {
             32,         // depth
             1,          // weight import index
             initial_relu, expanded_depth, par[0].expanded_par_depth);
-
-    if (stop == 3) {
-        for (int k = 0; k < 32; ++k) {
-        for (int i = 0; i < 112; ++i) {
-        for (int j = 0; j < 112; ++j) {
-            temp_sum[k] += expanded_depth[i][j][k];
-        }}}
-        return;
-    }
-
-    if (stop == 4) {
-        for (int k = 0; k < 32; ++k) {
-        for (int i = 0; i < 112; ++i) {
-        for (int j = 0; j < 112; ++j) {
-            temp_variance[k] += (expanded_depth[i][j][k] - par[0].initial_par_BN[2][k]) * (expanded_depth[i][j][k] - par[0].initial_par_BN[2][k]);
-        }}}
-        return;
-    }
-
 
     batch_normalization(112,    // input, output
             32,                 // number of channels
@@ -223,28 +198,11 @@ void inference(float image[224][224][3]) {
             2,          // weight import index
             expanded_relu, expanded_project, par[0].expanded_par_project);
 
-    if (stop == 5) {
-        for (int k = 0; k < 16; ++k) {
-        for (int i = 0; i < 112; ++i) {
-        for (int j = 0; j < 112; ++j) {
-            temp_sum[k] += expanded_project[i][j][k];
-        }}}
-        return;
-    }
-
-    if (stop == 6) {
-        for (int k = 0; k < 16; ++k) {
-        for (int i = 0; i < 112; ++i) {
-        for (int j = 0; j < 112; ++j) {
-            temp_variance[k] += (expanded_project[i][j][k] - par[0].initial_par_BN[2][k]) * (expanded_project[i][j][k] - par[0].initial_par_BN[2][k]);
-        }}}
-        return;
-    }
-
     batch_normalization(112,    // input, output
             16,                 // number of channels
             3,                  // weight import index
             expanded_project, expanded_project_BN, par[0].expanded_par_project_BN);
+
 
     // Block 3 - Stride 2 (Block 1 in Python)
     printf("Entering Block 3: 112x112x16\n");
@@ -262,7 +220,6 @@ void inference(float image[224][224][3]) {
             par[0].block3_par_depth, par[0].block3_par_depth_BN,
             par[0].block3_par_project, par[0].block3_par_project_BN);
 
-    if (stop == 7 || stop == 8 || stop == 9 || stop == 10 || stop == 11 || stop == 12) {return;}
 
     // Block 4 - Stride 1 (Block 2 in Python)
     printf("Entering Block 4: 56x56x24\n");
@@ -280,7 +237,6 @@ void inference(float image[224][224][3]) {
             par[0].block4_par_depth, par[0].block4_par_depth_BN,
             par[0].block4_par_project, par[0].block4_par_project_BN);
 
-    if (stop == 13 || stop == 14 || stop == 15 || stop == 16 || stop == 17 || stop == 18) {return;}
 
     // Block 5 - Stride 2 (Block 3 in Python)
     printf("Entering Block 5: 56x56x24\n");
@@ -297,8 +253,6 @@ void inference(float image[224][224][3]) {
             par[0].block5_par_expand, par[0].block5_par_expand_BN,
             par[0].block5_par_depth, par[0].block5_par_depth_BN,
             par[0].block5_par_project, par[0].block5_par_project_BN);
-
-    if (stop == 19 || stop == 20 || stop == 21 || stop == 22 || stop == 23 || stop == 24) {return;}
 
 
     // Block 6 - Stride 1 (Block 4 in Python)
@@ -317,8 +271,6 @@ void inference(float image[224][224][3]) {
             par[0].block6_par_depth, par[0].block6_par_depth_BN,
             par[0].block6_par_project, par[0].block6_par_project_BN);
 
-    if (stop == 25 || stop == 26 || stop == 27 || stop == 28 || stop == 29 || stop == 30) {return;}
-
 
     // Block 7 - Stride 1 (Block 5 in Python)
     printf("Entering Block 7: 28x28x32\n");
@@ -335,8 +287,6 @@ void inference(float image[224][224][3]) {
             par[0].block7_par_expand, par[0].block7_par_expand_BN,
             par[0].block7_par_depth, par[0].block7_par_depth_BN,
             par[0].block7_par_project, par[0].block7_par_project_BN);
-
-    if (stop == 31 || stop == 32 || stop == 33 || stop == 34 || stop == 35 || stop == 36) {return;}
 
 
     // Block 8 - Stride 2 (Block 6 in Python)
@@ -355,7 +305,6 @@ void inference(float image[224][224][3]) {
             par[0].block8_par_depth, par[0].block8_par_depth_BN,
             par[0].block8_par_project, par[0].block8_par_project_BN);
 
-    if (stop == 37 || stop == 38 || stop == 39 || stop == 40 || stop == 41 || stop == 42) {return;}
 
     // Block 9 - Stride 1 (Block 7 in Python)
     printf("Entering Block 9: 14x14x64\n");
@@ -373,7 +322,6 @@ void inference(float image[224][224][3]) {
             par[0].block9_par_depth, par[0].block9_par_depth_BN,
             par[0].block9_par_project, par[0].block9_par_project_BN);
 
-    if (stop == 43 || stop == 44 || stop == 45 || stop == 46 || stop == 47 || stop == 48) {return;}
 
     // Block 10 - Stride 1 (Block 8 in Python)
     printf("Entering Block 10: 14x14x64\n");
@@ -391,7 +339,6 @@ void inference(float image[224][224][3]) {
             par[0].block10_par_depth, par[0].block10_par_depth_BN,
             par[0].block10_par_project, par[0].block10_par_project_BN);
 
-    if (stop == 49 || stop == 50 || stop == 51 || stop == 52 || stop == 53 || stop == 54) {return;}
 
     // Block 11 - Stride 1 (Block 9 in Python)
     printf("Entering Block 11: 14x14x64\n");
@@ -409,7 +356,6 @@ void inference(float image[224][224][3]) {
             par[0].block11_par_depth, par[0].block11_par_depth_BN,
             par[0].block11_par_project, par[0].block11_par_project_BN);
 
-    if (stop == 55 || stop == 56 || stop == 57 || stop == 58 || stop == 59 || stop == 60) {return;}
 
     // Block 12 - Stride 1 - Over-Project (Block 10 in Python)
     printf("Entering Block 12: 14x14x64\n");
@@ -427,7 +373,6 @@ void inference(float image[224][224][3]) {
             par[0].block11_par_depth, par[0].block11_par_depth_BN,
             par[0].block11_par_project, par[0].block11_par_project_BN);
 
-    if (stop == 61 || stop == 62 || stop == 63 || stop == 64 || stop == 65 || stop == 66) {return;}
 
     // Block 13 - Stride 1 (Block 11 in Python)
     printf("Entering Block 13: 14x14x96\n");
@@ -445,7 +390,6 @@ void inference(float image[224][224][3]) {
             par[0].block13_par_depth, par[0].block13_par_depth_BN,
             par[0].block13_par_project, par[0].block13_par_project_BN);
 
-    if (stop == 67 || stop == 68 || stop == 69 || stop == 70 || stop == 71 || stop == 72) {return;}
 
     // Block 14 - Stride 1 (Block 12 in Python)
     printf("Entering Block 14: 14x14x96\n");
@@ -463,7 +407,6 @@ void inference(float image[224][224][3]) {
             par[0].block13_par_depth, par[0].block13_par_depth_BN,
             par[0].block13_par_project, par[0].block13_par_project_BN);
 
-    if (stop == 73 || stop == 74 || stop == 75 || stop == 76 || stop == 77 || stop == 78) {return;}
 
     // Block 15 - Stride 2 (Block 13 in Python)
     printf("Entering Block 15: 14x14x96\n");
@@ -481,7 +424,6 @@ void inference(float image[224][224][3]) {
             par[0].block13_par_depth, par[0].block13_par_depth_BN,
             par[0].block13_par_project, par[0].block13_par_project_BN);
 
-    if (stop == 79 || stop == 80 || stop == 81 || stop == 82 || stop == 83 || stop == 84) {return;}
 
     // Block 16 - Stride 1 (Block 14 in Python)
     printf("Entering Block 16: 7x7x160\n");
@@ -499,7 +441,6 @@ void inference(float image[224][224][3]) {
             par[0].block13_par_depth, par[0].block13_par_depth_BN,
             par[0].block13_par_project, par[0].block13_par_project_BN);
 
-    if (stop == 85 || stop == 86 || stop == 87 || stop == 88 || stop == 89 || stop == 90) {return;}
 
     // Block 17 - Stride 1 (Block 15 in Python)
     printf("Entering Block 17: 7x7x160\n");
@@ -516,8 +457,6 @@ void inference(float image[224][224][3]) {
             par[0].block13_par_expand, par[0].block13_par_expand_BN,
             par[0].block13_par_depth, par[0].block13_par_depth_BN,
             par[0].block13_par_project, par[0].block13_par_project_BN);
-
-    if (stop == 91 || stop == 92 || stop == 93 || stop == 94 || stop == 95 || stop == 96) {return;}
 
 
     // Block 18 - Stride 1 - Over-Project (Block 16 in Python)
@@ -536,7 +475,6 @@ void inference(float image[224][224][3]) {
             par[0].block13_par_depth, par[0].block13_par_depth_BN,
             par[0].block13_par_project, par[0].block13_par_project_BN);
 
-    if (stop == 97 || stop == 98 || stop == 99 || stop == 100 || stop == 101 || stop == 102) {return;}
 
     // Final Block
     printf("Entering Final Block: 7x7x320\n");
@@ -547,24 +485,6 @@ void inference(float image[224][224][3]) {
             320, 1280,  // number of input and output channels
             35,         // weight import index
             block18_add, final_conv2d, par[0].final_par_conv2d);
-
-    if (stop == 103) {
-        for (int k = 0; k < 1280; ++k) {
-        for (int i = 0; i < 7; ++i) {
-        for (int j = 0; j < 7; ++j) {
-            temp_sum[k] += final_conv2d[i][j][k];
-        }}}
-        return;
-    }
-
-    if (stop == 104) {
-        for (int k = 0; k < 1280; ++k) {
-        for (int i = 0; i < 7; ++i) {
-        for (int j = 0; j < 7; ++j) {
-            temp_variance[k] += (final_conv2d[i][j][k] - par[0].final_par_conv2d_BN[2][k]) * (final_conv2d[i][j][k] - par[0].final_par_conv2d_BN[2][k]);
-        }}}
-        return;
-    }
 
     batch_normalization(7,  // input, output
             1280,           // number of channels
@@ -617,17 +537,27 @@ void inference(float image[224][224][3]) {
 
 }
 
-
 void train(){
 
-    import_batch();
+    import_image(0);
 
-    batch_calculate();
+    inference(image);
 
     backprop_fc(final_pooling,  // Input
             predictions,        // Output
-            batch[0].label,
+            label,
             par[0].final_par_fc_w, par[0].final_par_fc_b,
             par[1].final_par_fc_w, par[1].final_par_fc_b);
+
+
+
+
+
+
+
+
+
+
+    first_image = 0;
 
 }
