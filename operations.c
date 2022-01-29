@@ -13,6 +13,7 @@
 #define LR_DECAY 0.98
 #define E_MOMENTUM 0.9
 #define E_DECAY 0.9
+#define RHO 0.999
 
 void convolution2D(int isize,  // width/height of input
         int osize,  // width/height of output
@@ -384,6 +385,7 @@ void backprop_bn(int s, int d,
                 I[i][j][k] = (dLdIhat[i][j] * dIhatdI) + (dLdV * dVdI) + (dLdM * dMdI); // Calc Error based on previous 6 variables and update
             }
         }
+
     }
 
     // Correct Gamma
@@ -393,8 +395,24 @@ void backprop_bn(int s, int d,
     }
 
     // Calculate new Moving Mean and Moving Variance
+    float sum;
+    for (int k = 0; k < d; ++k) {
+        sum = 0;
+        for (int i = 0; i < s; ++i) {
+            for (int j = 0; j < s; ++j) {
+                sum += I[i][j][k];
+            }
+        }
+        par[2][k] = par[2][k] * RHO + (1 - RHO) * (sum / (s*s));
 
-
+        sum = 0;
+        for (int i = 0; i < s; ++i) {
+            for (int j = 0; j < s; ++j) {
+                sum += (I[i][j][k] - par[2][k]) * (I[i][j][k] - par[2][k]);
+            }
+        }
+        par[3][k] = par[3][k] * RHO + (1 - RHO) * (sum / (s*s));
+    }
 
     char name[12]; // maximum number of characters is "paramxx.csv" = 11
     sprintf(name, "param%d.csv", idx);
