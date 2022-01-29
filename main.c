@@ -8,7 +8,7 @@
 // for testing
 #include "layers.h"
 
-// Initialize training boolean              MIGHT BE UNECESSARY
+// Initialize training boolean
 int first_image = 1;
 
 // Initialize counters

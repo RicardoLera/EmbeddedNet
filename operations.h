@@ -50,5 +50,13 @@ void backprop_fc(float I[1280],
         float Ew[1280][1000],
         float Eb[1000]);
 
+void backprop_avrgpool(float I[7][7][1280], float O[1280]);
+
+void backprop_relu6(int s, int d, float I[s][s][d]);
+
+void backprop_bn(int s, int d,
+        float I[s][s][d], float O[s][s][d],
+        float par[4][d], float Ep[4][d],
+        int idx);
 
 #endif

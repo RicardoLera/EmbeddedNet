@@ -543,15 +543,24 @@ void train(){
 
     inference(image);
 
-    backprop_fc(final_pooling,  // Input
-            predictions,        // Output
+    backprop_fc(final_pooling,  // Input of layer
+            predictions,        // Output of layer
             label,
             par[0].final_par_fc_w, par[0].final_par_fc_b,
             par[1].final_par_fc_w, par[1].final_par_fc_b);
 
+    backprop_avrgpool(final_conv2d_relu,    // Input of layer
+            final_pooling                   // Output of layer (now backpropagated error)
+            );
 
+    backprop_relu6(7, 1280,     // Dimensions
+            final_conv2d_relu   // Input and Output (error)
+            );
 
-
+    backprop_bn(7, 1280,
+            final_conv2d, final_conv2d_relu,
+            par[0].final_par_conv2d_BN, par[1].final_par_conv2d_BN,
+            52);
 
 
 

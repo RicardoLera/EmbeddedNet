@@ -172,8 +172,7 @@ struct Correlation {
     int idx;
 };
 
-int compare(const void *p1, const void *p2)
-{
+int compare(const void *p1, const void *p2) {
     const struct Correlation *elem1 = p1;
     const struct Correlation *elem2 = p2;
 
@@ -250,39 +249,154 @@ void backprop_fc(float I[1280],
         float Ew[1280][1000],
         float Eb[1000])
 {
-    // Allocate gradients
-    float (*dLdW)[1000] = calloc(1280, sizeof *dLdW);
+
+    float (*dLdW)[1000] = calloc(1280, sizeof *dLdW);   // We need this because both the backprop error and the weight gradient calculations depend on W and I
     float dLdB[1000];
 
+    // Calculate gradient and moving squared means - uses input
     for (int j = 0; j < 1000; ++j) {
         for (int i = 0; i < 1280; ++i) {
-            // Calculate weight gradient
             if (j == label) {
                 dLdW[i][j] = I[i]*(O[j] - 1) + LAMBDA*weight[i][j];
             }
             else {
                 dLdW[i][j] = I[i]*O[j] + LAMBDA*weight[i][j];
             }
-            // Correct weights
-            if (epoch_count==0) {Ew[i][j] = 0;}
+
             Ew[i][j] = E_MOMENTUM*Ew[i][j] + (1 - E_DECAY)*dLdW[i][j]*dLdW[i][j];
-            weight[i][j] = weight[i][j] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ew[i][j])+EPSILON) ) * dLdW[i][j] );
         }
-        // Calculate bias gradient
         if (j == label) {
             dLdB[j] = O[j] - 1;
         }
         else {
             dLdB[j] = O[j];
         }
-        // Correct biases
-        if (epoch_count==0) {Eb[j] = 0;}
+
         Eb[j] = E_MOMENTUM*Eb[j] + (1 - E_DECAY)*dLdB[j]*dLdB[j];
-        bias[j] = bias[j] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Eb[j])+EPSILON) ) * dLdB[j] );
+    }
+
+    // Calculate backpropagated error (saved in final_pooling[1280] for memory's sake) - uses weights, changes inputs
+    for (int i = 0; i < 1280; ++i) {
+        I[i] = 0;
+        for (int j = 0; j < 1000; ++j) {
+            if (j == label) {
+                I[i] += weight[i][j] * (O[j] - 1);
+            }
+            else {
+                I[i] += weight[i][j] * O[j];
+            }
+        }
+    }
+
+    // Correct weights and biases - changes weights
+    for (int j = 0; j < 1000; ++j) {
+        for (int i = 0; i < 1280; ++i) {
+            weight[i][j] = weight[i][j] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ew[i][j])+EPSILON) ) * dLdW[i][j] );
+        }
+    bias[j] = bias[j] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Eb[j])+EPSILON) ) * dLdB[j] );
     }
     free(dLdW);
 
     export("fc_w.csv",1,1,1280,1000,weight);
     export("fc_b.csv",1,1,1,1000,bias);
+}
 
+void backprop_avrgpool(float I[7][7][1280], float O[1280]) {
+
+    for (int k = 0; k < 1280; ++k) {
+        float temp = O[k] / 49;
+        for (int j = 0; j < 7; ++j) {
+            for (int i = 0; i < 7; ++i) {
+                I[i][j][k] = temp;
+            }
+        }
+    }
+
+}
+
+void backprop_relu6(int s, int d, float I[s][s][d]) {
+
+    for (int i = 0; i < s; ++i) {
+        for (int j = 0; j < s; ++j) {
+            for (int k = 0; k < d; ++k) {
+                if (I[i][j][k] < 0 || I[i][j][k] > 6) {
+                    I[i][j][k] = 0;
+                }
+            }
+        }
+    }
+
+}
+
+void backprop_bn(int s, int d,
+        float I[s][s][d], float O[s][s][d],
+        float par[4][d], float Ep[4][d],
+        int idx)
+{
+    // [0][:] is gamma, [1][:] is beta, [2][:] is moving mean, [3][:] is moving variance
+
+    float Bgrad;
+    float Ihat;
+
+    // Correct Beta - Beta is not used in the backpropagation step
+    for (int k = 0; k < d; ++k) {
+        Bgrad = 0;
+        for (int i = 0; i < s; ++i) {
+            for (int j = 0; j < s; ++j) {
+                Bgrad += O[i][j][k];
+            }
+        }
+        Ep[1][k] = E_MOMENTUM*Ep[1][k] + (1 - E_DECAY)*Bgrad*Bgrad;
+        par[1][k] = par[1][k] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ep[1][k])+EPSILON) ) * Bgrad );
+    }
+
+    // Calculate Gamma Gradient
+    float Ggrad[d];
+    for (int k = 0; k < d; ++k) {
+        Ggrad[k] = 0;
+        for (int i = 0; i < s; ++i) {
+            for (int j = 0; j < s; ++j) {
+                Ihat = (I[i][j][k] - par[2][k]) / sqrt(par[3][k] + EPSILON);
+                Ggrad[k] += O[i][j][k] * Ihat;
+            }
+        }
+    }
+
+    // Backpropagate
+    for (int k = 0; k < d; ++k) {
+        float dIhatdI = 1/sqrt(par[3][k] + EPSILON);    // Calc dIhat/dI
+        float dMdI = 1 / (d*d);                         // Calc dM/dI
+        float dLdIhat[s][s];
+        float dLdM = 0;
+        float dLdV = 0;
+
+        for (int i = 0; i < s; ++i) {
+            for (int j = 0; j < s; ++j) {
+                dLdIhat[i][j] = O[i][j][k] * par[0][k];                                                     // Calc dL/dIhat
+                dLdM += dLdIhat[i][j] * ( -1 / sqrt(par[3][k] + EPSILON) );                                 // Calc dL/dM
+                dLdV += dLdIhat[i][j] * (I[i][j][k] - par[2][k]) * (-1/2) * pow(par[3][k] + EPSILON, -3/2); // Calc dL/dV
+            }
+        }
+
+        for (int i = 0; i < s; ++i) {
+            for (int j = 0; j < s; ++j) {
+                float dVdI = (2*(I[i][j][k] - par[2][k])) / (d*d);                      // Calc dV/dI
+                I[i][j][k] = (dLdIhat[i][j] * dIhatdI) + (dLdV * dVdI) + (dLdM * dMdI); // Calc Error based on previous 6 variables and update
+            }
+        }
+    }
+
+    // Correct Gamma
+    for (int k = 0; k < d; ++k) {
+        Ep[0][k] = E_MOMENTUM*Ep[0][k] + (1 - E_DECAY)*Ggrad[k]*Ggrad[k];
+        par[0][k] = par[0][k] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ep[0][k])+EPSILON) ) * Ggrad[k] );
+    }
+
+    // Calculate new Moving Mean and Moving Variance
+
+
+
+    char name[12]; // maximum number of characters is "paramxx.csv" = 11
+    sprintf(name, "param%d.csv", idx);
+    export(name,1,1,4,d,par);
 }
