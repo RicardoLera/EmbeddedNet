@@ -19,7 +19,10 @@ File hierarchy: main -> actions -> blocks -> layers -> operations
  - Inference finished and tested.
 ----
  - Implemented training in Python for comparison with C implementation
- - Formulating training equations
+ - Formulated training equations
+ - Adapted system to Stochastic Gradient Descent
+ - Implemented training for Fully Connected layer and observed a slight increase in precision with a Learning Rate of 0.000045
+ - Repeated the same process for Average Pooling, ReLU6, Batch Normalization
 
 ## Training Equations
 
