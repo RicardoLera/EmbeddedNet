@@ -18,14 +18,12 @@ void conv2d(int isize,          // width/height of input
         float odata[osize][osize][odepth],
         float kdata[odepth][ksize][ksize][idepth])
 {
-    if (batch_count == 0) {
-        // fill kernel using kdata [od][y][x][id] syntax
-        import_weights(idepth,  // input depth (layers)
-                ksize,          // sizes
-                odepth,         // output depth (number of filters)
-                idx,            // weight file index
-                kdata);
-    }
+    // fill kernel using kdata [od][y][x][id] syntax
+    import_weights(idepth,  // input depth (layers)
+            ksize,          // sizes
+            odepth,         // output depth (number of filters)
+            idx,            // weight file index
+            kdata);
 
     convolution2D(isize, osize, ksize,  // input, output, kernel size
             stride,                     // stride
@@ -41,16 +39,14 @@ void batch_normalization(int size,  // width/height of input
         float odata[size][size][depth],
         float pdata[4][depth])
 {
-    if (batch_count == 0) {
-        import_bn(depth,
+    import_bn(depth,
+            idx,
+            pdata);
+    if (first_image) {
+        // fill parameter data using pdata[type][x] syntax
+        import_moving(depth,
                 idx,
                 pdata);
-        if (first_image) {
-            // fill parameter data using pdata[type][x] syntax
-            import_moving(depth,
-                    idx,
-                    pdata);
-        }
     }
 
     batch_normalize(size,
@@ -68,13 +64,11 @@ void S1depthwise (int size,
         float odata[size][size][depth],
         float kdata[ksize][ksize][depth])
 {
-    if (batch_count == 0) {
-        // fill kernel using kdata [y][x][d] syntax
-        import_dweights(depth,
-                ksize,
-                idx,
-                kdata);
-    }
+    // fill kernel using kdata [y][x][d] syntax
+    import_dweights(depth,
+            ksize,
+            idx,
+            kdata);
 
     depthwise_convolution(size, size, ksize,    // input, output, kernel size
             1,                                  // stride
@@ -93,13 +87,11 @@ void S2depthwise (int isize,
         float odata[osize][osize][depth],
         float kdata[ksize][ksize][depth])
 {
-    if (batch_count == 0) {
-        // fill kernel using kdata [y][x][d] syntax
-        import_dweights(depth,
-                ksize,
-                idx,
-                kdata);
-    }
+    // fill kernel using kdata [y][x][d] syntax
+    import_dweights(depth,
+            ksize,
+            idx,
+            kdata);
 
     depthwise_convolution(isize, osize, ksize,  // input, output, kernel size
             2,                                  // stride
@@ -110,12 +102,10 @@ void S2depthwise (int isize,
 
 void fully_connected(float *data, float *pred, float weight[1280][1000], float bias[1000]) {
 
-    if (batch_count == 0) {
-        import_fc(1280,
-                1000,
-                weight,
-                bias);
-    }
+    import_fc(1280,
+            1000,
+            weight,
+            bias);
 
     fully_connect(1280,
             1000,

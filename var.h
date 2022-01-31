@@ -12,17 +12,8 @@ extern int batch_count;
 extern float image[224][224][3];
 extern int label;
 
-// Define image struct
-//struct images
-//{
-//    float image[224][224][3];
-//    int label;
-//};
-// Declare image
-//struct images image;
 
-
-                    // The following indexes refer to the output of the respective layers
+                    // The following indexes refer to the OUTPUT of the respective layers
                     // These are necessary for the backpropagation step
 
 // Initial Block

@@ -319,6 +319,26 @@ void export(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d
     printf("Saved %s\n", name);
 }
 
+void export2(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
+    FILE *fptr;
+    fptr = fopen(name, "w");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < d3; ++i) {
+        for (int j = 0; j < d2; ++j) {
+            for (int k = 0; k < d4; ++k) {
+                for (int l = 0; l < d1; ++l) {
+                    fprintf(fptr, "%.7e ", data[l][j][i][k]);
+                }
+            }
+        }
+    }
+    fclose(fptr);
+    printf("Saved %s\n", name);
+}
+
 void import(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
     FILE *fptr;
     fptr = fopen(name, "r");

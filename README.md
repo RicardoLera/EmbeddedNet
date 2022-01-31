@@ -18,11 +18,11 @@ File hierarchy: main -> actions -> blocks -> layers -> operations
  - Completed Fully Connected Network.
  - Inference finished and tested.
 ----
- - Implemented training in Python for comparison with C implementation
- - Formulated training equations
- - Adapted system to Stochastic Gradient Descent
- - Implemented training for Fully Connected layer and observed a slight increase in precision with a Learning Rate of 0.000045
- - Repeated the same process for Average Pooling, ReLU6, Batch Normalization
+ - Implemented training in Python for comparison with C implementation.
+ - Formulated training equations.
+ - Adapted system to Stochastic Gradient Descent.
+ - Implemented training for Fully Connected layer and observed a slight increase in precision with a Learning Rate of 0.000045.
+ - Repeated the same process for Average Pooling, ReLU6, Batch Normalization and 2D-Convolution.
 
 ## Training Equations
 
@@ -208,7 +208,7 @@ Gradient of Gamma:
 
 Backpropagating Error:
 ```math
-\frac{\partial L}{\partial I_{ij}} = \frac{\partial L}{\partial I_{ij}} \cdot \frac{\partial \hat{I}_{ij}}{\partial I_{ij}} + \frac{\partial L}{\partial \sigma^2} \cdot \frac{\partial \sigma^2}{\partial I_{ij}} + \frac{\partial L}{\partial \mu} \cdot \frac{\partial \mu}{\partial I_{ij}}
+\frac{\partial L}{\partial I_{ij}} = \frac{\partial L}{\partial \hat{I}_{ij}} \cdot \frac{\partial \hat{I}_{ij}}{\partial I_{ij}} + \frac{\partial L}{\partial \sigma^2} \cdot \frac{\partial \sigma^2}{\partial I_{ij}} + \frac{\partial L}{\partial \mu} \cdot \frac{\partial \mu}{\partial I_{ij}}
 ```
 ```math
 \frac{\partial L}{\partial \hat{I}_{ij}} = \frac{\partial L}{\partial O_{ij}} \cdot \frac{\partial O_{ij}}{\partial \hat{I}_{ij}} = \frac{\partial L}{\partial O_{ij}} \gamma

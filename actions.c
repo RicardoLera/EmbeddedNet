@@ -151,7 +151,7 @@ float final_pooling[1280];
 float predictions[1000];
 
 
-void inference(float image[224][224][3]) {
+void inference() {
 
     // Initial Block
     printf("Entering Initial Block: 224x224x3\n");
@@ -539,9 +539,7 @@ void inference(float image[224][224][3]) {
 
 void train(){
 
-    import_image(0);
-
-    inference(image);
+    inference();
 
     backprop_fc(final_pooling,  // Input of layer
             predictions,        // Output of layer
@@ -562,8 +560,10 @@ void train(){
             par[0].final_par_conv2d_BN, par[1].final_par_conv2d_BN,
             52);
 
-
-
+    backprop_conv2d(7, 7, 1, 320, 1280,
+            block18_add, final_conv2d,
+            par[0].final_par_conv2d, par[1].final_par_conv2d,
+            1, 0, 35);
 
 
 

@@ -11,9 +11,8 @@
 // Initialize training boolean
 int first_image = 1;
 
-// Initialize counters
+// Initialize epoch counter
 int epoch_count = 0;
-int batch_count = 0;
 
 // Initialize image and label
 float image[224][224][3];
@@ -35,10 +34,12 @@ int main( int argc, char *argv[] ) {
         // fill input using data0[y][x][d] syntax (y are lines, x are columns)
         import_image(0);
 
-        inference(image);
+        inference();
 
     }
     else if ( strcmp(argv[1],"train") == 0 ) {
+
+        import_image(0);
 
         train();
     }

@@ -9,17 +9,17 @@
 
 #define LAMBDA 0.00004
 #define EPSILON 0.0000001
-#define LR 0.000045                    //original: 0.045
+#define LR 0.000045                    // original: 0.045
 #define LR_DECAY 0.98
 #define E_MOMENTUM 0.9
 #define E_DECAY 0.9
 #define RHO 0.999
 
-void convolution2D(int isize,  // width/height of input
-        int osize,  // width/height of output
-        int ksize,  // width/height of kernel
-        int stride, // shift between input pixels, between consecutive outputs
-        int pad,    // offset between (0,0) pixels between input and output
+void convolution2D(int isize,   // width/height of input
+        int osize,              // width/height of output
+        int ksize,              // width/height of kernel
+        int stride,             // shift between input pixels, between consecutive outputs
+        int pad,                // offset between (0,0) pixels between input and output
         int idepth, int odepth, // number of input and output channels
         float idata[isize][isize][idepth],
         float odata[osize][osize][odepth],
@@ -367,12 +367,14 @@ void backprop_bn(int s, int d,
     for (int k = 0; k < d; ++k) {
         float dIhatdI = 1/sqrt(par[3][k] + EPSILON);    // Calc dIhat/dI
         float dMdI = 1 / (d*d);                         // Calc dM/dI
+        float dVdI[s][s];
         float dLdIhat[s][s];
         float dLdM = 0;
         float dLdV = 0;
 
         for (int i = 0; i < s; ++i) {
             for (int j = 0; j < s; ++j) {
+                dVdI[i][j] = (2*(I[i][j][k] - par[2][k])) / (d*d);                                          // Calc dV/dI
                 dLdIhat[i][j] = O[i][j][k] * par[0][k];                                                     // Calc dL/dIhat
                 dLdM += dLdIhat[i][j] * ( -1 / sqrt(par[3][k] + EPSILON) );                                 // Calc dL/dM
                 dLdV += dLdIhat[i][j] * (I[i][j][k] - par[2][k]) * (-1/2) * pow(par[3][k] + EPSILON, -3/2); // Calc dL/dV
@@ -381,8 +383,7 @@ void backprop_bn(int s, int d,
 
         for (int i = 0; i < s; ++i) {
             for (int j = 0; j < s; ++j) {
-                float dVdI = (2*(I[i][j][k] - par[2][k])) / (d*d);                      // Calc dV/dI
-                I[i][j][k] = (dLdIhat[i][j] * dIhatdI) + (dLdV * dVdI) + (dLdM * dMdI); // Calc Error based on previous 6 variables and update
+                I[i][j][k] = (dLdIhat[i][j] * dIhatdI) + (dLdV * dVdI[i][j]) + (dLdM * dMdI);   // Calc Error based on previous 6 variables and update
             }
         }
 
@@ -414,7 +415,48 @@ void backprop_bn(int s, int d,
         par[3][k] = par[3][k] * RHO + (1 - RHO) * (sum / (s*s));
     }
 
+    // Export
     char name[12]; // maximum number of characters is "paramxx.csv" = 11
     sprintf(name, "param%d.csv", idx);
     export(name,1,1,4,d,par);
+}
+
+void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
+        float I[isize][isize][idepth], float O[osize][osize][odepth],
+        float par[odepth][ksize][ksize][idepth], float Ew[odepth][ksize][ksize][idepth],
+        int stride, int pad, int idx)
+{
+
+    float (*dLdW)[ksize][ksize][idepth] = calloc(odepth, sizeof *dLdW);
+
+    // Calculate gradient - iterate over the output
+    for (int oy = 0; oy < osize; ++oy) {
+    for (int ox = 0; ox < osize; ++ox) {
+    for (int od = 0; od < odepth; ++od) {
+        for (int ky = 0; ky < ksize; ++ky) {
+        for (int kx = 0; kx < ksize; ++kx) {
+            // map position in output and kernel to the input
+            int iy = stride * oy + ky - pad;
+            int ix = stride * ox + kx - pad;
+            // use only valid inputs
+            if (iy >= 0 && iy < isize && ix >= 0 && ix < isize)
+                for (int id = 0; id < idepth; ++id)
+                    dLdW[od][ky][kx][id] += O[oy][ox][od] * I[iy][ix][id];
+        }}
+    }}}
+
+    // Update weights
+    for (int od = 0; od < odepth; ++od) {
+    for (int ky = 0; ky < ksize; ++ky) {
+    for (int kx = 0; kx < ksize; ++kx) {
+    for (int id = 0; id < idepth; ++id){
+        Ew[od][ky][kx][id] = E_MOMENTUM*Ew[od][ky][kx][id] + (1 - E_DECAY)*dLdW[od][ky][kx][id]*dLdW[od][ky][kx][id];
+        par[od][ky][kx][id] = par[od][ky][kx][id] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ew[od][ky][kx][id])+EPSILON) ) * dLdW[od][ky][kx][id] );
+    }}}}
+    free(dLdW);
+
+    // Export
+    char name[14]; // maximum number of characters is "weightsxx.csv" = 13
+    sprintf(name, "weights%d.csv", idx);
+    export2(name,odepth,ksize,ksize,idepth,par);
 }
