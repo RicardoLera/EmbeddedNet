@@ -429,7 +429,7 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
 
     float (*dLdW)[ksize][ksize][idepth] = calloc(odepth, sizeof *dLdW);
 
-    // Calculate gradient - iterate over the output
+    // iterate over the output
     for (int oy = 0; oy < osize; ++oy) {
     for (int ox = 0; ox < osize; ++ox) {
     for (int od = 0; od < odepth; ++od) {
@@ -441,7 +441,60 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
             // use only valid inputs
             if (iy >= 0 && iy < isize && ix >= 0 && ix < isize)
                 for (int id = 0; id < idepth; ++id)
-                    dLdW[od][ky][kx][id] += O[oy][ox][od] * I[iy][ix][id];
+                    dLdW[od][ky][kx][id] += O[oy][ox][od] * I[iy][ix][id];      // Calculate Gradient
+        }}
+    }}}
+
+
+/* Gradient Export Test
+
+    if (idx == 27) {
+        FILE *fp;
+        fp = fopen("1gradient_NOERROR.txt", "w");
+        for (int i = 0; i < 576; ++i) {
+            for (int j = 0; j < 96; ++j) {
+                fprintf(fp, "%.7e, ", dLdW[i][0][0][j]);
+            }
+            fprintf(fp, "\n");
+        }
+        fclose(fp);
+        printf("Saved output of layer\n");
+    }
+
+    if (idx == 25) {
+        FILE *fp;
+        fp = fopen("1gradient_ERROR.txt", "w");
+        for (int i = 0; i < 576; ++i) {
+            for (int j = 0; j < 96; ++j) {
+                fprintf(fp, "%.7e, ", dLdW[i][0][0][j]);
+            }
+            fprintf(fp, "\n");
+        }
+        fclose(fp);
+        printf("Saved output of layer\n");
+    }
+*/
+
+    // Zero I
+    for (int i = 0; i < isize; ++i) {
+    for (int j = 0; j < isize; ++j) {
+    for (int k = 0; k < idepth; ++k) {
+        I[i][j][k] = 0;
+    }}}
+
+    // iterate over the output
+    for (int oy = 0; oy < osize; ++oy) {
+    for (int ox = 0; ox < osize; ++ox) {
+    for (int od = 0; od < odepth; ++od) {
+        for (int ky = 0; ky < ksize; ++ky) {
+        for (int kx = 0; kx < ksize; ++kx) {
+            // map position in output and kernel to the input
+            int iy = stride * oy + ky - pad;
+            int ix = stride * ox + kx - pad;
+            // use only valid inputs
+            if (iy >= 0 && iy < isize && ix >= 0 && ix < isize)
+                for (int id = 0; id < idepth; ++id)
+                    I[iy][ix][id] += O[oy][ox][od] * par[od][ky][kx][id];        // Backpropagate
         }}
     }}}
 
@@ -455,8 +508,99 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
     }}}}
     free(dLdW);
 
+
+/* Weight Export Test
+
+        if (idx == 27) {
+            FILE *fp;
+            fp = fopen("1weights_NOERROR.txt", "w");
+            for (int i = 0; i < 576; ++i) {
+                for (int j = 0; j < 96; ++j) {
+                    fprintf(fp, "%.7e, ", par[i][0][0][j]);
+                }
+                fprintf(fp, "\n");
+            }
+            fclose(fp);
+            printf("Saved output of layer\n");
+        }
+
+        if (idx == 25) {
+            FILE *fp;
+            fp = fopen("1weights_ERROR.txt", "w");
+            for (int i = 0; i < 576; ++i) {
+                for (int j = 0; j < 96; ++j) {
+                    fprintf(fp, "%.7e, ", par[i][0][0][j]);
+                }
+                fprintf(fp, "\n");
+            }
+            fclose(fp);
+            printf("Saved output of layer\n");
+        }
+*/
+
+
     // Export
     char name[14]; // maximum number of characters is "weightsxx.csv" = 13
     sprintf(name, "weights%d.csv", idx);
     export2(name,odepth,ksize,ksize,idepth,par);
+}
+
+void backprop_dw(int isize, int osize, int ksize, int depth,
+        float I[isize][isize][depth], float O[osize][osize][depth],
+        float par[ksize][ksize][depth], float Ew[ksize][ksize][depth],
+        int stride, int pad, int idx)
+{
+
+    float (*dLdW)[ksize][depth] = calloc(ksize, sizeof *dLdW);
+
+    // iterate over the output
+    for (int oy = 0; oy < osize; ++oy) {
+    for (int ox = 0; ox < osize; ++ox) {
+    for (int od = 0; od < depth; ++od) {
+        for (int ky = 0; ky < ksize; ++ky) {
+        for (int kx = 0; kx < ksize; ++kx) {
+            // map position in output and kernel to the input
+            int iy = stride * oy + ky - pad;
+            int ix = stride * ox + kx - pad;
+            // use only valid inputs
+            if (iy >= 0 && iy < isize && ix >= 0 && ix < isize)
+                dLdW[ky][kx][od] += O[oy][ox][od] * I[iy][ix][od];      // Calculate Gradient
+        }}
+    }}}
+
+    // Zero I
+    for (int i = 0; i < isize; ++i) {
+    for (int j = 0; j < isize; ++j) {
+    for (int k = 0; k < depth; ++k) {
+        I[i][j][k] = 0;
+    }}}
+
+    // iterate over the output
+    for (int oy = 0; oy < osize; ++oy) {
+    for (int ox = 0; ox < osize; ++ox) {
+    for (int od = 0; od < depth; ++od) {
+        for (int ky = 0; ky < ksize; ++ky) {
+        for (int kx = 0; kx < ksize; ++kx) {
+            // map position in output and kernel to the input
+            int iy = stride * oy + ky - pad;
+            int ix = stride * ox + kx - pad;
+            // use only valid inputs
+            if (iy >= 0 && iy < isize && ix >= 0 && ix < isize)
+                I[iy][ix][od] += O[oy][ox][od] * par[ky][kx][od];        // Backpropagate
+        }}
+    }}}
+
+    // Update weights
+    for (int ky = 0; ky < ksize; ++ky) {
+    for (int kx = 0; kx < ksize; ++kx) {
+    for (int od = 0; od < depth; ++od){
+        Ew[ky][kx][od] = E_MOMENTUM*Ew[ky][kx][od] + (1 - E_DECAY)*dLdW[ky][kx][od]*dLdW[ky][kx][od];
+        par[ky][kx][od] = par[ky][kx][od] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ew[ky][kx][od])+EPSILON) ) * dLdW[ky][kx][od] );
+    }}}
+    free(dLdW);
+
+    // Export
+    char name[15]; // maximum number of characters is "dweightsxx.csv" = 14
+    sprintf(name, "dweights%d.csv", idx);
+    export(name,1,ksize,ksize,depth,par);
 }

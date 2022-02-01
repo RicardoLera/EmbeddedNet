@@ -76,12 +76,6 @@ void import_image(int l) {
     fclose(fptr);
 }
 
-void import_batch() {
-    for (int i = 0; i < 96; ++i) {
-        import_image(i);
-    }
-}
-
 void import_weights(int id, int size, int od, int idx, float kdata[od][size][size][id]) {
 
     // Define name from index
@@ -330,7 +324,7 @@ void export2(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][
         for (int j = 0; j < d2; ++j) {
             for (int k = 0; k < d4; ++k) {
                 for (int l = 0; l < d1; ++l) {
-                    fprintf(fptr, "%.7e ", data[l][j][i][k]);
+                    fprintf(fptr, "%.7e ", data[l][i][j][k]);
                 }
             }
         }

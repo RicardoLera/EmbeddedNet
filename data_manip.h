@@ -2,7 +2,6 @@
 #define DM_H
 
 void import_image(int l);
-void import_batch();
 void import_weights (int id, int size, int od, int idx, float kdata[od][size][size][id]);
 void import_bn(int depth, int idx, float pdata[4][depth]);
 void import_moving(int depth, int idx, float pdata[4][depth]);

@@ -5,12 +5,12 @@
 
 // for testing
 #include <stdio.h>
+#include "actions.h"
 
 void S2block(int isize, int osize,              // input and output sizes / depthwise factor
              int id, int od,                    // input and output depth / project factor
              int idx2D, int idxBN, int idxDW,   // 2D convolution, Batch Normalization and Depthwise current weight import indexes
              int ex,                            // Expand factor
-             int s,                             // Current stop
              float idata[isize][isize][id],
              float expand[isize][isize][ex],
              float expand_relu[isize][isize][ex],
@@ -75,7 +75,6 @@ void S1block(int size,                          // input and output sizes
              int d,                             // input and output depth
              int idx2D, int idxBN, int idxDW,   // 2D convolution, Batch Normalization and Depthwise current weight import indexes
              int ex, int pr, int a,             // Expand, project and add factors
-             int s,                             // Current stop
              float idata[size][size][d],
              float expand[size][size][ex],
              float expand_relu[size][size][ex],
@@ -140,4 +139,125 @@ void S1block(int size,                          // input and output sizes
     if (a) {
         add_array(size, d, idata, add);
     }
+}
+
+void backprop_S1(int size,                          // input and output sizes
+                 int d,                             // input and output depth
+                 int idx2D, int idxBN, int idxDW,   // 2D convolution, Batch Normalization and Depthwise current weight import indexes
+                 int ex, int pr,                    // Expand and project factors
+                 float idata[size][size][d],
+                 float expand[size][size][ex],
+                 float expand_relu[size][size][ex],
+                 float depth[size][size][ex],
+                 float depth_relu[size][size][ex],
+                 float project[size][size][pr],
+                 float add[size][size][pr],
+                 float par_expand[ex][1][1][d],   float par_expand_E[ex][1][1][d],
+                 float par_expand_BN[4][ex],      float par_expand_BN_E[4][ex],
+                 float par_depth[3][3][ex],       float par_depth_E[3][3][ex],
+                 float par_depth_BN[4][ex],       float par_depth_BN_E[4][ex],
+                 float par_project[pr][1][1][ex], float par_project_E[pr][1][1][ex],
+                 float par_project_BN[4][pr],     float par_project_BN_E[4][pr])
+{
+    // Re-Project
+    backprop_bn(size, pr,
+            project, add,
+            par_project_BN, par_project_BN_E,
+            idxBN + 3);
+
+    backprop_conv2d(size, size, 1, ex, pr,
+            depth_relu, project,
+            par_project, par_project_E,
+            1, 0, idx2D + 2);
+
+    // Re-Depthwise
+    backprop_relu6(size,
+            ex,
+            depth_relu);
+
+    backprop_bn(size, ex,
+            depth, depth_relu,
+            par_depth_BN, par_depth_BN_E,
+            idxBN + 2);
+
+    backprop_dw(size, size, 3, ex,
+            expand_relu, depth,
+            par_depth, par_depth_E,
+            1, 1, idxDW + 1);
+
+    // Re-Expand
+    backprop_relu6(size,
+            ex,
+            expand_relu);
+
+    backprop_bn(size, ex,
+            expand, expand_relu,
+            par_expand_BN, par_expand_BN_E,
+            idxBN + 1);
+
+    backprop_conv2d(size, size, 1, d, ex,
+            idata, expand,
+            par_expand, par_expand_E,
+            1, 0, idx2D + 1);
+}
+
+void backprop_S2(int isize, int osize,              // input and output sizes / depthwise factor
+                 int id, int od,                    // input and output depth / project factor
+                 int idx2D, int idxBN, int idxDW,   // 2D convolution, Batch Normalization and Depthwise current weight import indexes
+                 int ex,                            // Expand factor
+                 float idata[isize][isize][id],
+                 float expand[isize][isize][ex],
+                 float expand_relu[isize][isize][ex],
+                 float depth[osize][osize][ex],
+                 float depth_relu[osize][osize][ex],
+                 float project[osize][osize][od],
+                 float project_BN[osize][osize][od],
+                 float par_expand[ex][1][1][id],  float par_expand_E[ex][1][1][id],
+                 float par_expand_BN[4][ex],      float par_expand_BN_E[4][ex],
+                 float par_depth[3][3][ex],       float par_depth_E[3][3][ex],
+                 float par_depth_BN[4][ex],       float par_depth_BN_E[4][ex],
+                 float par_project[od][1][1][ex], float par_project_E[od][1][1][ex],
+                 float par_project_BN[4][od],     float par_project_BN_E[4][od])
+{
+    // Re-Project
+    backprop_bn(osize, od,
+            project, project_BN,
+            par_project_BN, par_project_BN_E,
+            idxBN + 3);
+
+    backprop_conv2d(osize, osize, 1, ex, od,
+            depth_relu, project,
+            par_project, par_project_E,
+            1, 0, idx2D + 2);
+
+    // Re-Depthwise
+    backprop_relu6(osize,
+            ex,
+            depth_relu);
+
+    backprop_bn(osize, ex,
+            depth, depth_relu,
+            par_depth_BN, par_depth_BN_E,
+            idxBN + 2);
+
+    backprop_dw(isize, osize, 3, ex,
+            expand_relu, depth,
+            par_depth, par_depth_E,
+            2, 0, idxDW + 1);
+
+    // Re-Expand
+    backprop_relu6(isize,
+            ex,
+            expand_relu);
+
+    backprop_bn(isize, ex,
+            expand, expand_relu,
+            par_expand_BN, par_expand_BN_E,
+            idxBN + 1);
+
+    backprop_conv2d(isize, isize, 1, id, ex,
+            idata, expand,
+            par_expand, par_expand_E,
+            1, 0, idx2D + 1);
+
 }

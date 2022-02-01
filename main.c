@@ -42,6 +42,8 @@ int main( int argc, char *argv[] ) {
         import_image(0);
 
         train();
+
+        first_image = 0;
     }
     else {
         printf("Invalid action\n");

@@ -64,4 +64,9 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
         float par[odepth][ksize][ksize][idepth], float Ew[odepth][ksize][ksize][idepth],
         int stride, int pad, int idx);
 
+void backprop_dw(int isize, int osize, int ksize, int depth,
+        float I[isize][isize][depth], float O[osize][osize][depth],
+        float par[ksize][ksize][depth], float Ew[ksize][ksize][depth],
+        int stride, int pad, int idx);
+
 #endif

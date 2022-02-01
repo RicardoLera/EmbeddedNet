@@ -303,7 +303,7 @@ struct parameters {
     float block12_par_project_BN[4][96];
 
     // Block 13 (Stride 1)
-    float block13_par_expand[576][1][1][64];
+    float block13_par_expand[576][1][1][96];
     float block13_par_expand_BN[4][576];
     float block13_par_depth[3][3][576];
     float block13_par_depth_BN[4][576];
@@ -311,7 +311,7 @@ struct parameters {
     float block13_par_project_BN[4][96];
 
     // Block 14 (Stride 1)
-    float block14_par_expand[576][1][1][64];
+    float block14_par_expand[576][1][1][96];
     float block14_par_expand_BN[4][576];
     float block14_par_depth[3][3][576];
     float block14_par_depth_BN[4][576];

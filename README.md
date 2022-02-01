@@ -22,8 +22,9 @@ File hierarchy: main -> actions -> blocks -> layers -> operations
  - Formulated training equations.
  - Adapted system to Stochastic Gradient Descent.
  - Implemented training for Fully Connected layer and observed a slight increase in precision with a Learning Rate of 0.000045.
- - Repeated the same process for Average Pooling, ReLU6, Batch Normalization and 2D-Convolution.
-
+ - Repeated the same process for Average Pooling, ReLU6, Batch Normalization, 2D-Convolution and Depthwise Convolution.
+ - Training Finished
+ 
 ## Training Equations
 
 From the [MobileNetV2 Article](https://arxiv.org/abs/1801.04381):
