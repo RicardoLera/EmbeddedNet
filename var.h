@@ -6,7 +6,10 @@ extern int first_image;
 
 // Count indexes
 extern int epoch_count;
-extern int batch_count;
+//extern int batch_count;
+
+// Freeze index - Maximum characters: "b18" = 3
+extern char frz[4];
 
 // Declare image and label
 extern float image[224][224][3];

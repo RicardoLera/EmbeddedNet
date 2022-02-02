@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 #include "var.h"
 #include "actions.h"
 #include "data_manip.h"
@@ -276,17 +277,21 @@ void backprop_fc(float I[1280],
         Eb[j] = E_MOMENTUM*Eb[j] + (1 - E_DECAY)*dLdB[j]*dLdB[j];
     }
 
-    // Calculate backpropagated error (saved in final_pooling[1280] for memory's sake) - uses weights, changes inputs
-    for (int i = 0; i < 1280; ++i) {
-        I[i] = 0;
-        for (int j = 0; j < 1000; ++j) {
-            if (j == label) {
-                I[i] += weight[i][j] * (O[j] - 1);
-            }
-            else {
-                I[i] += weight[i][j] * O[j];
+    if (strcmp(frz,"fc") != 0) {
+
+        // Calculate backpropagated error (saved in final_pooling[1280] for memory's sake) - uses weights, changes inputs
+        for (int i = 0; i < 1280; ++i) {
+            I[i] = 0;
+            for (int j = 0; j < 1000; ++j) {
+                if (j == label) {
+                    I[i] += weight[i][j] * (O[j] - 1);
+                }
+                else {
+                    I[i] += weight[i][j] * O[j];
+                }
             }
         }
+
     }
 
     // Correct weights and biases - changes weights
@@ -445,7 +450,6 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
         }}
     }}}
 
-
 /* Gradient Export Test
 
     if (idx == 27) {
@@ -475,28 +479,49 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
     }
 */
 
-    // Zero I
-    for (int i = 0; i < isize; ++i) {
-    for (int j = 0; j < isize; ++j) {
-    for (int k = 0; k < idepth; ++k) {
-        I[i][j][k] = 0;
-    }}}
+    if ( (strcmp(frz,"b18") != 0 || idx != 35) &&   // Freezing Block
+         (strcmp(frz,"b17") != 0 || idx != 33) &&
+         (strcmp(frz,"b16") != 0 || idx != 31) &&
+         (strcmp(frz,"b15") != 0 || idx != 29) &&
+         (strcmp(frz,"b14") != 0 || idx != 27) &&
+         (strcmp(frz,"b13") != 0 || idx != 25) &&
+         (strcmp(frz,"b12") != 0 || idx != 23) &&
+         (strcmp(frz,"b11") != 0 || idx != 21) &&
+         (strcmp(frz,"b10") != 0 || idx != 19) &&
+         (strcmp(frz,"b9")  != 0 || idx != 17) &&
+         (strcmp(frz,"b8")  != 0 || idx != 15) &&
+         (strcmp(frz,"b7")  != 0 || idx != 13) &&
+         (strcmp(frz,"b6")  != 0 || idx != 11) &&
+         (strcmp(frz,"b5")  != 0 || idx != 9) &&
+         (strcmp(frz,"b4")  != 0 || idx != 7) &&
+         (strcmp(frz,"b3")  != 0 || idx != 5) &&
+         (strcmp(frz,"exp") != 0 || idx != 3) )
+    {
 
-    // iterate over the output
-    for (int oy = 0; oy < osize; ++oy) {
-    for (int ox = 0; ox < osize; ++ox) {
-    for (int od = 0; od < odepth; ++od) {
-        for (int ky = 0; ky < ksize; ++ky) {
-        for (int kx = 0; kx < ksize; ++kx) {
-            // map position in output and kernel to the input
-            int iy = stride * oy + ky - pad;
-            int ix = stride * ox + kx - pad;
-            // use only valid inputs
-            if (iy >= 0 && iy < isize && ix >= 0 && ix < isize)
-                for (int id = 0; id < idepth; ++id)
-                    I[iy][ix][id] += O[oy][ox][od] * par[od][ky][kx][id];        // Backpropagate
-        }}
-    }}}
+        // Zero I
+        for (int i = 0; i < isize; ++i) {
+        for (int j = 0; j < isize; ++j) {
+        for (int k = 0; k < idepth; ++k) {
+            I[i][j][k] = 0;
+        }}}
+
+        // iterate over the output
+        for (int oy = 0; oy < osize; ++oy) {
+        for (int ox = 0; ox < osize; ++ox) {
+        for (int od = 0; od < odepth; ++od) {
+            for (int ky = 0; ky < ksize; ++ky) {
+            for (int kx = 0; kx < ksize; ++kx) {
+                // map position in output and kernel to the input
+                int iy = stride * oy + ky - pad;
+                int ix = stride * ox + kx - pad;
+                // use only valid inputs
+                if (iy >= 0 && iy < isize && ix >= 0 && ix < isize)
+                    for (int id = 0; id < idepth; ++id)
+                        I[iy][ix][id] += O[oy][ox][od] * par[od][ky][kx][id];        // Backpropagate
+            }}
+        }}}
+
+    }
 
     // Update weights
     for (int od = 0; od < odepth; ++od) {
@@ -507,7 +532,6 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
         par[od][ky][kx][id] = par[od][ky][kx][id] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ew[od][ky][kx][id])+EPSILON) ) * dLdW[od][ky][kx][id] );
     }}}}
     free(dLdW);
-
 
 /* Weight Export Test
 
@@ -538,11 +562,10 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
         }
 */
 
-
     // Export
     char name[14]; // maximum number of characters is "weightsxx.csv" = 13
     sprintf(name, "weights%d.csv", idx);
-    export2(name,odepth,ksize,ksize,idepth,par);
+    exportConv(name,odepth,ksize,ksize,idepth,par);
 }
 
 void backprop_dw(int isize, int osize, int ksize, int depth,

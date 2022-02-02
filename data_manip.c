@@ -313,7 +313,7 @@ void export(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d
     printf("Saved %s\n", name);
 }
 
-void export2(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
+void exportConv(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
     FILE *fptr;
     fptr = fopen(name, "w");
     if (fptr == NULL) {

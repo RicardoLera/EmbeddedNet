@@ -1,10 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "var.h"
 #include "blocks.h"
 #include "layers.h"
 #include "operations.h"
 #include "data_manip.h"
+
 
 // Initial Block
 float initial_conv2d[112][112][32];
@@ -533,6 +535,8 @@ void train(){
             par[0].final_par_fc_w, par[0].final_par_fc_b,
             par[1].final_par_fc_w, par[1].final_par_fc_b);
 
+    if (strcmp(frz,"fc") == 0) {exit(0);}
+
     backprop_avrgpool(final_conv2d_relu,    // Input of layer
             final_pooling                   // Output of layer (now backpropagated error)
             );
@@ -551,6 +555,8 @@ void train(){
             par[0].final_par_conv2d, par[1].final_par_conv2d,
             1, 0, 35);
 
+    if (strcmp(frz,"b18") == 0) {exit(0);}
+
     // Block 18
     backprop_S1(7,          // input and output sizes
             160,            // input depth
@@ -566,6 +572,8 @@ void train(){
             par[0].block18_par_depth_BN, par[1].block18_par_depth_BN,
             par[0].block18_par_project, par[1].block18_par_project,
             par[0].block18_par_project_BN, par[1].block18_par_project_BN);
+
+    if (strcmp(frz,"b17") == 0) {exit(0);}
 
     // Block 17
     backprop_S1(7,          // input and output sizes
@@ -583,6 +591,8 @@ void train(){
             par[0].block17_par_project, par[1].block17_par_project,
             par[0].block17_par_project_BN, par[1].block17_par_project_BN);
 
+    if (strcmp(frz,"b16") == 0) {exit(0);}
+
     // Block 16
     backprop_S1(7,          // input and output sizes
             160,            // input depth
@@ -598,6 +608,8 @@ void train(){
             par[0].block16_par_depth_BN, par[1].block16_par_depth_BN,
             par[0].block16_par_project, par[1].block16_par_project,
             par[0].block16_par_project_BN, par[1].block16_par_project_BN);
+
+    if (strcmp(frz,"b15") == 0) {exit(0);}
 
     // Block 15
     backprop_S2(14, 7,      // input and output sizes / depthwise factor
@@ -615,15 +627,7 @@ void train(){
             par[0].block15_par_project, par[1].block15_par_project,
             par[0].block15_par_project_BN, par[1].block15_par_project_BN);
 
-
-/* Zero Backprop Test - Showed that the bug is NOT in the backpropagation
-    for (int i = 0; i < 14; ++i) {
-    for (int j = 0; j < 14; ++j) {
-    for (int k = 0; k < 96; ++k) {
-        block14_add[i][j][k] = 0;
-    }}}
-*/
-
+    if (strcmp(frz,"b14") == 0) {exit(0);}
 
     // Block 14
     backprop_S1(14,         // input and output sizes
@@ -641,6 +645,8 @@ void train(){
             par[0].block14_par_project, par[1].block14_par_project,
             par[0].block14_par_project_BN, par[1].block14_par_project_BN);
 
+    if (strcmp(frz,"b13") == 0) {exit(0);}
+
     // Block 13
     backprop_S1(14,         // input and output sizes
             96,             // input depth
@@ -656,6 +662,8 @@ void train(){
             par[0].block13_par_depth_BN, par[1].block13_par_depth_BN,
             par[0].block13_par_project, par[1].block13_par_project,
             par[0].block13_par_project_BN, par[1].block13_par_project_BN);
+
+    if (strcmp(frz,"b12") == 0) {exit(0);}
 
     // Block 12
     backprop_S1(14,         // input and output sizes
@@ -673,6 +681,8 @@ void train(){
             par[0].block12_par_project, par[1].block12_par_project,
             par[0].block12_par_project_BN, par[1].block12_par_project_BN);
 
+    if (strcmp(frz,"b11") == 0) {exit(0);}
+
     // Block 11
     backprop_S1(14,         // input and output sizes
             64,             // input depth
@@ -688,6 +698,8 @@ void train(){
             par[0].block11_par_depth_BN, par[1].block11_par_depth_BN,
             par[0].block11_par_project, par[1].block11_par_project,
             par[0].block11_par_project_BN, par[1].block11_par_project_BN);
+
+    if (strcmp(frz,"b10") == 0) {exit(0);}
 
     // Block 10
     backprop_S1(14,         // input and output sizes
@@ -705,6 +717,8 @@ void train(){
             par[0].block10_par_project, par[1].block10_par_project,
             par[0].block10_par_project_BN, par[1].block10_par_project_BN);
 
+    if (strcmp(frz,"b9") == 0) {exit(0);}
+
     // Block 9
     backprop_S1(14,         // input and output sizes
             64,             // input depth
@@ -720,6 +734,8 @@ void train(){
             par[0].block9_par_depth_BN, par[1].block9_par_depth_BN,
             par[0].block9_par_project, par[1].block9_par_project,
             par[0].block9_par_project_BN, par[1].block9_par_project_BN);
+
+    if (strcmp(frz,"b8") == 0) {exit(0);}
 
     // Block 8
     backprop_S2(28, 14,     // input and output sizes / depthwise factor
@@ -737,6 +753,8 @@ void train(){
             par[0].block8_par_project, par[1].block8_par_project,
             par[0].block8_par_project_BN, par[1].block8_par_project_BN);
 
+    if (strcmp(frz,"b7") == 0) {exit(0);}
+
     // Block 7
     backprop_S1(28,         // input and output sizes
             32,             // input depth
@@ -752,6 +770,8 @@ void train(){
             par[0].block7_par_depth_BN, par[1].block7_par_depth_BN,
             par[0].block7_par_project, par[1].block7_par_project,
             par[0].block7_par_project_BN, par[1].block7_par_project_BN);
+
+    if (strcmp(frz,"b6") == 0) {exit(0);}
 
     // Block 6
     backprop_S1(28,         // input and output sizes
@@ -769,6 +789,8 @@ void train(){
             par[0].block6_par_project, par[1].block6_par_project,
             par[0].block6_par_project_BN, par[1].block6_par_project_BN);
 
+    if (strcmp(frz,"b5") == 0) {exit(0);}
+
     // Block 5
     backprop_S2(56, 28,     // input and output sizes / depthwise factor
             24, 32,         // input and output depth / project factor
@@ -784,6 +806,8 @@ void train(){
             par[0].block5_par_depth_BN, par[1].block5_par_depth_BN,
             par[0].block5_par_project, par[1].block5_par_project,
             par[0].block5_par_project_BN, par[1].block5_par_project_BN);
+
+    if (strcmp(frz,"b4") == 0) {exit(0);}
 
     // Block 4
     backprop_S1(56,         // input and output sizes
@@ -801,6 +825,8 @@ void train(){
             par[0].block4_par_project, par[1].block4_par_project,
             par[0].block4_par_project_BN, par[1].block4_par_project_BN);
 
+    if (strcmp(frz,"b3") == 0) {exit(0);}
+
     // Block 3
     backprop_S2(112, 56,    // input and output sizes / depthwise factor
             16, 24,         // input and output depth / project factor
@@ -816,6 +842,8 @@ void train(){
             par[0].block3_par_depth_BN, par[1].block3_par_depth_BN,
             par[0].block3_par_project, par[1].block3_par_project,
             par[0].block3_par_project_BN, par[1].block3_par_project_BN);
+
+    if (strcmp(frz,"exp") == 0) {exit(0);}
 
     // Expanded Block
     backprop_bn(112, 16,
