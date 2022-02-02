@@ -25,7 +25,8 @@ File hierarchy: main -> actions -> blocks -> layers -> operations
  - Repeated the same process for Average Pooling, ReLU6, Batch Normalization, 2D-Convolution and Depthwise Convolution.
  - Training Finished
  - Implemented Layer Freezing
- - Profiled code with Gprof
+ - Profiled perfomance with Gprof - Bottleneck is at convolution functions: Managed to improve backprop_conv2d at the cost of memory.
+ - Profiled memory usage with Massif - Peak memory at 5,211,736B due to backprop_fc's gradient allocation.
  
 ## Training Equations
 
