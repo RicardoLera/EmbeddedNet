@@ -25,6 +25,7 @@ File hierarchy: main -> actions -> blocks -> layers -> operations
  - Repeated the same process for Average Pooling, ReLU6, Batch Normalization, 2D-Convolution and Depthwise Convolution.
  - Training Finished
  - Implemented Layer Freezing
+ - Profiled code with Gprof
  
 ## Training Equations
 
