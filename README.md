@@ -1,8 +1,8 @@
 # EmbeddedNet
 
-EmbeddedNet is a Convolutional Neural Network written in C capable of **Inference**, **Fine-Tuning** and **Transfer Learning**. It is based on the [MobileNetV2 Architecture](https://arxiv.org/abs/1801.04381) and utilizes Stochastic Gradient Descent techniques as well as Layer Freezing to achieve a more efficient training process in embedded systems. It also relies solely on static libraries to be compatible with embedded systems.
+EmbeddedNet is a Convolutional Neural Network written in C capable of **Inference**, **Fine-Tuning** and **Transfer Learning**. It is based on the [MobileNetV2 Architecture](https://arxiv.org/abs/1801.04381) and utilizes Stochastic Gradient Descent techniques as well as Layer Freezing to achieve a more efficient training process in embedded systems. For that purpose, it also exclusively utilizes static libraries.
 
-A Keras application of MobileNetV2 is used for pre-training the parameters as well as for development and testing.
+A Keras application of MobileNetV2 is used for pre-training as well as development and testing.
 
 File hierarchy: main -> actions -> blocks -> layers -> operations
 
