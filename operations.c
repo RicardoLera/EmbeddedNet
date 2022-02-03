@@ -431,25 +431,25 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
         float par[odepth][ksize][ksize][idepth], float Ew[odepth][ksize][ksize][idepth],
         int stride, int pad, int idx)
 {
-    int nobackprop = 0;
-    if ( (strcmp(frz,"b18") != 0 || idx != 35) &&   // Freezing Block
-         (strcmp(frz,"b17") != 0 || idx != 33) &&
-         (strcmp(frz,"b16") != 0 || idx != 31) &&
-         (strcmp(frz,"b15") != 0 || idx != 29) &&
-         (strcmp(frz,"b14") != 0 || idx != 27) &&
-         (strcmp(frz,"b13") != 0 || idx != 25) &&
-         (strcmp(frz,"b12") != 0 || idx != 23) &&
-         (strcmp(frz,"b11") != 0 || idx != 21) &&
-         (strcmp(frz,"b10") != 0 || idx != 19) &&
-         (strcmp(frz,"b9")  != 0 || idx != 17) &&
-         (strcmp(frz,"b8")  != 0 || idx != 15) &&
-         (strcmp(frz,"b7")  != 0 || idx != 13) &&
-         (strcmp(frz,"b6")  != 0 || idx != 11) &&
-         (strcmp(frz,"b5")  != 0 || idx != 9) &&
-         (strcmp(frz,"b4")  != 0 || idx != 7) &&
-         (strcmp(frz,"b3")  != 0 || idx != 5) &&
-         (strcmp(frz,"exp") != 0 || idx != 3) ) {
-        nobackprop = 1;
+    int backprop = 1;
+    if ( (strcmp(frz,"b18") == 0 && idx == 35) ||   // Freezing Block
+         (strcmp(frz,"b17") == 0 && idx == 33) ||
+         (strcmp(frz,"b16") == 0 && idx == 31) ||
+         (strcmp(frz,"b15") == 0 && idx == 29) ||
+         (strcmp(frz,"b14") == 0 && idx == 27) ||
+         (strcmp(frz,"b13") == 0 && idx == 25) ||
+         (strcmp(frz,"b12") == 0 && idx == 23) ||
+         (strcmp(frz,"b11") == 0 && idx == 21) ||
+         (strcmp(frz,"b10") == 0 && idx == 19) ||
+         (strcmp(frz,"b9")  == 0 && idx == 17) ||
+         (strcmp(frz,"b8")  == 0 && idx == 15) ||
+         (strcmp(frz,"b7")  == 0 && idx == 13) ||
+         (strcmp(frz,"b6")  == 0 && idx == 11) ||
+         (strcmp(frz,"b5")  == 0 && idx == 9)  ||
+         (strcmp(frz,"b4")  == 0 && idx == 7)  ||
+         (strcmp(frz,"b3")  == 0 && idx == 5)  ||
+         (strcmp(frz,"exp") == 0 && idx == 3) ) {
+        backprop = 0;
     }
 
     float (*dLdW)[ksize][ksize][idepth] = calloc(odepth, sizeof *dLdW);
@@ -469,13 +469,13 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
             if (iy >= 0 && iy < isize && ix >= 0 && ix < isize)
                 for (int id = 0; id < idepth; ++id) {
                     dLdW[od][ky][kx][id] += O[oy][ox][od] * I[iy][ix][id];          // Calculate Gradient
-                    if (nobackprop == 0)
+                    if (backprop != 0)
                         error[iy][ix][id] += O[oy][ox][od] * par[od][ky][kx][id];   // Backpropagate
                 }
         }}
     }}}
 
-    if (nobackprop == 0) {
+    if (backprop != 0) {
         // I receives Error
         for (int i = 0; i < isize; ++i) {
         for (int j = 0; j < isize; ++j) {
@@ -483,6 +483,7 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
             I[i][j][k] = error[i][j][k];
         }}}
     }
+
     free(error);
 
 /* Gradient Export Test
@@ -559,8 +560,8 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
         }}}
 
     }
+*/
 
-    */
 
     // Update weights
     for (int od = 0; od < odepth; ++od) {

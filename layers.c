@@ -42,12 +42,12 @@ void batch_normalization(int size,  // width/height of input
     import_bn(depth,
             idx,
             pdata);
-    if (first_image) {
+    //if (first_image) {
         // fill parameter data using pdata[type][x] syntax
         import_moving(depth,
                 idx,
                 pdata);
-    }
+    //}
 
     batch_normalize(size,
             depth,
