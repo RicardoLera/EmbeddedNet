@@ -1,12 +1,9 @@
-#include <math.h>
 #include <stdlib.h>
-#include <string.h>
-#include "var.h"
-#include "actions.h"
-#include "data_manip.h"
-
-// for testing
 #include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include "data_manip.h"
+#include "var.h"
 
 #define LAMBDA 0.00004
 #define EPSILON 0.0000001

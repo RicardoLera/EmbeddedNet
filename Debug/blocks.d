@@ -1,9 +1,5 @@
-blocks.o: ../blocks.c ../var.h ../layers.h ../operations.h ../actions.h
-
-../var.h:
+blocks.o: ../blocks.c ../layers.h ../operations.h
 
 ../layers.h:
 
 ../operations.h:
-
-../actions.h:

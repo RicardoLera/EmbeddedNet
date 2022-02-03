@@ -1,6 +1,4 @@
-layers.o: ../layers.c ../var.h ../operations.h ../data_manip.h
-
-../var.h:
+layers.o: ../layers.c ../operations.h ../data_manip.h
 
 ../operations.h:
 

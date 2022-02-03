@@ -1,11 +1,5 @@
-#include <stdlib.h>
-#include <math.h>
-#include "var.h"
 #include "operations.h"
 #include "data_manip.h"
-
-//for testing
-#include <stdio.h>
 
 void conv2d(int isize,          // width/height of input
         int osize,              // width/height of output
@@ -27,7 +21,7 @@ void conv2d(int isize,          // width/height of input
 
     convolution2D(isize, osize, ksize,  // input, output, kernel size
             stride,                     // stride
-            pad,                        // pad input by one pixels de factor centering the kernel
+            pad,                        // pad input by one pixels de facto centering the kernel
             idepth, odepth,             // number of input and output channels
             idata, odata, kdata);
 }
@@ -42,12 +36,10 @@ void batch_normalization(int size,  // width/height of input
     import_bn(depth,
             idx,
             pdata);
-    //if (first_image) {
-        // fill parameter data using pdata[type][x] syntax
-        import_moving(depth,
+
+    import_moving(depth,
                 idx,
                 pdata);
-    //}
 
     batch_normalize(size,
             depth,
@@ -72,7 +64,7 @@ void S1depthwise (int size,
 
     depthwise_convolution(size, size, ksize,    // input, output, kernel size
             1,                                  // stride
-            pad,                                // pad input by one pixels de factor centering the kernel
+            pad,                                // pad input by one pixels de facto centering the kernel
             depth,                              // number of channels
             idata, odata, kdata);
 }
@@ -95,7 +87,7 @@ void S2depthwise (int isize,
 
     depthwise_convolution(isize, osize, ksize,  // input, output, kernel size
             2,                                  // stride
-            pad,                                // pad input by one pixels de factor centering the kernel
+            pad,                                // pad input by one pixels de facto centering the kernel
             depth,                              // number of channels
             idata, odata, kdata);
 }

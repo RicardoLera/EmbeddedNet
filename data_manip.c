@@ -1,11 +1,10 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <stdio.h>
 #include "var.h"
 
 //for testing
 #include <assert.h>
-//#define NDEBUG
+#define NDEBUG
 
 
 // These functions depend on the architecture of the processor and interface used
@@ -18,7 +17,7 @@
 
 // These functions are for testing on the PC
 
-// We import everything as CSV files, so these next functions are for importing from that format
+// We import everything as CSV files
 
 void import_image(int l) {
 

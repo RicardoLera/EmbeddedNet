@@ -1,7 +1,5 @@
-operations.o: ../operations.c ../var.h ../actions.h ../data_manip.h
-
-../var.h:
-
-../actions.h:
+operations.o: ../operations.c ../data_manip.h ../var.h
 
 ../data_manip.h:
+
+../var.h:

@@ -1,157 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "var.h"
 #include "blocks.h"
 #include "layers.h"
 #include "operations.h"
-#include "data_manip.h"
-
-
-// Initial Block
-float initial_conv2d[112][112][32];
-float initial_relu[112][112][32];
-
-// Expanded Block
-float expanded_depth[112][112][32];
-float expanded_relu[112][112][32];
-float expanded_project[112][112][16];
-float expanded_project_BN[112][112][16];
-
-// Block 3 (Stride 2)
-float block3_expand[112][112][96];
-float block3_expand_relu[112][112][96];
-float block3_depth[56][56][96];
-float block3_depth_relu[56][56][96];
-float block3_project[56][56][24];
-float block3_project_BN[56][56][24];
-
-// Block 4 (Stride 1)
-float block4_expand[56][56][144];
-float block4_expand_relu[56][56][144];
-float block4_depth[56][56][144];
-float block4_depth_relu[56][56][144];
-float block4_project[56][56][24];
-float block4_add[56][56][24];
-
-// Block 5 (Stride 2)
-float block5_expand[56][56][144];
-float block5_expand_relu[56][56][144];
-float block5_depth[28][28][144];
-float block5_depth_relu[28][28][144];
-float block5_project[28][28][32];
-float block5_project_BN[28][28][32];
-
-// Block 6 (Stride 1)
-float block6_expand[28][28][192];
-float block6_expand_relu[28][28][192];
-float block6_depth[28][28][192];
-float block6_depth_relu[28][28][192];
-float block6_project[28][28][32];
-float block6_add[28][28][32];
-
-// Block 7 (Stride 1)
-float block7_expand[28][28][192];
-float block7_expand_relu[28][28][192];
-float block7_depth[28][28][192];
-float block7_depth_relu[28][28][192];
-float block7_project[28][28][32];
-float block7_add[28][28][32];
-
-// Block 8 (Stride 2)
-float block8_expand[28][28][192];
-float block8_expand_relu[28][28][192];
-float block8_depth[14][14][192];
-float block8_depth_relu[14][14][192];
-float block8_project[14][14][64];
-float block8_project_BN[14][14][64];
-
-// Block 9 (Stride 1)
-float block9_expand[14][14][384];
-float block9_expand_relu[14][14][384];
-float block9_depth[14][14][384];
-float block9_depth_relu[14][14][384];
-float block9_project[14][14][64];
-float block9_add[14][14][64];
-
-// Block 10 (Stride 1)
-float block10_expand[14][14][384];
-float block10_expand_relu[14][14][384];
-float block10_depth[14][14][384];
-float block10_depth_relu[14][14][384];
-float block10_project[14][14][64];
-float block10_add[14][14][64];
-
-// Block 11 (Stride 1)
-float block11_expand[14][14][384];
-float block11_expand_relu[14][14][384];
-float block11_depth[14][14][384];
-float block11_depth_relu[14][14][384];
-float block11_project[14][14][64];
-float block11_add[14][14][64];
-
-// Block 12 (Stride 1)
-float block12_expand[14][14][384];
-float block12_expand_relu[14][14][384];
-float block12_depth[14][14][384];
-float block12_depth_relu[14][14][384];
-float block12_project[14][14][96];
-float block12_add[14][14][96];
-
-// Block 13 (Stride 1)
-float block13_expand[14][14][576];
-float block13_expand_relu[14][14][576];
-float block13_depth[14][14][576];
-float block13_depth_relu[14][14][576];
-float block13_project[14][14][96];
-float block13_add[14][14][96];
-
-// Block 14 (Stride 1)
-float block14_expand[14][14][576];
-float block14_expand_relu[14][14][576];
-float block14_depth[14][14][576];
-float block14_depth_relu[14][14][576];
-float block14_project[14][14][96];
-float block14_add[14][14][96];
-
-// Block 15 (Stride 2)
-float block15_expand[14][14][576];
-float block15_expand_relu[14][14][576];
-float block15_depth[7][7][576];
-float block15_depth_relu[7][7][576];
-float block15_project[7][7][160];
-float block15_project_BN[7][7][160];
-
-// Block 16 (Stride 1)
-float block16_expand[7][7][960];
-float block16_expand_relu[7][7][960];
-float block16_depth[7][7][960];
-float block16_depth_relu[7][7][960];
-float block16_project[7][7][160];
-float block16_add[7][7][160];
-
-// Block 17 (Stride 1)
-float block17_expand[7][7][960];
-float block17_expand_relu[7][7][960];
-float block17_depth[7][7][960];
-float block17_depth_relu[7][7][960];
-float block17_project[7][7][160];
-float block17_add[7][7][160];
-
-// Block 18 (Stride 1)
-float block18_expand[7][7][960];
-float block18_expand_relu[7][7][960];
-float block18_depth[7][7][960];
-float block18_depth_relu[7][7][960];
-float block18_project[7][7][320];
-float block18_add[7][7][320];
-
-// Final Block
-float final_conv2d[7][7][1280];
-float final_conv2d_relu[7][7][1280];
-float final_pooling[1280];
-float predictions[1000];
-
+#include "var.h"
 
 void inference() {
 
@@ -160,19 +13,19 @@ void inference() {
 
     conv2d(224, 112, 3, // input, output, kernel size
             2,          // stride
-            0,          // pad input by one pixels de factor centering the kernel
+            0,          // pad input by one pixels de facto centering the kernel
             3, 32,      // number of input and output channels
             1,          // weight import index
-            image, initial_conv2d, par[0].initial_par_conv2d);
+            image, var.initial_conv2d, par[0].initial_par_conv2d);
 
     batch_normalization(112,    // input, output
             32,                 // number of channels
             1,                  // weight import index
-            initial_conv2d, initial_relu, par[0].initial_par_BN);
+            var.initial_conv2d, var.initial_relu, par[0].initial_par_BN);
 
     relu6(112,  // input, output
             32, // number of channels
-            initial_relu);  // This one goes straight to "operations" because there is no parameter allocation necessary
+            var.initial_relu);  // This one goes straight to "operations" because there is no parameter allocation necessary
 
 
     // Expanded Block
@@ -182,28 +35,28 @@ void inference() {
             1,          // padding
             32,         // depth
             1,          // weight import index
-            initial_relu, expanded_depth, par[0].expanded_par_depth);
+            var.initial_relu, var.expanded_depth, par[0].expanded_par_depth);
 
     batch_normalization(112,    // input, output
             32,                 // number of channels
             2,                  // weight import index
-            expanded_depth, expanded_relu, par[0].expanded_par_depth_BN);
+            var.expanded_depth, var.expanded_relu, par[0].expanded_par_depth_BN);
 
     relu6(112,  // input, output
             32, // number of channels
-            expanded_relu);
+            var.expanded_relu);
 
     conv2d(112, 112, 1, // input, output, kernel size
             1,          // stride
-            0,          // pad input by one pixels de factor centering the kernel
+            0,          // pad input by one pixels de facto centering the kernel
             32, 16,     // number of input and output channels
             2,          // weight import index
-            expanded_relu, expanded_project, par[0].expanded_par_project);
+            var.expanded_relu, var.expanded_project, par[0].expanded_par_project);
 
     batch_normalization(112,    // input, output
             16,                 // number of channels
             3,                  // weight import index
-            expanded_project, expanded_project_BN, par[0].expanded_par_project_BN);
+            var.expanded_project, var.expanded_project_BN, par[0].expanded_par_project_BN);
 
 
     // Block 3 - Stride 2 (Block 1 in Python)
@@ -213,10 +66,10 @@ void inference() {
             16, 24,     // input and output depth / project factor
             2, 3, 1,    // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             96,         // Expand factor
-            expanded_project_BN,
-            block3_expand, block3_expand_relu,
-            block3_depth, block3_depth_relu,
-            block3_project, block3_project_BN,
+            var.expanded_project_BN,
+            var.block3_expand, var.block3_expand_relu,
+            var.block3_depth, var.block3_depth_relu,
+            var.block3_project, var.block3_project_BN,
             par[0].block3_par_expand, par[0].block3_par_expand_BN,
             par[0].block3_par_depth, par[0].block3_par_depth_BN,
             par[0].block3_par_project, par[0].block3_par_project_BN);
@@ -229,10 +82,10 @@ void inference() {
             24,         // input depth
             4, 6, 2,    // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             144, 24, 1, // Expand, project and add factors
-            block3_project_BN,
-            block4_expand, block4_expand_relu,
-            block4_depth, block4_depth_relu,
-            block4_project, block4_add,
+            var.block3_project_BN,
+            var.block4_expand, var.block4_expand_relu,
+            var.block4_depth, var.block4_depth_relu,
+            var.block4_project, var.block4_add,
             par[0].block4_par_expand, par[0].block4_par_expand_BN,
             par[0].block4_par_depth, par[0].block4_par_depth_BN,
             par[0].block4_par_project, par[0].block4_par_project_BN);
@@ -245,10 +98,10 @@ void inference() {
             24, 32,     // input and output depth / project factor
             6, 9, 3,    // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             144,        // Expand factor
-            block4_add,
-            block5_expand, block5_expand_relu,
-            block5_depth, block5_depth_relu,
-            block5_project, block5_project_BN,
+            var.block4_add,
+            var.block5_expand, var.block5_expand_relu,
+            var.block5_depth, var.block5_depth_relu,
+            var.block5_project, var.block5_project_BN,
             par[0].block5_par_expand, par[0].block5_par_expand_BN,
             par[0].block5_par_depth, par[0].block5_par_depth_BN,
             par[0].block5_par_project, par[0].block5_par_project_BN);
@@ -261,10 +114,10 @@ void inference() {
             32,         // input depth
             8, 12, 4,   // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             192, 32, 1, // Expand, project and add factors
-            block5_project_BN,
-            block6_expand, block6_expand_relu,
-            block6_depth, block6_depth_relu,
-            block6_project, block6_add,
+            var.block5_project_BN,
+            var.block6_expand, var.block6_expand_relu,
+            var.block6_depth, var.block6_depth_relu,
+            var.block6_project, var.block6_add,
             par[0].block6_par_expand, par[0].block6_par_expand_BN,
             par[0].block6_par_depth, par[0].block6_par_depth_BN,
             par[0].block6_par_project, par[0].block6_par_project_BN);
@@ -277,10 +130,10 @@ void inference() {
             32,         // input depth
             10, 15, 5,  // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             192, 32, 1, // Expand, project and add factors
-            block6_add,
-            block7_expand, block7_expand_relu,
-            block7_depth, block7_depth_relu,
-            block7_project, block7_add,
+            var.block6_add,
+            var.block7_expand, var.block7_expand_relu,
+            var.block7_depth, var.block7_depth_relu,
+            var.block7_project, var.block7_add,
             par[0].block7_par_expand, par[0].block7_par_expand_BN,
             par[0].block7_par_depth, par[0].block7_par_depth_BN,
             par[0].block7_par_project, par[0].block7_par_project_BN);
@@ -293,10 +146,10 @@ void inference() {
             32, 64,     // input and output depth / project factor
             12, 18, 6,  // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             192,        // Expand factor
-            block7_add,
-            block8_expand, block8_expand_relu,
-            block8_depth, block8_depth_relu,
-            block8_project, block8_project_BN,
+            var.block7_add,
+            var.block8_expand, var.block8_expand_relu,
+            var.block8_depth, var.block8_depth_relu,
+            var.block8_project, var.block8_project_BN,
             par[0].block8_par_expand, par[0].block8_par_expand_BN,
             par[0].block8_par_depth, par[0].block8_par_depth_BN,
             par[0].block8_par_project, par[0].block8_par_project_BN);
@@ -309,10 +162,10 @@ void inference() {
             64,         // input depth
             14, 21, 7,  // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             384, 64, 1, // Expand, project and add factors
-            block8_project_BN,
-            block9_expand, block9_expand_relu,
-            block9_depth, block9_depth_relu,
-            block9_project, block9_add,
+            var.block8_project_BN,
+            var.block9_expand, var.block9_expand_relu,
+            var.block9_depth, var.block9_depth_relu,
+            var.block9_project, var.block9_add,
             par[0].block9_par_expand, par[0].block9_par_expand_BN,
             par[0].block9_par_depth, par[0].block9_par_depth_BN,
             par[0].block9_par_project, par[0].block9_par_project_BN);
@@ -325,10 +178,10 @@ void inference() {
             64,         // input depth
             16, 24, 8,  // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             384, 64, 1, // Expand, project and add factors
-            block9_add,
-            block10_expand, block10_expand_relu,
-            block10_depth, block10_depth_relu,
-            block10_project, block10_add,
+            var.block9_add,
+            var.block10_expand, var.block10_expand_relu,
+            var.block10_depth, var.block10_depth_relu,
+            var.block10_project, var.block10_add,
             par[0].block10_par_expand, par[0].block10_par_expand_BN,
             par[0].block10_par_depth, par[0].block10_par_depth_BN,
             par[0].block10_par_project, par[0].block10_par_project_BN);
@@ -341,10 +194,10 @@ void inference() {
             64,         // input depth
             18, 27, 9,  // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             384, 64, 1, // Expand, project and add factors
-            block10_add,
-            block11_expand, block11_expand_relu,
-            block11_depth, block11_depth_relu,
-            block11_project, block11_add,
+            var.block10_add,
+            var.block11_expand, var.block11_expand_relu,
+            var.block11_depth, var.block11_depth_relu,
+            var.block11_project, var.block11_add,
             par[0].block11_par_expand, par[0].block11_par_expand_BN,
             par[0].block11_par_depth, par[0].block11_par_depth_BN,
             par[0].block11_par_project, par[0].block11_par_project_BN);
@@ -357,10 +210,10 @@ void inference() {
             64,         // input depth
             20, 30, 10, // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             384, 96, 0, // Expand, project and add factors
-            block11_add,
-            block12_expand, block12_expand_relu,
-            block12_depth, block12_depth_relu,
-            block12_project, block12_add,
+            var.block11_add,
+            var.block12_expand, var.block12_expand_relu,
+            var.block12_depth, var.block12_depth_relu,
+            var.block12_project, var.block12_add,
             par[0].block12_par_expand, par[0].block12_par_expand_BN,
             par[0].block12_par_depth, par[0].block12_par_depth_BN,
             par[0].block12_par_project, par[0].block12_par_project_BN);
@@ -373,10 +226,10 @@ void inference() {
             96,         // input depth
             22, 33, 11, // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             576, 96, 1, // Expand, project and add factors
-            block12_add,
-            block13_expand, block13_expand_relu,
-            block13_depth, block13_depth_relu,
-            block13_project, block13_add,
+            var.block12_add,
+            var.block13_expand, var.block13_expand_relu,
+            var.block13_depth, var.block13_depth_relu,
+            var.block13_project, var.block13_add,
             par[0].block13_par_expand, par[0].block13_par_expand_BN,
             par[0].block13_par_depth, par[0].block13_par_depth_BN,
             par[0].block13_par_project, par[0].block13_par_project_BN);
@@ -389,10 +242,10 @@ void inference() {
             96,         // input depth
             24, 36, 12, // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             576, 96, 1, // Expand, project and add factors
-            block13_add,
-            block14_expand, block14_expand_relu,
-            block14_depth, block14_depth_relu,
-            block14_project, block14_add,
+            var.block13_add,
+            var.block14_expand, var.block14_expand_relu,
+            var.block14_depth, var.block14_depth_relu,
+            var.block14_project, var.block14_add,
             par[0].block14_par_expand, par[0].block14_par_expand_BN,
             par[0].block14_par_depth, par[0].block14_par_depth_BN,
             par[0].block14_par_project, par[0].block14_par_project_BN);
@@ -405,10 +258,10 @@ void inference() {
             96, 160,    // input depth / project factor
             26, 39, 13, // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             576,        // Expand factor
-            block14_add,
-            block15_expand, block15_expand_relu,
-            block15_depth, block15_depth_relu,
-            block15_project, block15_project_BN,
+            var.block14_add,
+            var.block15_expand, var.block15_expand_relu,
+            var.block15_depth, var.block15_depth_relu,
+            var.block15_project, var.block15_project_BN,
             par[0].block15_par_expand, par[0].block15_par_expand_BN,
             par[0].block15_par_depth, par[0].block15_par_depth_BN,
             par[0].block15_par_project, par[0].block15_par_project_BN);
@@ -421,10 +274,10 @@ void inference() {
             160,            // input depth
             28, 42, 14,     // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             960, 160, 1,    // Expand, project and add factors
-            block15_project_BN,
-            block16_expand, block16_expand_relu,
-            block16_depth, block16_depth_relu,
-            block16_project, block16_add,
+            var.block15_project_BN,
+            var.block16_expand, var.block16_expand_relu,
+            var.block16_depth, var.block16_depth_relu,
+            var.block16_project, var.block16_add,
             par[0].block16_par_expand, par[0].block16_par_expand_BN,
             par[0].block16_par_depth, par[0].block16_par_depth_BN,
             par[0].block16_par_project, par[0].block16_par_project_BN);
@@ -437,10 +290,10 @@ void inference() {
             160,            // input depth
             30, 45, 15,     // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             960, 160, 1,    // Expand, project and add factors
-            block16_add,
-            block17_expand, block17_expand_relu,
-            block17_depth, block17_depth_relu,
-            block17_project, block17_add,
+            var.block16_add,
+            var.block17_expand, var.block17_expand_relu,
+            var.block17_depth, var.block17_depth_relu,
+            var.block17_project, var.block17_add,
             par[0].block17_par_expand, par[0].block17_par_expand_BN,
             par[0].block17_par_depth, par[0].block17_par_depth_BN,
             par[0].block17_par_project, par[0].block17_par_project_BN);
@@ -453,10 +306,10 @@ void inference() {
             160,            // input depth
             32, 48, 16,     // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             960, 320, 0,    // Expand, project and add factors
-            block17_add,
-            block18_expand, block18_expand_relu,
-            block18_depth, block18_depth_relu,
-            block18_project, block18_add,
+            var.block17_add,
+            var.block18_expand, var.block18_expand_relu,
+            var.block18_depth, var.block18_depth_relu,
+            var.block18_project, var.block18_add,
             par[0].block18_par_expand, par[0].block18_par_expand_BN,
             par[0].block18_par_depth, par[0].block18_par_depth_BN,
             par[0].block18_par_project, par[0].block18_par_project_BN);
@@ -467,27 +320,27 @@ void inference() {
 
     conv2d(7, 7, 1,     // input, output, kernel size
             1,          // stride
-            0,          // pad input by one pixels de factor centering the kernel
+            0,          // pad input by one pixels de facto centering the kernel
             320, 1280,  // number of input and output channels
             35,         // weight import index
-            block18_add, final_conv2d, par[0].final_par_conv2d);
+            var.block18_add, var.final_conv2d, par[0].final_par_conv2d);
 
     batch_normalization(7,  // input, output
             1280,           // number of channels
             52,             // weight import index
-            final_conv2d, final_conv2d_relu, par[0].final_par_conv2d_BN);
+            var.final_conv2d, var.final_conv2d_relu, par[0].final_par_conv2d_BN);
 
     relu6(7,        // input, output
             1280,   // number of channels
-            final_conv2d_relu);
+            var.final_conv2d_relu);
 
-    avgpool(final_conv2d_relu, final_pooling);
+    avgpool(var.final_conv2d_relu, var.final_pooling);
 
-    fully_connected(final_pooling, predictions, par[0].final_par_fc_w, par[0].final_par_fc_b);
+    fully_connected(var.final_pooling, var.predictions, par[0].final_par_fc_w, par[0].final_par_fc_b);
 
-    softmax(predictions, 1000);
+    softmax(var.predictions, 1000);
 
-    decode(predictions);
+    decode(var.predictions);
 
 /*
 
@@ -529,31 +382,30 @@ void train(){
     printf("\n");
 
     // Final Block
-    backprop_fc(final_pooling,  // Input of layer
-            predictions,        // Output of layer
-            label,
+    backprop_fc(var.final_pooling,  // Input of layer
+            var.predictions,        // Output of layer (recycled as backpropagated error)
+            label,                  // Correct prediction
             par[0].final_par_fc_w, par[0].final_par_fc_b,
             par[1].final_par_fc_w, par[1].final_par_fc_b);
 
     if (strcmp(frz,"fc") == 0) {exit(0);}
 
-    backprop_avrgpool(final_conv2d_relu,    // Input of layer
-            final_pooling                   // Output of layer (now backpropagated error)
-            );
+    backprop_avrgpool(var.final_conv2d_relu,    // Input of layer
+            var.final_pooling);                 // Output of layer
 
-    backprop_relu6(7, 1280,     // Dimensions
-            final_conv2d_relu   // Input and Output (error)
-            );
+    backprop_relu6(7, 1280,         // Size and depth
+            var.final_conv2d_relu); // Input and Output
 
-    backprop_bn(7, 1280,
-            final_conv2d, final_conv2d_relu,
+
+    backprop_bn(7, 1280,    // Size and Depth
+            var.final_conv2d, var.final_conv2d_relu,
             par[0].final_par_conv2d_BN, par[1].final_par_conv2d_BN,
-            52);
+            52);            // Import index
 
-    backprop_conv2d(7, 7, 1, 320, 1280,
-            block18_add, final_conv2d,
+    backprop_conv2d(7, 7, 1, 320, 1280, // Line size, column size, kernel size, input depth, output depth
+            var.block18_add, var.final_conv2d,
             par[0].final_par_conv2d, par[1].final_par_conv2d,
-            1, 0, 35);
+            1, 0, 35);                  // Stride, padding and import index
 
     if (strcmp(frz,"b18") == 0) {exit(0);}
 
@@ -562,10 +414,10 @@ void train(){
             160,            // input depth
             32, 48, 16,     // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             960, 320,       // Expand and project factors
-            block17_add,
-            block18_expand, block18_expand_relu,
-            block18_depth, block18_depth_relu,
-            block18_project, block18_add,
+            var.block17_add,
+            var.block18_expand, var.block18_expand_relu,
+            var.block18_depth, var.block18_depth_relu,
+            var.block18_project, var.block18_add,
             par[0].block18_par_expand, par[1].block18_par_expand,
             par[0].block18_par_expand_BN, par[1].block18_par_expand_BN,
             par[0].block18_par_depth, par[1].block18_par_depth,
@@ -580,10 +432,10 @@ void train(){
             160,            // input depth
             30, 45, 15,     // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             960, 160,       // Expand and project factors
-            block16_add,
-            block17_expand, block17_expand_relu,
-            block17_depth, block17_depth_relu,
-            block17_project, block17_add,
+            var.block16_add,
+            var.block17_expand, var.block17_expand_relu,
+            var.block17_depth, var.block17_depth_relu,
+            var.block17_project, var.block17_add,
             par[0].block17_par_expand, par[1].block17_par_expand,
             par[0].block17_par_expand_BN, par[1].block17_par_expand_BN,
             par[0].block17_par_depth, par[1].block17_par_depth,
@@ -598,10 +450,10 @@ void train(){
             160,            // input depth
             28, 42, 14,     // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             960, 160,       // Expand and project factors
-            block15_project_BN,
-            block16_expand, block16_expand_relu,
-            block16_depth, block16_depth_relu,
-            block16_project, block16_add,
+            var.block15_project_BN,
+            var.block16_expand, var.block16_expand_relu,
+            var.block16_depth, var.block16_depth_relu,
+            var.block16_project, var.block16_add,
             par[0].block16_par_expand, par[1].block16_par_expand,
             par[0].block16_par_expand_BN, par[1].block16_par_expand_BN,
             par[0].block16_par_depth, par[1].block16_par_depth,
@@ -616,10 +468,10 @@ void train(){
             96, 160,        // input and output depth / project factor
             26, 39, 13,     // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             576,            // Expand factor
-            block14_add,
-            block15_expand, block15_expand_relu,
-            block15_depth, block15_depth_relu,
-            block15_project, block15_project_BN,
+            var.block14_add,
+            var.block15_expand, var.block15_expand_relu,
+            var.block15_depth, var.block15_depth_relu,
+            var.block15_project, var.block15_project_BN,
             par[0].block15_par_expand, par[1].block15_par_expand,
             par[0].block15_par_expand_BN, par[1].block15_par_expand_BN,
             par[0].block15_par_depth, par[1].block15_par_depth,
@@ -634,10 +486,10 @@ void train(){
             96,             // input depth
             24, 36, 12,     // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             576, 96,        // Expand and project factors
-            block13_add,
-            block14_expand, block14_expand_relu,
-            block14_depth, block14_depth_relu,
-            block14_project, block14_add,
+            var.block13_add,
+            var.block14_expand, var.block14_expand_relu,
+            var.block14_depth, var.block14_depth_relu,
+            var.block14_project, var.block14_add,
             par[0].block14_par_expand, par[1].block14_par_expand,
             par[0].block14_par_expand_BN, par[1].block14_par_expand_BN,
             par[0].block14_par_depth, par[1].block14_par_depth,
@@ -652,10 +504,10 @@ void train(){
             96,             // input depth
             22, 33, 11,     // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             576, 96,        // Expand and project factors
-            block12_add,
-            block13_expand, block13_expand_relu,
-            block13_depth, block13_depth_relu,
-            block13_project, block13_add,
+            var.block12_add,
+            var.block13_expand, var.block13_expand_relu,
+            var.block13_depth, var.block13_depth_relu,
+            var.block13_project, var.block13_add,
             par[0].block13_par_expand, par[1].block13_par_expand,
             par[0].block13_par_expand_BN, par[1].block13_par_expand_BN,
             par[0].block13_par_depth, par[1].block13_par_depth,
@@ -670,10 +522,10 @@ void train(){
             64,             // input depth
             20, 30, 10,     // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             384, 96,        // Expand and project factors
-            block11_add,
-            block12_expand, block12_expand_relu,
-            block12_depth, block12_depth_relu,
-            block12_project, block12_add,
+            var.block11_add,
+            var.block12_expand, var.block12_expand_relu,
+            var.block12_depth, var.block12_depth_relu,
+            var.block12_project, var.block12_add,
             par[0].block12_par_expand, par[1].block12_par_expand,
             par[0].block12_par_expand_BN, par[1].block12_par_expand_BN,
             par[0].block12_par_depth, par[1].block12_par_depth,
@@ -688,10 +540,10 @@ void train(){
             64,             // input depth
             18, 27, 9,      // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             384, 64,        // Expand and project factors
-            block10_add,
-            block11_expand, block11_expand_relu,
-            block11_depth, block11_depth_relu,
-            block11_project, block11_add,
+            var.block10_add,
+            var.block11_expand, var.block11_expand_relu,
+            var.block11_depth, var.block11_depth_relu,
+            var.block11_project, var.block11_add,
             par[0].block11_par_expand, par[1].block11_par_expand,
             par[0].block11_par_expand_BN, par[1].block11_par_expand_BN,
             par[0].block11_par_depth, par[1].block11_par_depth,
@@ -706,10 +558,10 @@ void train(){
             64,             // input depth
             16, 24, 8,      // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             384, 64,        // Expand and project factors
-            block9_add,
-            block10_expand, block10_expand_relu,
-            block10_depth, block10_depth_relu,
-            block10_project, block10_add,
+            var.block9_add,
+            var.block10_expand, var.block10_expand_relu,
+            var.block10_depth, var.block10_depth_relu,
+            var.block10_project, var.block10_add,
             par[0].block10_par_expand, par[1].block10_par_expand,
             par[0].block10_par_expand_BN, par[1].block10_par_expand_BN,
             par[0].block10_par_depth, par[1].block10_par_depth,
@@ -724,10 +576,10 @@ void train(){
             64,             // input depth
             14, 21, 7,      // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             384, 64,        // Expand and project factors
-            block8_project_BN,
-            block9_expand, block9_expand_relu,
-            block9_depth, block9_depth_relu,
-            block9_project, block9_add,
+            var.block8_project_BN,
+            var.block9_expand, var.block9_expand_relu,
+            var.block9_depth, var.block9_depth_relu,
+            var.block9_project, var.block9_add,
             par[0].block9_par_expand, par[1].block9_par_expand,
             par[0].block9_par_expand_BN, par[1].block9_par_expand_BN,
             par[0].block9_par_depth, par[1].block9_par_depth,
@@ -742,10 +594,10 @@ void train(){
             32, 64,         // input and output depth / project factor
             12, 18, 6,      // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             192,            // Expand factor
-            block7_add,
-            block8_expand, block8_expand_relu,
-            block8_depth, block8_depth_relu,
-            block8_project, block8_project_BN,
+            var.block7_add,
+            var.block8_expand, var.block8_expand_relu,
+            var.block8_depth, var.block8_depth_relu,
+            var.block8_project, var.block8_project_BN,
             par[0].block8_par_expand, par[1].block8_par_expand,
             par[0].block8_par_expand_BN, par[1].block8_par_expand_BN,
             par[0].block8_par_depth, par[1].block8_par_depth,
@@ -760,10 +612,10 @@ void train(){
             32,             // input depth
             10, 15, 5,      // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             192, 32,        // Expand and project factors
-            block6_add,
-            block7_expand, block7_expand_relu,
-            block7_depth, block7_depth_relu,
-            block7_project, block7_add,
+            var.block6_add,
+            var.block7_expand, var.block7_expand_relu,
+            var.block7_depth, var.block7_depth_relu,
+            var.block7_project, var.block7_add,
             par[0].block7_par_expand, par[1].block7_par_expand,
             par[0].block7_par_expand_BN, par[1].block7_par_expand_BN,
             par[0].block7_par_depth, par[1].block7_par_depth,
@@ -778,10 +630,10 @@ void train(){
             32,             // input depth
             8, 12, 4,      // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             192, 32,        // Expand and project factors
-            block5_project_BN,
-            block6_expand, block6_expand_relu,
-            block6_depth, block6_depth_relu,
-            block6_project, block6_add,
+            var.block5_project_BN,
+            var.block6_expand, var.block6_expand_relu,
+            var.block6_depth, var.block6_depth_relu,
+            var.block6_project, var.block6_add,
             par[0].block6_par_expand, par[1].block6_par_expand,
             par[0].block6_par_expand_BN, par[1].block6_par_expand_BN,
             par[0].block6_par_depth, par[1].block6_par_depth,
@@ -796,10 +648,10 @@ void train(){
             24, 32,         // input and output depth / project factor
             6, 9, 3,        // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             144,            // Expand factor
-            block4_add,
-            block5_expand, block5_expand_relu,
-            block5_depth, block5_depth_relu,
-            block5_project, block5_project_BN,
+            var.block4_add,
+            var.block5_expand, var.block5_expand_relu,
+            var.block5_depth, var.block5_depth_relu,
+            var.block5_project, var.block5_project_BN,
             par[0].block5_par_expand, par[1].block5_par_expand,
             par[0].block5_par_expand_BN, par[1].block5_par_expand_BN,
             par[0].block5_par_depth, par[1].block5_par_depth,
@@ -814,10 +666,10 @@ void train(){
             24,             // input depth
             4, 6, 2,        // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             144, 24,        // Expand and project factors
-            block3_project_BN,
-            block4_expand, block4_expand_relu,
-            block4_depth, block4_depth_relu,
-            block4_project, block4_add,
+            var.block3_project_BN,
+            var.block4_expand, var.block4_expand_relu,
+            var.block4_depth, var.block4_depth_relu,
+            var.block4_project, var.block4_add,
             par[0].block4_par_expand, par[1].block4_par_expand,
             par[0].block4_par_expand_BN, par[1].block4_par_expand_BN,
             par[0].block4_par_depth, par[1].block4_par_depth,
@@ -832,10 +684,10 @@ void train(){
             16, 24,         // input and output depth / project factor
             2, 3, 1,        // 2D convolution, Batch Normalization and Depthwise CURRENT weight import indexes
             96,             // Expand factor
-            expanded_project_BN,
-            block3_expand, block3_expand_relu,
-            block3_depth, block3_depth_relu,
-            block3_project, block3_project_BN,
+            var.expanded_project_BN,
+            var.block3_expand, var.block3_expand_relu,
+            var.block3_depth, var.block3_depth_relu,
+            var.block3_project, var.block3_project_BN,
             par[0].block3_par_expand, par[1].block3_par_expand,
             par[0].block3_par_expand_BN, par[1].block3_par_expand_BN,
             par[0].block3_par_depth, par[1].block3_par_depth,
@@ -846,42 +698,40 @@ void train(){
     if (strcmp(frz,"exp") == 0) {exit(0);}
 
     // Expanded Block
-    backprop_bn(112, 16,
-            expanded_project, expanded_project_BN,
+    backprop_bn(112, 16,    // Size and depth
+            var.expanded_project, var.expanded_project_BN,
             par[0].expanded_par_project_BN, par[1].expanded_par_project_BN,
-            3);
+            3);             // Import index
 
-    backprop_conv2d(112, 112, 1, 32, 16,
-            expanded_relu, expanded_project,
+    backprop_conv2d(112, 112, 1, 32, 16,    // Line size, column size, kernel size, input depth, output depth
+            var.expanded_relu, var.expanded_project,
             par[0].expanded_par_project, par[1].expanded_par_project,
-            1, 0, 2);
+            1, 0, 2);                       // Stride, padding and import index
 
-    backprop_relu6(112, 32, // Dimensions
-            expanded_relu   // Input and Output (error)
-            );
+    backprop_relu6(112, 32,     // Size and depth
+            var.expanded_relu);
 
-    backprop_bn(112, 32,
-            expanded_depth, expanded_relu,
+    backprop_bn(112, 32,    // Size and depth
+            var.expanded_depth, var.expanded_relu,
             par[0].expanded_par_depth_BN, par[1].expanded_par_depth_BN,
-            2);
+            2);             // Import index
 
-    backprop_dw(112, 112, 3, 32,
-            initial_relu, expanded_depth,
+    backprop_dw(112, 112, 3, 32,    // Input size, output size, kernel size, depth
+            var.initial_relu, var.expanded_depth,
             par[0].expanded_par_depth, par[1].expanded_par_depth,
-            1, 1, 1);
+            1, 1, 1);               // Stride, padding and import index
 
     // Initial Block
-    backprop_relu6(112, 32, // Dimensions
-            initial_relu    // Input and Output (error)
-            );
+    backprop_relu6(112, 32,     // Size and depth
+            var.initial_relu);
 
-    backprop_bn(112, 32,
-            initial_conv2d, initial_relu,
+    backprop_bn(112, 32,    // Size and depth
+            var.initial_conv2d, var.initial_relu,
             par[0].initial_par_BN, par[1].initial_par_BN,
-            1);
+            1);             // Import index
 
-    backprop_conv2d(224, 112, 3, 3, 32,
-            image, initial_conv2d,
+    backprop_conv2d(224, 112, 3, 3, 32, // Line size, column size, kernel size, input depth, output depth
+            image, var.initial_conv2d,
             par[0].initial_par_conv2d, par[1].initial_par_conv2d,
-            2, 0, 1);
+            2, 0, 1);                   // Stride, padding and import index
 }

@@ -187,7 +187,6 @@ def train():
     classes=1000,
     classifier_activation="softmax",)
 
-    batch_size = 1
     func = K.function(newmodel.layers[1].input, newmodel.layers[155].output)
     conv_output = func([processed_image])
     y_pred = np.single(conv_output)

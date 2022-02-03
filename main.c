@@ -1,15 +1,8 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include "var.h"
 #include "actions.h"
 #include "data_manip.h"
-
-// for testing
-#include "layers.h"
-
-// Initialize training boolean
-int first_image = 1;
+#include "var.h"
 
 // Initialize epoch counter
 int epoch_count = 0;
@@ -23,9 +16,9 @@ int label;
 
 int main( int argc, char *argv[] ) { 
 
-    //Debugging
-    //argc = 2;
-    //argv[1] = "run";
+    // Debugging
+    // argc = 2;
+    // argv[1] = "run";
 
     if ( strcmp(argv[1],"run") == 0 ) {
 
@@ -34,7 +27,7 @@ int main( int argc, char *argv[] ) {
             return(0);
         }
 
-        // fill input using data0[y][x][d] syntax (y are lines, x are columns)
+        // Fill input using data0[y][x][d] syntax (y are lines, x are columns)
         import_image(0);
 
         inference();
@@ -57,10 +50,6 @@ int main( int argc, char *argv[] ) {
         import_image(0);
 
         train();
-
-        first_image = 0;
-
-
 
     }
     else {
