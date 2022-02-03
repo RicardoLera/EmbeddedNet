@@ -1,6 +1,6 @@
 # EmbeddedNet
 
-EmbeddedNet is a Convolutional Neural Network written in C capable of **Inference**, **Fine-Tune Training** and **Transfer Learning**. It is based on the [MobileNetV2 Architecture](https://arxiv.org/abs/1801.04381) and utilizes Stochastic Gradient Descent techniques as well as Layer Freezing to achieve a more efficient training process in embedded systems. It also relies solely on static libraries to be compatible with embedded systems.
+EmbeddedNet is a Convolutional Neural Network written in C capable of **Inference**, **Fine-Tuning** and **Transfer Learning**. It is based on the [MobileNetV2 Architecture](https://arxiv.org/abs/1801.04381) and utilizes Stochastic Gradient Descent techniques as well as Layer Freezing to achieve a more efficient training process in embedded systems. It also relies solely on static libraries to be compatible with embedded systems.
 
 A Keras application of MobileNetV2 is used for pre-training the parameters as well as for development and testing.
 
@@ -37,7 +37,7 @@ From the [MobileNetV2 Article](https://arxiv.org/abs/1801.04381):
 
 A "batch size of 96" means this is not stochastic gradient descent, but mini-batch gradient descent. Hence, 96 images are randomly selected from the training set, each image is passed through the network and their respective gradients are averaged, and then the parameters are updated using the mean gradient. This process is repeated until the dataset ends, which constitutes one epoch.
 
-We will not be using this process, as it is more efficient for training the network from scratch, which would be unfeasible in an embedded system. Instead, the fine-tuning training process will utilize stochastic gradient descent with a much smaller dataset, Layer Freezing, as well as a much lower value of the Learning Rate. RMSPropOptimizer function is still implemented.
+We will not be using this process, as it is more efficient for training the network from scratch, which would be unfeasible in an embedded system. Instead, the fine-tuning process will utilize stochastic gradient descent with a much smaller dataset, Layer Freezing, as well as a much lower value of the Learning Rate. RMSPropOptimizer function is still implemented.
 
 ### Fully Connected Layer
 
