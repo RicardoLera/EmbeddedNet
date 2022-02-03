@@ -53,55 +53,56 @@ Terminology:
  - Delta is the [Kronecker Delta](https://en.wikipedia.org/wiki/Kronecker_delta)
 
 Cross-entropy loss (with standard weight decay):
-```math
-L = -\sum_{j}[T_{j}ln(O_{j})] + \frac{\lambda W_{ij}^{2}}{2} \rightarrow \text{one-hot} \rightarrow -ln(O_{c}) + \frac{\lambda W_{ij}^{2}}{2}
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   L = -\sum_{j}[T_{j}ln(O_{j})] + \frac{\lambda W_{ij}^{2}}{2} \rightarrow \text{one-hot} \rightarrow -ln(O_{c}) + \frac{\lambda W_{ij}^{2}}{2}   }">
+</p>
 
 Softmax:
-```math
-Softmax(Z_{j}) = \frac{e^{Z_{j}}}{\sum_{k}e^{Z_{k}}} = \frac{e^{Z_{j}}}{S}
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   Softmax(Z_{j}) = \frac{e^{Z_{j}}}{\sum_{k}e^{Z_{k}}} = \frac{e^{Z_{j}}}{S}   }">
+</p>
 
 Activation:
-```math
-Z_{j} = \sum_{i}(I_{i} \cdot W_{ij}) + B_{j}
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   Z_{j} = \sum_{i}(I_{i} \cdot W_{ij}) + B_{j}   }">
+</p>
 
 Weight gradient:
-```math
-\frac{\partial L}{\partial W_{ij}} = -\frac{\partial Z_{j}}{\partial W_{ij}} \cdot \frac{\partial L}{\partial Z_{j}} + \frac{\partial \left [\frac{\lambda W_{ij}^2}{2}  \right ]}{\partial W_{ij}} = -\frac{\partial Z_{j}}{\partial W_{ij}} \cdot \frac{\partial L}{\partial Z_{j}} + \lambda W_{ij}
-```
-```math
-\frac{\partial Z_{j}}{\partial W_{ij}} = \frac{\partial [\sum_{p}(I_{p}W_{pj}+B_{j}) ] }{\partial W_{ij}} =  \sum_{p}\left [ I_{p} \cdot \frac{\partial W_{pj}}{\partial W_{ij}} \right ] = \sum_{p}\left [ I_{p} \delta_{ip} \right ] = I_{i}
-```
-```math
-\frac{\partial L}{\partial Z_{j}} = \frac{\partial [ln(\frac{e^{Z_{c}}}{S})]}{\partial Z_{j}} = \frac{\partial \left [Z_{c} - ln(S)  \right ]}{\partial Z_{j}} = \delta_{jc} - \frac{1}{S} \cdot \frac{\partial S}{\partial Z_{j}} = \delta_{jc} - \frac{1}{S} \cdot \frac{\partial [\sum_{k}(e^{z_{k}})]}{\partial Z_{j}} = \delta_{jc} - \frac{1}{S} \cdot \sum_{k}[\delta_{jk}e^{Z_{k}}] = \delta_{jc} - \frac{e^{Z_{j}}}{S} = \delta_{jc} - O_{j}
-```
-```math
-\frac{\partial L}{W_{ij}} = -I_{i} (\delta_{jc} - O_{j}) + \lambda W_{ij} = I_{i} (O_{j} -\delta_{jc}) + \lambda W_{ij}
-```
+Activation:
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial W_{ij}} = -\frac{\partial Z_{j}}{\partial W_{ij}} \cdot \frac{\partial L}{\partial Z_{j}} + \frac{\partial \left [\frac{\lambda W_{ij}^2}{2}  \right ]}{\partial W_{ij}} = -\frac{\partial Z_{j}}{\partial W_{ij}} \cdot \frac{\partial L}{\partial Z_{j}} + \lambda W_{ij}  }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial Z_{j}}{\partial W_{ij}} = \frac{\partial [\sum_{p}(I_{p}W_{pj}+B_{j}) ] }{\partial W_{ij}} =  \sum_{p}\left [ I_{p} \cdot \frac{\partial W_{pj}}{\partial W_{ij}} \right ] = \sum_{p}\left [ I_{p} \delta_{ip} \right ] = I_{i}   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial Z_{j}} = \frac{\partial [ln(\frac{e^{Z_{c}}}{S})]}{\partial Z_{j}} = \frac{\partial \left [Z_{c} - ln(S)  \right ]}{\partial Z_{j}} = \delta_{jc} - \frac{1}{S} \cdot \frac{\partial S}{\partial Z_{j}} = \delta_{jc} - \frac{1}{S} \cdot \frac{\partial [\sum_{k}(e^{z_{k}})]}{\partial Z_{j}} = \delta_{jc} - \frac{1}{S} \cdot \sum_{k}[\delta_{jk}e^{Z_{k}}] = \delta_{jc} - \frac{e^{Z_{j}}}{S} = \delta_{jc} - O_{j}   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{W_{ij}} = -I_{i} (\delta_{jc} - O_{j}) + \lambda W_{ij} = I_{i} (O_{j} -\delta_{jc}) + \lambda W_{ij}   }">
+</p>
 
 Bias gradient (no standard weight decay):
-```math
-\frac{\partial L}{\partial B_{j}} = -\frac{\partial Z_{j}}{\partial B_{j}} \cdot \frac{\partial L}{\partial Z_{j}}
-```
-```math
-\frac{\partial Z_{j}}{\partial B_{j}} = \frac{\partial [ \sum_{p} ( I_{p} \cdot W_{pj} ) + B_{j}  ] }{\partial B_{j}} = 1
-```
-```math
-\frac{\partial L}{B_{j}} = -(\delta_{jc} - O_{j}) = O_{j} - \delta_{jc}
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial B_{j}} = -\frac{\partial Z_{j}}{\partial B_{j}} \cdot \frac{\partial L}{\partial Z_{j}}   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial Z_{j}}{\partial B_{j}} = \frac{\partial [ \sum_{p} ( I_{p} \cdot W_{pj} ) + B_{j}  ] }{\partial B_{j}} = 1   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{B_{j}} = -(\delta_{jc} - O_{j}) = O_{j} - \delta_{jc}   }">
+</p>
 
 Backpropagated Error:
-```math
-\frac{\partial L}{\partial I_{i}} = -\sum_{j} \left [\frac{\partial Z_{j}}{\partial I_{i}} \cdot \frac{\partial L}{\partial Z_{j}} \right ]
-```
-```math
-\frac{\partial Z_{j}}{\partial I_{i}} = \frac{\partial [ \sum_{p} ( I_{p} \cdot W_{pj} ) + B_{j}  ] }{\partial I_{i}} = W_{ij}
-```
-```math
-\frac{\partial L}{\partial I_{i}} = - \sum_{j} \left [W_{ij}(\delta_{jc} - O_{j})\right ]  = \sum_{j} \left [W_{ij}(O_{j} - \delta_{jc})  \right ]
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial I_{i}} = -\sum_{j} \left [\frac{\partial Z_{j}}{\partial I_{i}} \cdot \frac{\partial L}{\partial Z_{j}} \right ]   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial Z_{j}}{\partial I_{i}} = \frac{\partial [ \sum_{p} ( I_{p} \cdot W_{pj} ) + B_{j}  ] }{\partial I_{i}} = W_{ij}   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial I_{i}} = - \sum_{j} \left [W_{ij}(\delta_{jc} - O_{j})\right ]  = \sum_{j} \left [W_{ij}(O_{j} - \delta_{jc})  \right ]   }">
+</p>
 
 ### Average Pooling Layer
 
@@ -116,14 +117,14 @@ Terminology:
  - A is the Global Average Pooling function
 
 Global Average Pooling equation:
-```math
-A(I_{k}) = \frac{1}{49} \sum_{i}\left [\sum_{j}(I_{ijk})  \right ]
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   A(I_{k}) = \frac{1}{49} \sum_{i}\left [\sum_{j}(I_{ijk})  \right ]   }">
+</p>
 
 Differential:
-```math
-\frac{\partial A(O_{k})}{\partial I_{pqr}} = \frac{1}{49} \sum_{i}\left [\sum_{j}\left ( \frac{\partial I_{ijk}}{\partial I_{pqr}} \right )  \right ] = \frac{1}{49} \sum_{i}\left [\sum_{j}\left ( \delta_{ip} \delta_{jq} \delta_{kr} \right )  \right ] = \frac{\delta_{kr}}{49}
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial A(O_{k})}{\partial I_{pqr}} = \frac{1}{49} \sum_{i}\left [\sum_{j}\left ( \frac{\partial I_{ijk}}{\partial I_{pqr}} \right )  \right ] = \frac{1}{49} \sum_{i}\left [\sum_{j}\left ( \delta_{ip} \delta_{jq} \delta_{kr} \right )  \right ] = \frac{\delta_{kr}}{49}   }">
+</p>
 
 This means that for each output value, its error is multiplied by 1/49 and assigned to each value of the corresponding 7x7 block.
 
@@ -137,22 +138,14 @@ Terminology:
  - i, j and k are the dimentions of the input and output
 
 ReLU6 equation:
- ```math
- ReLU6(I_{ijk}) = \begin{cases}
-0 & \text{ if } I_{ijk} < 0 \\ 
-I_{ijk} & \text{ if } 0 < I_{ijk} < 6 \\ 
-6 & \text{ if } I_{ijk} > 6 
-\end{cases}
- ```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\    ReLU6(I_{ijk}) = \begin{cases} 0 \qquad \text{ if } \ I_{ijk} < 0 \\ I_{ijk} \quad  \text{ if } \ 0 < I_{ijk} < 6 \\ 6 \qquad \text{ if } \ I_{ijk} > 6 \end{cases}   }">
+</p>
 
 Differential:
- ```math
- ReLU6'(I_{ijk}) = \begin{cases}
-0 & \text{ if } I_{ijk} < 0 \\ 
-1 & \text{ if } 0 < I_{ijk} < 6 \\ 
-0 & \text{ if } I_{ijk} > 6 
-\end{cases}
- ```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\    ReLU6'(I_{ijk}) = \begin{cases}0 \qquad \text{ if } \ I_{ijk} < 0 \\ 1 \qquad \text{ if } \ 0 < I_{ijk} < 6 \\ 0 \qquad \text{ if } \ I_{ijk} > 6 \end{cases}   }">
+</p>
 
 This means that for each output value, its error is multiplied by 0 when it is below 0 or above 6 and multiplied by 1 when it is in between these two values.
 
@@ -176,59 +169,53 @@ Terminology:
 
 Batch Normalization Moving Equations:
 
-```math
-\mu_{mb} = \frac{\sum_{xy}I_{xy}}{T}
-```
-```math
-\sigma_{mb}^2 = \frac{\sum_{xy}(I_{xy} - \mu_{mb})^2}{T}
-```
-```math
-\mu_{mb} = \mu_{mb-1} \cdot \rho + (1 - \rho) \mu_{mb}
-```
-```math
-\sigma_{mb}^{2} = \sigma_{mb-1}^{2} \cdot \rho + (1 - \rho) \sigma_{mb}^{2}
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \mu_{mb} = \frac{\sum_{xy}I_{xy}}{T}  }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \sigma_{mb}^2 = \frac{\sum_{xy}(I_{xy} - \mu_{mb})^2}{T}  }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \mu_{mb} = \mu_{mb-1} \cdot \rho + (1 - \rho) \mu_{mb}  }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \sigma_{mb}^{2} = \sigma_{mb-1}^{2} \cdot \rho + (1 - \rho) \sigma_{mb}^{2}  }">
+</p>
 
 Output Equations:
-```math
-\begin{cases}
-\hat{I}_{ij} = \frac{I_{ij} - \mu_{mb}}{\sqrt{\sigma^2_{mb}+\epsilon}} & \text{ if } t=0 \\ 
-\hat{I}_{ij} = \frac{I_{ij} - \mu}{\sqrt{\sigma^2+\epsilon}} & \text{ if } t \neq 0 
-\end{cases}
-```
-```math
-O_{ij} = \gamma \hat{I}_{ij} + \beta
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \begin{cases} \hat{I}_{ij} = \frac{I_{ij} - \mu_{mb}}{\sqrt{\sigma^2_{mb}+\epsilon}} \qquad \text{ if } \ t=0 \\ \hat{I}_{ij} = \frac{I_{ij} - \mu}{\sqrt{\sigma^2+\epsilon}} \qquad \text{ if } \ t \neq 0 \end{cases}   }">
+</p>
 
 Gradient of Beta:
-```math
-\frac{\partial L}{\partial \beta} = \sum_{ij} \left [\frac{\partial L}{\partial O_{ij}} \cdot \frac{\partial O_{ij}}{\partial \beta} \right ] = \sum_{ij} \left [\frac{\partial L}{\partial O_{ij}} \right ]
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial \beta} = \sum_{ij} \left [\frac{\partial L}{\partial O_{ij}} \cdot \frac{\partial O_{ij}}{\partial \beta} \right ] = \sum_{ij} \left [\frac{\partial L}{\partial O_{ij}} \right ]   }">
+</p>
 
 Gradient of Gamma:
-```math
-\frac{\partial L}{\partial \gamma_{k}} = \sum_{ij} \left [\frac{\partial L}{\partial O_{ij}} \cdot \frac{\partial O_{ij}}{\partial \gamma} \right ] = \sum_{ij} \left [\frac{\partial L}{\partial O_{ij}} \cdot \hat{I}_{ij} \right ]
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial \gamma_{k}} = \sum_{ij} \left [\frac{\partial L}{\partial O_{ij}} \cdot \frac{\partial O_{ij}}{\partial \gamma} \right ] = \sum_{ij} \left [\frac{\partial L}{\partial O_{ij}} \cdot \hat{I}_{ij} \right ]   }">
+</p>
 
 Backpropagating Error:
-```math
-\frac{\partial L}{\partial I_{ij}} = \frac{\partial L}{\partial \hat{I}_{ij}} \cdot \frac{\partial \hat{I}_{ij}}{\partial I_{ij}} + \frac{\partial L}{\partial \sigma^2} \cdot \frac{\partial \sigma^2}{\partial I_{ij}} + \frac{\partial L}{\partial \mu} \cdot \frac{\partial \mu}{\partial I_{ij}}
-```
-```math
-\frac{\partial L}{\partial \hat{I}_{ij}} = \frac{\partial L}{\partial O_{ij}} \cdot \frac{\partial O_{ij}}{\partial \hat{I}_{ij}} = \frac{\partial L}{\partial O_{ij}} \gamma
-```
-```math
-\frac{\partial L}{\partial \sigma^2} = \sum_{ij} \left [\frac{\partial L}{\partial \hat{I}_{ij}} \cdot \frac{\partial \hat{I}_{ij}}{\partial \sigma^2}  \right ] = \sum_{ij} \left [\frac{\partial L}{\partial \hat{I}_{ij}} (I_{ij} - \mu) \frac{-1}{2} (\sigma^2 + \epsilon)^{-3/2}  \right ]
-```
-```math
-\frac{\partial L}{\partial \mu} = \sum_{ij} \left [\frac{\partial L}{\partial \hat{I}_{ij}} \cdot \frac{\partial \hat{I}_{ij}}{\partial \mu} \right ] + \frac{\partial L}{\partial \sigma^2} \cdot \frac{\partial \sigma^2}{\partial \mu} = \sum_{ij} \left [\frac{\partial L}{\partial \hat{I}_{ij}} \cdot \frac{-1}{\sqrt{\sigma^2 + \epsilon}}  \right ] + \frac{\partial L}{\partial \sigma^2} \cdot \frac{\sum_{ij}[-2(I_{ij}-\mu)]}{d^2} = \sum_{ij} \left [\frac{\partial L}{\partial \hat{I}_{ij}} \cdot \frac{-1}{\sqrt{\sigma^2 + \epsilon}}  \right ]
-```
-```math
-\frac{\partial \hat{I}_{ij}}{\partial I_{ij}} = \frac{1}{\sqrt{\sigma^2 + \epsilon}} ;   \frac{\partial \sigma^2}{\partial I_{ij}} = \frac{2(I_{ij}-\mu)}{d^2} ; \frac{\partial \mu}{\partial I_{ij}} = \frac{1}{d^2}
-```
-```math
-\frac{\partial L}{\partial I_{ij}} = \frac{\partial L}{\partial \hat{I}_{ij}} \frac{1}{\sqrt{\sigma^2 + \epsilon}} + \frac{\partial L}{\partial \sigma^2} \frac{2(I_{ij}-\mu)}{d^2} + \frac{\partial L}{\partial \mu} \frac{1}{d^2}
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial I_{ij}} = \frac{\partial L}{\partial \hat{I}_{ij}} \cdot \frac{\partial \hat{I}_{ij}}{\partial I_{ij}} + \frac{\partial L}{\partial \sigma^2} \cdot \frac{\partial \sigma^2}{\partial I_{ij}} + \frac{\partial L}{\partial \mu} \cdot \frac{\partial \mu}{\partial I_{ij}}   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial \hat{I}_{ij}} = \frac{\partial L}{\partial O_{ij}} \cdot \frac{\partial O_{ij}}{\partial \hat{I}_{ij}} = \frac{\partial L}{\partial O_{ij}} \gamma   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial \sigma^2} = \sum_{ij} \left [\frac{\partial L}{\partial \hat{I}_{ij}} \cdot \frac{\partial \hat{I}_{ij}}{\partial \sigma^2}  \right ] = \sum_{ij} \left [\frac{\partial L}{\partial \hat{I}_{ij}} (I_{ij} - \mu) \frac{-1}{2} (\sigma^2 + \epsilon)^{-3/2}  \right ]   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial \mu} = \sum_{ij} \left [\frac{\partial L}{\partial \hat{I}_{ij}} \cdot \frac{\partial \hat{I}_{ij}}{\partial \mu} \right ] + \frac{\partial L}{\partial \sigma^2} \cdot \frac{\partial \sigma^2}{\partial \mu} = \sum_{ij} \left [\frac{\partial L}{\partial \hat{I}_{ij}} \cdot \frac{-1}{\sqrt{\sigma^2 + \epsilon}}  \right ] + \frac{\partial L}{\partial \sigma^2} \cdot \frac{\sum_{ij}[-2(I_{ij}-\mu)]}{d^2} = \sum_{ij} \left [\frac{\partial L}{\partial \hat{I}_{ij}} \cdot \frac{-1}{\sqrt{\sigma^2 + \epsilon}}  \right ]   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial \hat{I}_{ij}}{\partial I_{ij}} = \frac{1}{\sqrt{\sigma^2 + \epsilon}} \qquad   \frac{\partial \sigma^2}{\partial I_{ij}} = \frac{2(I_{ij}-\mu)}{d^2} \qquad \frac{\partial \mu}{\partial I_{ij}} = \frac{1}{d^2}   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial I_{ij}} = \frac{\partial L}{\partial \hat{I}_{ij}} \frac{1}{\sqrt{\sigma^2 + \epsilon}} + \frac{\partial L}{\partial \sigma^2} \frac{2(I_{ij}-\mu)}{d^2} + \frac{\partial L}{\partial \mu} \frac{1}{d^2}   }">
+</p>
 
 ### 2D-Convolution
 
@@ -244,39 +231,40 @@ Terminology:
  - s is an index representing stride and pad is an index representing padding
 
 Weight Chain Rule:
-```math
-\frac{\partial L}{\partial W_{ijk}} = \sum_{pq} \left [\frac{\partial O_{pqk}}{\partial W_{ijk}} \frac{\partial L}{\partial O_{pqk}}  \right ]
-```
-```math
-a = s \cdot p + i - pad
-```
-```math
-b = s \cdot q + j - pad
-```
-```math
-O_{pqk} = \sum_{ijc} \left [ I_{abc} \cdot W_{ijk} \right ]
-```
-```math
-\frac{\partial O_{pqk}}{\partial W_{xyk}} = \frac{\partial \left [\sum_{ijc}\left ( I_{abc} \cdot W_{ijk} \right )  \right ]}{\partial W_{xyk}} = \sum_{ijc} \left ( I_{abc} \delta_{ix} \delta_{jy} \right ) \Rightarrow \frac{\partial O_{pqk}}{\partial W_{ijk}} = \sum_{ijc} I_{s \cdot p + i - pad, s \cdot q + j - pad, c}
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial W_{ijk}} = \sum_{pq} \left [\frac{\partial O_{pqk}}{\partial W_{ijk}} \frac{\partial L}{\partial O_{pqk}}  \right ]   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   a = s \cdot p + i - pad   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   b = s \cdot q + j - pad   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   O_{pqk} = \sum_{ijc} \left [ I_{abc} \cdot W_{ijk} \right ]   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial O_{pqk}}{\partial W_{xyk}} = \frac{\partial \left [\sum_{ijc}\left ( I_{abc} \cdot W_{ijk} \right )  \right ]}{\partial W_{xyk}} = \sum_{ijc} \left ( I_{abc} \delta_{ix} \delta_{jy} \right ) \Rightarrow \frac{\partial O_{pqk}}{\partial W_{ijk}} = \sum_{ijc} I_{s \cdot p + i - pad, s \cdot q + j - pad, c}   }">
+</p>
 
 Final correction formula:
-```math
-\frac{\partial L}{\partial W_{ijk}} = \sum_{pq} \left [\frac{\partial O_{pqk}}{\partial W_{ijk}} \frac{\partial L}{\partial O_{pqk}}  \right ] = \sum_{pq} \left [  \frac{\partial L}{\partial O_{pqk}} \sum_{ijc} I_{abc} \right ]
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial W_{ijk}} = \sum_{pq} \left [\frac{\partial O_{pqk}}{\partial W_{ijk}} \frac{\partial L}{\partial O_{pqk}}  \right ] = \sum_{pq} \left [  \frac{\partial L}{\partial O_{pqk}} \sum_{ijc} I_{abc} \right ]   }">
+</p>
 
 Therefore, to get the gradient of a specific weight: for each output, you multiply the backpropagated error of that neuron by the input that this weight connects to (which depends on stride), and sum everything up (this doesn't reflect very well in the math).
 
 Backpropagated Error:
-```math
-\frac{\partial L}{\partial I_{abc}} = \sum_{pq} \left [\frac{\partial O_{pqk}}{\partial I_{abc}} \frac{\partial L}{\partial O_{pqk}}  \right ]
-```
-```math
-\frac{\partial O_{pqk}}{\partial I_{xyz}} = \frac{\partial \left [\sum_{ijc}\left ( I_{abc} \cdot W_{ijk} \right )  \right ]}{\partial I_{xyz}} = \sum_{ijc} \left ( W_{ijk} \delta_{ax} \delta_{by} \delta_{cz} \right ) \Rightarrow \frac{\partial O_{pqk}}{\partial I_{abc}} = \sum_{ij} W_{ijk}
-```
-```math
-\frac{\partial L}{\partial I_{abc}} = \sum_{pq} \left [\frac{\partial O_{pqk}}{\partial I_{abc}} \frac{\partial L}{\partial O_{pqk}}  \right ] = \sum_{pq} \left [  \frac{\partial L}{\partial O_{pqk}} \sum_{ij} W_{ijk} \right ]
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial I_{abc}} = \sum_{pq} \left [\frac{\partial O_{pqk}}{\partial I_{abc}} \frac{\partial L}{\partial O_{pqk}}  \right ]   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial O_{pqk}}{\partial I_{xyz}} = \frac{\partial \left [\sum_{ijc}\left ( I_{abc} \cdot W_{ijk} \right )  \right ]}{\partial I_{xyz}} = \sum_{ijc} \left ( W_{ijk} \delta_{ax} \delta_{by} \delta_{cz} \right ) \Rightarrow \frac{\partial O_{pqk}}{\partial I_{abc}} = \sum_{ij} W_{ijk}   }">
+</p>
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial I_{abc}} = \sum_{pq} \left [\frac{\partial O_{pqk}}{\partial I_{abc}} \frac{\partial L}{\partial O_{pqk}}  \right ] = \sum_{pq} \left [  \frac{\partial L}{\partial O_{pqk}} \sum_{ij} W_{ijk} \right ]   }">
+</p>
+
 Where, in this case, pq is the index of each neuron in the output layer *which connects to this specific input* and ij is the index of the specific weight *which connects that output to this input*. I'm still figuring out a better matemathical way to write this.
 
 ### Other Layers
@@ -296,20 +284,11 @@ Terminology:
  - Epsilon is a constant for numerical stability (assuming Keras default = 1e-07)
 
 RMSProp:
-```math
-E_{P, mb} = \mu E_{P, mb-1} + (1 - \rho) \cdot \left ( \frac{\partial L}{\partial P} \right )^2
-```
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   E_{P, mb} = \mu E_{P, mb-1} + (1 - \rho) \cdot \left ( \frac{\partial L}{\partial P} \right )^2   }">
+</p>
 
 Final correction equations:
-```math
-P_{mb} = P_{mb-1} - \frac{\eta_{0} \cdot \delta^{t}}{\sqrt{E_{t}}+\epsilon} \cdot \frac{1}{96} \sum_{96} \frac{\partial L}{\partial P}
-```
-
-
-
-
-
-
-
-
-
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   P_{mb} = P_{mb-1} - \frac{\eta_{0} \cdot \delta^{t}}{\sqrt{E_{t}}+\epsilon} \cdot \frac{1}{96} \sum_{96} \frac{\partial L}{\partial P}   }">
+</p>
