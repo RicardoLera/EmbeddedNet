@@ -25,7 +25,7 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := MobileNetV2_C
+BUILD_ARTIFACT_NAME := EmbeddedNet
 BUILD_ARTIFACT_EXTENSION :=
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
@@ -36,19 +36,19 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 all: main-build
 
 # Main-build Target
-main-build: MobileNetV2_C
+main-build: EmbeddedNet
 
 # Tool invocations
-MobileNetV2_C: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+EmbeddedNet: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross GCC Linker'
-	gcc -L/usr/lib -pg -o "MobileNetV2_C" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L/usr/lib -o "EmbeddedNet" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) MobileNetV2_C
+	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) EmbeddedNet
 	-@echo ' '
 
 .PHONY: all clean dependents main-build

@@ -21,7 +21,7 @@ classifier_activation="softmax",)
 mobilenetv2_model = mobilenet_v2.MobileNetV2(weights='imagenet')
 
 # Load image in PIL format 244x244
-filename = '/home/ricardo/MobileNetV2_C/python_tests/cat.jpg'
+filename = '/home/ricardo/EmbeddedNet/python_tests/cat.jpg'
 original = load_img(filename, target_size=(224, 224))
 print('PIL image size',original.size)
 plt.imshow(original)
