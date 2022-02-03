@@ -1,6 +1,6 @@
-# MobileNetV2_C
+# EmbeddedNet
 
-C implementation of MobileNetV2 using only static libraries.
+EmbeddedNet is a Convolutional Neural Network written in C capable of **Inference**, **Fine-Tune Training** and **Transfer Learning**. It is based on the [MobileNetV2 Architecture](https://arxiv.org/abs/1801.04381) and utilizes Stochastic Gradient Descent techniques as well as Layer Freezing to achieve a more efficient training process in embedded systems. It also relies solely on static libraries to be compatible with embedded systems.
 
 File hierarchy: main -> actions -> blocks -> layers -> operations
 
@@ -35,6 +35,8 @@ From the [MobileNetV2 Article](https://arxiv.org/abs/1801.04381):
 
 A "batch size of 96" means this is not stochastic gradient descent, but mini-batch gradient descent. Hence, 96 images are randomly selected from the training set, each image is passed through the network and their respective gradients are averaged, and then the parameters are updated using the mean gradient. This process is repeated until the dataset ends, which constitutes one epoch.
 
+We will not be using this process, as it is more efficient for training the network from scratch, which would be unfeasible in an embedded system. Instead, the fine-tuning training process will utilize stochastic gradient descent with a much smaller dataset, Layer Freezing, as well as a much lower value of the Learning Rate. RMSPropOptimizer function is still implemented.
+
 ### Fully Connected Layer
 
 Gradient is affected by: Cross-entropy loss, Softmax activation, stardard activation, and stardard weight decay. Final parameter change is additionally affected by learning rate and RMSProp. Assuming standard learning rate decay.
@@ -68,7 +70,6 @@ Activation:
 </p>
 
 Weight gradient:
-Activation:
 <p align="center">
 <img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial W_{ij}} = -\frac{\partial Z_{j}}{\partial W_{ij}} \cdot \frac{\partial L}{\partial Z_{j}} + \frac{\partial \left [\frac{\lambda W_{ij}^2}{2}  \right ]}{\partial W_{ij}} = -\frac{\partial Z_{j}}{\partial W_{ij}} \cdot \frac{\partial L}{\partial Z_{j}} + \lambda W_{ij}  }">
 </p>
@@ -151,40 +152,38 @@ This means that for each output value, its error is multiplied by 0 when it is b
 
 ### Batch Normalization
 
-Batch Normalization is different during inference or during training. During inference, the mean and standard variation are calculated based on only the image in question, using the moving averages previously calculated. During training, the mean and variance are instead calculated based on the current mini-batch, and the moving averages are updated.
+During pre-training, the mean and variance were calculated based on the mini-batch. Those values might still be used in frozen layers. During fine-tuning, the mean and standard variation are calculated based on only the image in question.
 
 Here, the trainable parameters are gamma and beta, and the error also backpropagates.
 
 Terminology:
  - I and O are the the values of an input and output to the BN layer respectivelly
  - i, j and k are the indexes of the dimensions of the input and output
- - x and y are the indexes of the first two dimentions of all mini-batch members
  - Mu is the moving mean and Sigma squared is the moving variance
  - Gamma and Beta are the trainable parameters "scale" and "shift" respectivelly
  - Rho is the momentum of the moving equations (= 0.999)
  - Epsilon is a small constant for numerical stability (= 0.001)
- - T is the total number of neurons across dimensions i and j of all mini-batch members
- - mb is the index representing the current mini-batch
+ - T is the total number of neurons across dimensions i and j
  - t is the index representing epochs
 
 Batch Normalization Moving Equations:
 
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \mu_{mb} = \frac{\sum_{xy}I_{xy}}{T}  }">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \mu = \frac{\sum_{ij}I_{ij}}{T}  }">
 </p>
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \sigma_{mb}^2 = \frac{\sum_{xy}(I_{xy} - \mu_{mb})^2}{T}  }">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \sigma^2 = \frac{\sum_{ij}(I_{ij} - \mu_{t})^2}{T}  }">
 </p>
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \mu_{mb} = \mu_{mb-1} \cdot \rho + (1 - \rho) \mu_{mb}  }">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \mu_{t} = \mu_{t-1} \cdot \rho + (1 - \rho) \frac{\sum_{ij}I_{ij}}{T}  }">
 </p>
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \sigma_{mb}^{2} = \sigma_{mb-1}^{2} \cdot \rho + (1 - \rho) \sigma_{mb}^{2}  }">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \sigma_{t}^{2} = \sigma_{t-1}^{2} \cdot \rho + (1 - \rho) \frac{\sum_{ij}(I_{ij} - \mu_{t})^2}{T}  }">
 </p>
 
-Output Equations:
+Output Equation:
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \begin{cases} \hat{I}_{ij} = \frac{I_{ij} - \mu_{mb}}{\sqrt{\sigma^2_{mb}+\epsilon}} \qquad \text{ if } \ t=0 \\ \hat{I}_{ij} = \frac{I_{ij} - \mu}{\sqrt{\sigma^2+\epsilon}} \qquad \text{ if } \ t \neq 0 \end{cases}   }">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \hat{I}_{ij} = \frac{I_{ij} - \mu}{\sqrt{\sigma^2+\epsilon}}   }">
 </p>
 
 Gradient of Beta:
@@ -285,10 +284,10 @@ Terminology:
 
 RMSProp:
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   E_{P, mb} = \mu E_{P, mb-1} + (1 - \rho) \cdot \left ( \frac{\partial L}{\partial P} \right )^2   }">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   E_{P, t} = \mu E_{P, t-1} + (1 - \rho) \cdot \left ( \frac{\partial L}{\partial P} \right )^2   }">
 </p>
 
 Final correction equations:
 <p align="center">
-<img width="400" src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   P_{mb} = P_{mb-1} - \frac{\eta_{0} \cdot \delta^{t}}{\sqrt{E_{t}}+\epsilon} \cdot \frac{1}{96} \sum_{96} \frac{\partial L}{\partial P}   }">
+<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   P_{t} = P_{t-1} - \frac{\eta_{0} \cdot \delta^{t}}{\sqrt{E_{t}}+\epsilon} \cdot \frac{\partial L}{\partial P}   }">
 </p>
