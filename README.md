@@ -290,5 +290,5 @@ RMSProp:
 
 Final correction equations:
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   P_{mb} = P_{mb-1} - \frac{\eta_{0} \cdot \delta^{t}}{\sqrt{E_{t}}+\epsilon} \cdot \frac{1}{96} \sum_{96} \frac{\partial L}{\partial P}   }">
+<img width="400" src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   P_{mb} = P_{mb-1} - \frac{\eta_{0} \cdot \delta^{t}}{\sqrt{E_{t}}+\epsilon} \cdot \frac{1}{96} \sum_{96} \frac{\partial L}{\partial P}   }">
 </p>
