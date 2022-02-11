@@ -25,14 +25,19 @@ A Keras application of MobileNetV2 is used for pre-training as well as developme
  - Repeated the same process for Average Pooling, ReLU6, Batch Normalization, 2D-Convolution and Depthwise Convolution.
  - Training Finished
  - Implemented Layer Freezing
- - Profiled perfomance with Gprof - Bottleneck is at convolution functions: Managed to improve backprop_conv2d at the cost of memory.
+ - Profiled performance with Gprof - Bottleneck is at convolution functions: Managed to improve backprop_conv2d at the cost of memory.
  - Profiled memory usage with Massif - Peak memory at 5,211,736B due to backprop_fc's gradient allocation.
  
-## Code Description (for developers) [IN PROGRESS]
+## Code Description (for developers)
 
-EmbeddedNet works by subdiving the network into smaller concatenated functions
-
-The main file hierarchy is as follows: `main.c -> actions.c -> blocks.c -> layers.c -> operations.c`
+EmbeddedNet works by subdividing the network into smaller concatenated functions. It uses a hierarchy of `.c` files and their respective `.h` headers:
+ - `main.c` Reads the input from the call to the program, imports the first Image through Data Manipulation and calls the respective Action (Inference or Training).
+ - `actions.c` Describes the entirety of the Inference and Training processes by calling on Blocks, Layers and Operations.
+ - `blocks.c` Describes the Stride 2 and Stride 1 blocks (3 through 18) by calling on Layers and Operations
+ - `layers.c` For each Layer: calls the importing of the its parameters through Data Manipulation and calls the respective Operation.
+ - `operations.c` Describes each mathematical operation of the system.
+ - `data_manip.c` Manages importing and exporting of data.
+ - `var.h` Declares global variables used throughout multiple files.
 
 ## Training Equations
 
@@ -45,7 +50,7 @@ We will not be using this process, as it is more efficient for training the netw
 
 ### Fully Connected Layer
 
-Gradient is affected by: Cross-entropy loss, Softmax activation, stardard activation, and stardard weight decay. Final parameter change is additionally affected by learning rate and RMSProp. Assuming standard learning rate decay.
+Gradient is affected by: Cross-entropy loss, Softmax activation, standard activation, and standard weight decay. Final parameter change is additionally affected by learning rate and RMSProp. Assuming standard learning rate decay.
 
 Terminology:
  - I is the value of a neuron in the input layer
@@ -118,9 +123,9 @@ Error backpropagates through the derivative of this function.
 Terminology:
  - I is the value of an input to the pooling layer (7x7x1280)
  - O is the value of an output to the pooling layer (1280)
- - i is the index of the first dimention of the input (1 - 7)
- - y is the index of the second dimention of the input (1 - 7)
- - k is the index of the dimention of the output (1280)
+ - i is the index of the first dimension of the input (1 - 7)
+ - y is the index of the second dimension of the input (1 - 7)
+ - k is the index of the dimension of the output (1280)
  - A is the Global Average Pooling function
 
 Global Average Pooling equation:
@@ -163,10 +168,10 @@ During pre-training, the mean and variance were calculated based on the mini-bat
 Here, the trainable parameters are gamma and beta, and the error also backpropagates.
 
 Terminology:
- - I and O are the the values of an input and output to the BN layer respectivelly
+ - I and O are the the values of an input and output to the BN layer respectively
  - i, j and k are the indexes of the dimensions of the input and output
  - Mu is the moving mean and Sigma squared is the moving variance
- - Gamma and Beta are the trainable parameters "scale" and "shift" respectivelly
+ - Gamma and Beta are the trainable parameters "scale" and "shift" respectively
  - Rho is the momentum of the moving equations (= 0.999)
  - Epsilon is a small constant for numerical stability (= 0.001)
  - T is the total number of neurons across dimensions i and j
@@ -270,7 +275,7 @@ Backpropagated Error:
 <img src="https://render.githubusercontent.com/render/math?math={\displaystyle \color{gray}\   \frac{\partial L}{\partial I_{abc}} = \sum_{pq} \left [\frac{\partial O_{pqk}}{\partial I_{abc}} \frac{\partial L}{\partial O_{pqk}}  \right ] = \sum_{pq} \left [  \frac{\partial L}{\partial O_{pqk}} \sum_{ij} W_{ijk} \right ]   }">
 </p>
 
-Where, in this case, pq is the index of each neuron in the output layer *which connects to this specific input* and ij is the index of the specific weight *which connects that output to this input*. I'm still figuring out a better matemathical way to write this.
+Where, in this case, pq is the index of each neuron in the output layer *which connects to this specific input* and ij is the index of the specific weight *which connects that output to this input*. I'm still figuring out a better mathematical way to write this.
 
 ### Other Layers
 
