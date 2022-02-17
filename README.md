@@ -30,7 +30,7 @@ A Keras application of MobileNetV2 is used for pre-training as well as developme
 
 ## TO DO
 
-Current Main Task: `Implement Transfer Learning`
+Current Main Task: **Implement Transfer Learning**
 
 Other Tasks:
  - Make a single file with all 3.4M parameters (do it AFTER implementing everything else because it makes it much harder to debug).
