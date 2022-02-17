@@ -27,8 +27,19 @@ A Keras application of MobileNetV2 is used for pre-training as well as developme
  - Implemented Layer Freezing
  - Profiled performance with Gprof - Bottleneck is at convolution functions: Managed to improve backprop_conv2d at the cost of memory.
  - Profiled memory usage with Massif - Peak memory at 5,211,736B due to backprop_fc's gradient allocation.
- 
-## Code Description (for developers)
+
+## Command Line Arguments
+
+First Argument: `run`, `train` or `transfer`.
+ - `run`: Runs a single inference of the network for imported image, generating a prediction.
+ - `train`: Trains network using imported image. Prediction is generated before training.
+    - `frz`: Second argument in Train command, defines which layers are frozen during training. Possible values are: `exp`, `b3` ... `b18` and `fc`.
+ - `transfer`: Performs Transfer Learning based on imported parameters and a few arguments that depend on the implementation.
+    - `tfr`: Selects which layers to transfer the parameters into. Possible values are the same as `frz`.
+    - `class`: How many classification neurons are in the last layer of the new model.
+    - `hidden`: How many hidden neurons are in the hidden layer of the new model. `0` does not create a hidden layer.
+
+## Code Description
 
 EmbeddedNet works by subdividing the network into smaller concatenated functions. It uses a hierarchy of `.c` files and their respective `.h` headers:
  - `main.c` Reads the input from the call to the program, imports the first Image through Data Manipulation and calls the respective Action (Inference or Training).
