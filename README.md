@@ -34,6 +34,7 @@ Current Main Task: **Implement Transfer Learning**
 
 Other Tasks:
  - Make a single file with all 3.4M parameters (do it AFTER implementing everything else because it makes it much harder to debug).
+ - Implement recursive training.
  - Streamline import/export functions both in C and in Python.
  - Finish commenting all functions.
 
@@ -307,7 +308,6 @@ The Add layer has a derivative of one and therefore doesn't affect the backpropa
 
 Terminology: 
  - P is is a generic parameter of the network (3.4 million)
- - mb is the index representing mini-batches
  - t is the index representing epochs
  - Mu is the *momentum* and Rho is the *decay* hyperparameter of RMSProp (both equal to 0.9)
  - Eta is the *learning rate* (Initial = 0.045) and Delta is the *learning rate decay* (0.98 per epoch)
