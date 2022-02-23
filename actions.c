@@ -407,7 +407,8 @@ void train(){
             par[1].final_par_fc_w,              // Weight moving squared means
             par[1].final_par_fc_b);             // Bias moving squared means
 
-    if (strcmp(frz,"fc") == 0) {exit(0);}       // Freeze point - Fully Connected
+    int i = 0;                  // Index for comparison
+    if (frz == ++i) {exit(0);}  // Freeze point - Fully Connected
 
     backprop_avrgpool(var.final_conv2d_relu,    // Input
             var.final_pooling);                 // Output
@@ -430,7 +431,7 @@ void train(){
             par[1].final_par_conv2d,            // Weight moving squared means
             1, 0, 35);                          // Stride, padding and import index
 
-    if (strcmp(frz,"b18") == 0) {exit(0);}      // Freeze point - Block 18
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 18
 
     // Block 18
     backprop_S1(7,          // Input and output size
@@ -448,7 +449,7 @@ void train(){
             par[0].block18_par_project,     par[1].block18_par_project,     // Project weights/MSM
             par[0].block18_par_project_BN,  par[1].block18_par_project_BN); // Project parameters/MSM
 
-    if (strcmp(frz,"b17") == 0) {exit(0);}      // Freeze point - Block 17
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 17
 
     // Block 17
     backprop_S1(7,          // Input and output size
@@ -466,7 +467,7 @@ void train(){
             par[0].block17_par_project,     par[1].block17_par_project,     // Project weights/MSM
             par[0].block17_par_project_BN,  par[1].block17_par_project_BN); // Project parameters/MSM
 
-    if (strcmp(frz,"b16") == 0) {exit(0);}      // Freeze point - Block 16
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 16
 
     // Block 16
     backprop_S1(7,          // Input and output size
@@ -484,7 +485,7 @@ void train(){
             par[0].block16_par_project,     par[1].block16_par_project,     // Project weights/MSM
             par[0].block16_par_project_BN,  par[1].block16_par_project_BN); // Project parameters/MSM
 
-    if (strcmp(frz,"b15") == 0) {exit(0);}      // Freeze point - Block 15
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 15
 
     // Block 15
     backprop_S2(14, 7,      // Input and output size / depthwise factor
@@ -502,7 +503,7 @@ void train(){
             par[0].block15_par_project,     par[1].block15_par_project,     // Project weights/MSM
             par[0].block15_par_project_BN,  par[1].block15_par_project_BN); // Project parameters/MSM
 
-    if (strcmp(frz,"b14") == 0) {exit(0);}      // Freeze point - Block 14
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 14
 
     // Block 14
     backprop_S1(14,         // Input and output size
@@ -520,7 +521,7 @@ void train(){
             par[0].block14_par_project,     par[1].block14_par_project,     // Project weights/MSM
             par[0].block14_par_project_BN,  par[1].block14_par_project_BN); // Project parameters/MSM
 
-    if (strcmp(frz,"b13") == 0) {exit(0);}      // Freeze point - Block 13
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 13
 
     // Block 13
     backprop_S1(14,         // Input and output size
@@ -538,7 +539,7 @@ void train(){
             par[0].block13_par_project,     par[1].block13_par_project,     // Project weights/MSM
             par[0].block13_par_project_BN,  par[1].block13_par_project_BN); // Project parameters/MSM
 
-    if (strcmp(frz,"b12") == 0) {exit(0);}      // Freeze point - Block 12
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 12
 
     // Block 12
     backprop_S1(14,         // Input and output size
@@ -556,7 +557,7 @@ void train(){
             par[0].block12_par_project,     par[1].block12_par_project,     // Project weights/MSM
             par[0].block12_par_project_BN,  par[1].block12_par_project_BN); // Project parameters/MSM
 
-    if (strcmp(frz,"b11") == 0) {exit(0);}      // Freeze point - Block 11
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 11
 
     // Block 11
     backprop_S1(14,         // Input and output size
@@ -574,7 +575,7 @@ void train(){
             par[0].block11_par_project,     par[1].block11_par_project,     // Project weights/MSM
             par[0].block11_par_project_BN,  par[1].block11_par_project_BN); // Project parameters/MSM
 
-    if (strcmp(frz,"b10") == 0) {exit(0);}      // Freeze point - Block 10
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 10
 
     // Block 10
     backprop_S1(14,         // Input and output size
@@ -592,7 +593,7 @@ void train(){
             par[0].block10_par_project,     par[1].block10_par_project,     // Project weights/MSM
             par[0].block10_par_project_BN,  par[1].block10_par_project_BN); // Project parameters/MSM
 
-    if (strcmp(frz,"b9") == 0) {exit(0);}       // Freeze point - Block 9
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 9
 
     // Block 9
     backprop_S1(14,         // Input and output size
@@ -610,7 +611,7 @@ void train(){
             par[0].block9_par_project,      par[1].block9_par_project,      // Project weights/MSM
             par[0].block9_par_project_BN,   par[1].block9_par_project_BN);  // Project parameters/MSM
 
-    if (strcmp(frz,"b8") == 0) {exit(0);}       // Freeze point - Block 8
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 8
 
     // Block 8
     backprop_S2(28, 14,     // Input and output size / depthwise factor
@@ -628,7 +629,7 @@ void train(){
             par[0].block8_par_project,      par[1].block8_par_project,      // Project weights/MSM
             par[0].block8_par_project_BN,   par[1].block8_par_project_BN);  // Project parameters/MSM
 
-    if (strcmp(frz,"b7") == 0) {exit(0);}       // Freeze point - Block 7
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 7
 
     // Block 7
     backprop_S1(28,         // Input and output size
@@ -646,7 +647,7 @@ void train(){
             par[0].block7_par_project,      par[1].block7_par_project,      // Project weights/MSM
             par[0].block7_par_project_BN,   par[1].block7_par_project_BN);  // Project parameters/MSM
 
-    if (strcmp(frz,"b6") == 0) {exit(0);}       // Freeze point - Block 6
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 6
 
     // Block 6
     backprop_S1(28,         // Input and output size
@@ -664,7 +665,7 @@ void train(){
             par[0].block6_par_project,      par[1].block6_par_project,      // Project weights/MSM
             par[0].block6_par_project_BN,   par[1].block6_par_project_BN);  // Project parameters/MSM
 
-    if (strcmp(frz,"b5") == 0) {exit(0);}       // Freeze point - Block 5
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 5
 
     // Block 5
     backprop_S2(56, 28,     // Input and output size / depthwise factor
@@ -682,7 +683,7 @@ void train(){
             par[0].block5_par_project,      par[1].block5_par_project,      // Project weights/MSM
             par[0].block5_par_project_BN,   par[1].block5_par_project_BN);  // Project parameters/MSM
 
-    if (strcmp(frz,"b4") == 0) {exit(0);}       // Freeze point - Block 4
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 4
 
     // Block 4
     backprop_S1(56,         // Input and output size
@@ -700,7 +701,7 @@ void train(){
             par[0].block4_par_project,      par[1].block4_par_project,      // Project weights/MSM
             par[0].block4_par_project_BN,   par[1].block4_par_project_BN);  // Project parameters/MSM
 
-    if (strcmp(frz,"b3") == 0) {exit(0);}       // Freeze point - Block 3
+    if (frz == ++i) {exit(0);}  // Freeze point - Block 3
 
     // Block 3
     backprop_S2(112, 56,    // Input and output size / depthwise factor
@@ -718,7 +719,7 @@ void train(){
             par[0].block3_par_project,      par[1].block3_par_project,      // Project weights/MSM
             par[0].block3_par_project_BN,   par[1].block3_par_project_BN);  // Project parameters/MSM
 
-    if (strcmp(frz,"exp") == 0) {exit(0);}      // Freeze point - Expanded Block
+    if (frz == ++i) {exit(0);}  // Freeze point - Expanded Block
 
     // Expanded Block
     backprop_bn(112, 16,                        // Size and depth
@@ -775,6 +776,6 @@ void transfer() {
 
     fillRandom("fc.csv", class);
 
-    //if (strcmp(tfr,"b18") == 0
+    //if (tfr >= 2)
 
 }

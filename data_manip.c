@@ -302,22 +302,28 @@ void importTransfer() {
     }
 
     char c = fgetc(fptr); // generic char
+    char s[4];
+    char *p;
     int i = 0;
 
     while (c != ' ') {
-        class[i] = c;
         c = fgetc(fptr);
+        s[i] = c;
         ++i;
     }
+    s[i] = '\0';
+    class = strtol(s, &p, 10);
 
     c = fgetc(fptr);
 
     i = 0;
     while (c != ' ') {
-        hidden[i] = c;
         c = fgetc(fptr);
+        s[i] = c;
         ++i;
     }
+    s[i] = '\0';
+    hidden = strtol(s, &p, 10);
 
     fclose(fptr);
 }
@@ -370,19 +376,12 @@ void exportTransfer() {
         exit(EXIT_FAILURE);
     }
 
-    int i = 0;
-    while (class[i] != '\0') {
-        fprintf(fptr, "%c", class[i]);
-        ++i;
-    }
-    fprintf(fptr, " ");
+    char s[4];
+    sprintf(s, "%d", class);
+    fprintf(fptr, "%s ", s);
 
-    i = 0;
-    while (hidden[i] != '\0') {
-        fprintf(fptr, "%c", hidden[i]);
-        ++i;
-    }
-    fprintf(fptr, " ");
+    sprintf(s, "%d", hidden);
+    fprintf(fptr, "%s ", s);
 
     fclose(fptr);
     printf("Saved Transfer Parameters\n");
