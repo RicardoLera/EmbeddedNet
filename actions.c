@@ -4,6 +4,7 @@
 #include "blocks.h"
 #include "layers.h"
 #include "operations.h"
+#include "data_manip.h"
 #include "var.h"
 
 void inference() {
@@ -774,8 +775,12 @@ void train(){
 
 void transfer() {
 
+    // Fully Connected
     fillRandom("fc.csv", class);
 
-    //if (tfr >= 2)
-
+    // Final Layer
+    if (tfr >= 2) {
+        fillRandom("param52.csv", sizeof(par->final_par_conv2d_BN)/4);
+        fillRandom("weight35.csv", sizeof(par->final_par_conv2d)/4);
+    }
 }
