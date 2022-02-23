@@ -78,16 +78,18 @@ void import_image(int l) {
 void import_weights(int id, int size, int od, int idx, float kdata[od][size][size][id]) {
 
     // Define name from index
-    char name[14]; // maximum number of characters is "weightsxx.csv" = 13
-    sprintf(name, "weights%d.csv", idx);
+    //char name[14]; // maximum number of characters is "weightsxx.csv" = 13
+    //sprintf(name, "weights%d.csv", idx);
 
     // open file
     FILE *fptr;
-    fptr = fopen(name, "r");
+    fptr = fopen("par.csv", "r");
     if (fptr == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);
     }
+
+    fseek(fptr, csv, SEEK_SET); // Skip to current line of file
 
     char c = fgetc(fptr); // generic char
     char s[15];           // mantissa, maximum number of characters is "-x.xxxxxxxe-xx" = 14
@@ -111,6 +113,9 @@ void import_weights(int id, int size, int od, int idx, float kdata[od][size][siz
             }
         }
     }
+
+    csv = csv + (od*size*size*id);  // Complement CSV index
+
     fclose(fptr);
 }
 
@@ -119,17 +124,15 @@ void import_bn(int depth, int idx, float pdata[4][depth]) {
     // [0][:] is gamma, [1][:] is beta, [2][:] is moving mean, [3][:] is moving variance
     // NOTE: only gamma and beta are imported here, the other two are imported in the next function
 
-    // Define name from index
-    char name[12]; // maximum number of characters is "paramxx.csv" = 11
-    sprintf(name, "param%d.csv", idx);
-
     // open file
     FILE *fptr;
-    fptr = fopen(name, "r");
+    fptr = fopen("par.csv", "r");
     if (fptr == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);
     }
+
+    fseek(fptr, csv, SEEK_SET); // Skip to current line of file
 
     char c = fgetc(fptr); // generic char
     char s[15];           // mantissa, maximum number of characters is "-x.xxxxxxxe-xx" = 14
@@ -149,6 +152,9 @@ void import_bn(int depth, int idx, float pdata[4][depth]) {
             c = fgetc(fptr);
         }
     }
+
+    csv = csv + (depth*4*15);  // Complement CSV index
+
     fclose(fptr);
 }
 
@@ -390,9 +396,6 @@ void exportTransfer() {
 void fillRandom(char* name, int n) {
 
 }
-
-
-
 
 
 

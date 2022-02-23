@@ -96,55 +96,102 @@ def save(s):
     with open('../Debug/label1.csv', 'w') as outfile:
         outfile.write("282 ")
     
-    # Save Conv2D Weights
+        # Save All Parameters
+    import os
+    name = '../Debug/par.csv'
+    os.remove(name)
     indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]
-    i = 1
-    for x in indexC:
-        print("Saving weights" + str(i) + ".csv")
-        data = np.array(model.layers[x].get_weights())[0,:,:,:,:]
-        name = '../Debug/weights' + str(i) + '.csv'
-        i = i + 1
-        with open(name, 'w') as outfile:
-            for threeD_data_slice in data:
-                for twoD_data_slice in threeD_data_slice:
-                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+    indexBN = [2, 5, 8, 10, 14, 17, 19, 22, 25, 28, 32, 35, 37, 40, 43, 46, 49, 52, 55, 59, 62, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 99, 102, 105, 108, 111, 114, 117, 121, 124, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152]
+    indexD = [4, 13, 21, 31, 39, 48, 58, 66, 75, 84, 93, 101, 110, 120, 128, 137, 146]
+    indexFC = [155]
+    
+    for i in range(156):
+        
+        if (i in indexC):
+            print("Saving C  " + str(i))
+            data = np.array(model.layers[i].get_weights())[0,:,:,:,:]
+            with open(name, 'a') as outfile:
+                for threeD_data_slice in data:
+                    for twoD_data_slice in threeD_data_slice:
+                        np.savetxt(outfile, twoD_data_slice, fmt='%+1.7e')
+            
+        elif (i in indexBN):
+            print("Saving BN " + str(i))
+            data = np.array(model.layers[i].get_weights())
+            with open(name, 'a') as outfile:
+                for twoD_data_slice in data: 
+                    np.savetxt(outfile, twoD_data_slice, fmt='%+1.7e')
+    
+        elif (i in indexD):
+            print("Saving D  " + str(i))
+            data = np.array(model.layers[i].get_weights())[0,:,:,:,0]
+            with open(name, 'a') as outfile:
+                for threeD_data_slice in data:
+                    for twoD_data_slice in threeD_data_slice:
+                        np.savetxt(outfile, twoD_data_slice, fmt='%+1.7e')
+    
+        elif (i in indexFC):
+            print("Saving FC weights")
+            data = model.layers[i].get_weights()[0]
+            with open(name, 'a') as outfile:
+                for twoD_data_slice in data:
+                    np.savetxt(outfile, twoD_data_slice, fmt='%+1.7e')
+            
+            print("Saving FC biases")
+            data = model.layers[i].get_weights()[1]
+            with open(name, 'a') as outfile:
+                np.savetxt(outfile, data, fmt='%+1.7e')
+    
+
+    
+    # Save Conv2D Weights
+    #indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]
+    #i = 1
+    #print("Saving weights")
+    #for x in indexC:
+    #    data = np.array(model.layers[x].get_weights())[0,:,:,:,:]
+    #    i = i + 1
+    #    with open(name, 'a') as outfile:
+    #        for threeD_data_slice in data:
+    #            for twoD_data_slice in threeD_data_slice:
+    #                np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
     
     # Save Batch Normalization Weights
-    indexBN = [2, 5, 8, 10, 14, 17, 19, 22, 25, 28, 32, 35, 37, 40, 43, 46, 49, 52, 55, 59, 62, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 99, 102, 105, 108, 111, 114, 117, 121, 124, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152]
-    i = 1
-    for x in indexBN:
-        print("Saving param" + str(i) + ".csv")
-        data = np.array(model.layers[x].get_weights())
-        name = '../Debug/param' + str(i) + '.csv'
-        i = i + 1
-        with open(name, 'w') as outfile:
-            for twoD_data_slice in data: 
-                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+    #indexBN = [2, 5, 8, 10, 14, 17, 19, 22, 25, 28, 32, 35, 37, 40, 43, 46, 49, 52, 55, 59, 62, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 99, 102, 105, 108, 111, 114, 117, 121, 124, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152]
+    #i = 1
+    #for x in indexBN:
+    #    print("Saving param" + str(i) + ".csv")
+    #    data = np.array(model.layers[x].get_weights())
+    #    name = '../Debug/param' + str(i) + '.csv'
+    #    i = i + 1
+    #    with open(name, 'w') as outfile:
+    #        for twoD_data_slice in data: 
+    #                np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
     
     # Save Depthwise Convolution Weights
-    indexD = [4, 13, 21, 31, 39, 48, 58, 66, 75, 84, 93, 101, 110, 120, 128, 137, 146]
-    i = 1
-    for x in indexD:
-        print("Saving dweights" + str(i) + ".csv")
-        data = np.array(model.layers[x].get_weights())[0,:,:,:,0]
-        name = '../Debug/dweights' + str(i) + '.csv'
-        i = i + 1
-        with open(name, 'w') as outfile:
-            for threeD_data_slice in data:
-                for twoD_data_slice in threeD_data_slice:
-                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+    #indexD = [4, 13, 21, 31, 39, 48, 58, 66, 75, 84, 93, 101, 110, 120, 128, 137, 146]
+    #i = 1
+    #for x in indexD:
+    #    print("Saving dweights" + str(i) + ".csv")
+    #    data = np.array(model.layers[x].get_weights())[0,:,:,:,0]
+    #    name = '../Debug/dweights' + str(i) + '.csv'
+    #    i = i + 1
+    #    with open(name, 'w') as outfile:
+    #        for threeD_data_slice in data:
+    #            for twoD_data_slice in threeD_data_slice:
+    #                np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
     
     # Save Fully Connected Weights/Biases
-    print("Saving fc_w.csv")
-    data = model.layers[155].get_weights()[0]
-    with open('../Debug/fc_w.csv', 'w') as outfile:
-        for twoD_data_slice in data:
-            np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+    #print("Saving fc_w.csv")
+    #data = model.layers[155].get_weights()[0]
+    #with open('../Debug/fc_w.csv', 'w') as outfile:
+    #    for twoD_data_slice in data:
+    #        np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
             
-    print("Saving fc_b.csv")
-    data = model.layers[155].get_weights()[1]
-    with open('../Debug/fc_b.csv', 'w') as outfile:
-        np.savetxt(outfile, data, fmt='%-1.7e')
+    #print("Saving fc_b.csv")
+    #data = model.layers[155].get_weights()[1]
+    #with open('../Debug/fc_b.csv', 'w') as outfile:
+    #    np.savetxt(outfile, data, fmt='%-1.7e')
     
 def testlayer(n, l):
     import keras.backend as K

@@ -16,6 +16,9 @@ extern int hidden;  // Maximum 999
 extern float image[224][224][3];
 extern int label;
 
+// CSV file index
+extern unsigned int csv;
+
 
                     // The following indexes refer to the OUTPUT of the respective layers
                     // These are necessary for the backpropagation step
@@ -366,6 +369,5 @@ struct parameters {
 };
 
 struct parameters par[2];   // 0 represents trainable parameters; 1 represents moving squared means
-
 
 #endif

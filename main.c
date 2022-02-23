@@ -20,6 +20,9 @@ int hidden;
 float image[224][224][3];
 int label;
 
+// Initialize CSV index
+unsigned int csv = 0;
+
 int main( int argc, char *argv[] ) { 
 
     // Debugging
