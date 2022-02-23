@@ -770,3 +770,11 @@ void train(){
             par[1].initial_par_conv2d,          // Weight moving squared means
             2, 0, 1);                           // Stride, padding and import index
 }
+
+void transfer() {
+
+    fillRandom("fc.csv", class);
+
+    //if (strcmp(tfr,"b18") == 0
+
+}

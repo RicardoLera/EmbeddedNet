@@ -7,6 +7,11 @@ extern int epoch_count;
 // Freeze index - Maximum characters: "b18" = 3
 extern char frz[4];
 
+// Transfer indexes
+extern char tfr[4];     // Same as frz
+extern char class[4];   // Maximum 999
+extern char hidden[4];  // Maximum 999
+
 // Declare image and label
 extern float image[224][224][3];
 extern int label;

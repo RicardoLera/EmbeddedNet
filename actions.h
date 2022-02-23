@@ -3,5 +3,6 @@
 
 void inference();
 void train();
+void transfer();
 
 #endif

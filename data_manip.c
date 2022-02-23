@@ -292,6 +292,36 @@ void import_fc(int isize, int osize, float weight[isize][osize], float *bias) {
     fclose(fptr);
 }
 
+void importTransfer() {
+    // open file
+    FILE *fptr;
+    fptr = fopen("transfer.csv", "r");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+
+    char c = fgetc(fptr); // generic char
+    int i = 0;
+
+    while (c != ' ') {
+        class[i] = c;
+        c = fgetc(fptr);
+        ++i;
+    }
+
+    c = fgetc(fptr);
+
+    i = 0;
+    while (c != ' ') {
+        hidden[i] = c;
+        c = fgetc(fptr);
+        ++i;
+    }
+
+    fclose(fptr);
+}
+
 void export(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
     FILE *fptr;
     fptr = fopen(name, "w");
@@ -332,6 +362,42 @@ void exportConv(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d
     printf("Saved %s\n", name);
 }
 
+void exportTransfer() {
+    FILE *fptr;
+    fptr = fopen("transfer.csv", "w");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+
+    int i = 0;
+    while (class[i] != '\0') {
+        fprintf(fptr, "%c", class[i]);
+        ++i;
+    }
+    fprintf(fptr, " ");
+
+    i = 0;
+    while (hidden[i] != '\0') {
+        fprintf(fptr, "%c", hidden[i]);
+        ++i;
+    }
+    fprintf(fptr, " ");
+
+    fclose(fptr);
+    printf("Saved Transfer Parameters\n");
+}
+
+void fillRandom(char* name, int n) {
+
+}
+
+
+
+
+
+
+/*
 void import(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
     FILE *fptr;
     fptr = fopen(name, "r");
@@ -391,3 +457,4 @@ void import_1D(char* name, int d, float* data) {
     }
     fclose(fptr);
 }
+*/
