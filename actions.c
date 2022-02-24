@@ -7,7 +7,7 @@
 #include "data_manip.h"
 #include "var.h"
 
-void inference() {
+void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2]) {
 
     // Initial Block
     printf("Entering Initial Block: 224x224x3\n");
@@ -355,15 +355,16 @@ void inference() {
     avgpool(var.final_conv2d_relu,          // Input
             var.final_pooling);             // Output
 
-    fully_connected(var.final_pooling,      // Input
-            var.predictions,                // Output
-            par[0].final_par_fc_w,          // Weights
-            par[0].final_par_fc_b);         // Biases
+    fully_connected(class,                  // Classification Layer Index
+            var.final_pooling,              // Input
+            predictions,                    // Output
+            fc_w,                           // Weights
+            fc_b);                          // Biases
 
-    softmax(var.predictions,                // Input/output
-            1000);                          // Length
+    softmax(predictions,                    // Input/output
+            class);                         // Length
 
-    decode(var.predictions);                // Input/output - Final prediction
+    decode(predictions);                    // Input/output - Final prediction
 
 /*
     // Pred Probe Test
@@ -394,19 +395,18 @@ void inference() {
 */
 }
 
-void train(){
+void train(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2]){
 
-    inference();
+    inference(c, predictions, fc_w, fc_b);
     printf("\n");
 
     // Final Block
-    backprop_fc(var.final_pooling,              // Input
-            var.predictions,                    // Output (recycled as backpropagated error from here on)
+    backprop_fc(c,                              // Classification Layer Parameter
+            var.final_pooling,                  // Input
+            predictions,                        // Output (recycled as backpropagated error from here on)
             label,                              // Correct prediction
-            par[0].final_par_fc_w,              // Weights
-            par[0].final_par_fc_b,              // Biases
-            par[1].final_par_fc_w,              // Weight moving squared means
-            par[1].final_par_fc_b);             // Bias moving squared means
+            fc_w,                               // Weights and moving squared means
+            fc_b);                              // Biases and moving squared means
 
     int i = 0;                  // Index for comparison
     if (frz == ++i) {exit(0);}  // Freeze point - Fully Connected
@@ -776,11 +776,13 @@ void train(){
 void transfer() {
 
     // Fully Connected
-    fillRandom("fc.csv", class);
+    fillRandom("fc.csv", class); // correct later
 
     // Final Layer
     if (tfr >= 2) {
         fillRandom("param52.csv", sizeof(par->final_par_conv2d_BN)/4);
         fillRandom("weight35.csv", sizeof(par->final_par_conv2d)/4);
     }
+
+    // etc...
 }

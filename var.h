@@ -4,22 +4,18 @@
 // Count index
 extern int epoch_count;
 
-// Freeze index - Maximum characters: "b18" = 3
+// Freeze index
 extern int frz;
 
 // Transfer indexes
 extern int tfr;     // Same as frz
 extern int class;   // Maximum 999
-extern int hidden;  // Maximum 999
 
 // Declare image and label
 extern float image[224][224][3];
 extern int label;
 
-
-                    // The following indexes refer to the OUTPUT of the respective layers
-                    // These are necessary for the backpropagation step
-
+// The following indexes refer to the OUTPUT of the respective layers. These are necessary for the backpropagation step.
 struct variables {
     // Initial Block
     float initial_conv2d[112][112][32];  // Used in BN backpropagation
@@ -210,14 +206,13 @@ struct variables {
     //float final_conv2d_BN[7][7][1280];
     float final_conv2d_relu[7][7][1280];
     float final_pooling[1280];
-    float predictions[1000];
+    //float predictions[1000];                // Allocated Dynamically due to Transfer
 };
 
 struct variables var;   // Done this way so that I don't have to instantiate every variable again
 
 
-                    // The following is the 3.4M parameter struct
-
+// The following is the 3.4M parameter struct
 struct parameters {
 
     // Initial Block
@@ -361,11 +356,10 @@ struct parameters {
     // Final Block
     float final_par_conv2d[1280][1][1][320];
     float final_par_conv2d_BN[4][1280];
-    float final_par_fc_w[1280][1000];
-    float final_par_fc_b[1000];
+    //float final_par_fc_w[1280][1000];
+    //float final_par_fc_b[1000];                // Allocated Dynamically due to Transfer
 };
 
 struct parameters par[2];   // 0 represents trainable parameters; 1 represents moving squared means
-
 
 #endif

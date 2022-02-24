@@ -14,7 +14,6 @@ int frz;
 // Initialize transfer indexes
 int tfr;
 int class;
-int hidden;
 
 // Initialize image and label
 float image[224][224][3];
@@ -35,10 +34,15 @@ int main( int argc, char *argv[] ) {
 
         importTransfer();
 
+        // Allocate FC
+        float predictions[class];
+        float (*fc_w)[class][2] = calloc(1280, sizeof *fc_w);
+        float (*fc_b)[2] = calloc(class, sizeof *fc_b);
+
         // Fill input using data0[y][x][d] syntax (y are lines, x are columns)
         import_image(0);
 
-        inference();
+        inference(class, predictions, fc_w, fc_b);
 
     }
     else if (strcmp(argv[1],"train") == 0 ) {
@@ -78,18 +82,22 @@ int main( int argc, char *argv[] ) {
 
         importTransfer();
 
+        // Allocate FC
+        float predictions[class];
+        float (*fc_w)[class][2] = calloc(1280, sizeof *fc_w);
+        float (*fc_b)[2] = calloc(class, sizeof *fc_b);
+
         import_image(0);
 
-        train();
+        train(class, predictions, fc_w, fc_b);
 
     }
     else if (strcmp(argv[1],"transfer") == 0 ) {
 
-        if (argc != 5) {
-            printf("TRANSFER command must have 3 extra arguments:\n"
+        if (argc != 4) {
+            printf("TRANSFER command must have 2 extra arguments:\n"
                     " - tfr: Selects which layers to transfer the parameters into. Possible values are the same as frz.\n"
-                    " - class: How many classification neurons are in the last layer of the new model.\n"
-                    " - hidden: How many hidden neurons are in the hidden layer of the new model. 0 does not create a hidden layer.\n");
+                    " - class: How many classification neurons are in the last layer of the new model.\n" );
             return(0);
         }
 
@@ -120,17 +128,9 @@ int main( int argc, char *argv[] ) {
         char *temp;
 
         class = strtol(argv[3], &temp, 10);
-        if (class == 0 || class > 999 || class < 0) {
-            printf("Invalid class index (1 - 999)\n");
+        if (class < 1 || class > 1000) {
+            printf("Invalid class index (1 - 1000)\n");
             return(0);
-        }
-
-        hidden = strtol(argv[4], &temp, 10);
-        if (hidden == 0 || hidden > 999 || hidden < 0) {
-            if (strtol(argv[4], &temp, 10) != 0) {
-                printf("Invalid hidden index (1 - 999)\n");
-                return(0);
-            }
         }
 
         exportTransfer();

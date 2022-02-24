@@ -38,6 +38,6 @@ void S2depthwise (int isize,
         float odata[osize][osize][depth],
         float kdata[ksize][ksize][depth]);
 
-void fully_connected(float *data, float *pred, float weight[1280][1000], float bias[1000]);
+void fully_connected(int c, float *data, float *pred, float weight[1280][c][2], float bias[c][2]);
 
 #endif

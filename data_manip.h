@@ -6,10 +6,12 @@ void import_weights (int id, int size, int od, int idx, float kdata[od][size][si
 void import_bn(int depth, int idx, float pdata[4][depth]);
 void import_moving(int depth, int idx, float pdata[4][depth]);
 void import_dweights(int depth, int ksize, int idx, float kdata[ksize][ksize][depth]);
-void import_fc(int isize, int osize, float weight[isize][osize], float *bias);
+void import_fc(int isize, int osize, float weight[isize][osize][2], float bias[osize][2]);
 void importTransfer();
 void export(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]);
 void exportConv(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]);
+void exportW(char* name, int d, int c, float data[d][c][2]);
+void exportB(char* name, int c, float data[c][2]);
 void exportTransfer();
 void fillRandom(char* name, int n);
 

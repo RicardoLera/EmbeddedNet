@@ -87,6 +87,11 @@ def save(s):
     classes=1000,
     classifier_activation="softmax",)
 
+    # Save Transfer Parameter
+    print("Saving transfer parameter")
+    with open('../Debug/transfer.csv', 'w') as outfile:
+        outfile.write("1000 ")
+
     # Save Image and Label
     print("Saving image")
     data = processed_image[0,:,:,:]

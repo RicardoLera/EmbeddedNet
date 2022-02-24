@@ -155,14 +155,14 @@ void softmax(float *input, int input_len) {
     }
 }
 
-void fully_connect(int isize, int osize, float w[isize][osize], float *b, float *idata, float *odata) {
+void fully_connect(int isize, int osize, float w[isize][osize][2], float b[osize][2], float *idata, float *odata) {
 
     for (int y = 0; y < osize; ++y) { // 1000
         odata[y] = 0;
         for (int x = 0; x < isize; ++x) { // 1280
-            odata[y] += idata[x]*w[x][y];
+            odata[y] += idata[x]*w[x][y][0];
         }
-        odata[y] += b[y];
+        odata[y] += b[y][0];
     }
 }
 
@@ -185,14 +185,14 @@ int compare(const void *p1, const void *p2) {
 
 void decode(float *pred) {
 
-    struct Correlation cor[1000];
+    struct Correlation cor[class];
 
-    for(int n = 0; n < 1000; n++) {
+    for(int n = 0; n < class; n++) {
         cor[n].prediction = pred[n];
         cor[n].idx = n;
     }
 
-    qsort(cor, 1000, sizeof(struct Correlation), compare);
+    qsort(cor, class, sizeof(struct Correlation), compare);
 
     FILE *fp;
     fp = fopen("fc_pred.csv", "w");
@@ -240,29 +240,28 @@ void decode(float *pred) {
     fclose(fptr);
 }
 
-void backprop_fc(float I[1280],
-        float O[1000],
+void backprop_fc(int c,
+        float I[1280],
+        float O[c],
         int label,
-        float weight[1280][1000],
-        float bias[1000],
-        float Ew[1280][1000],
-        float Eb[1000])
+        float fc_w[1280][c][2],
+        float fc_b[c][2])
 {
 
-    float (*dLdW)[1000] = calloc(1280, sizeof *dLdW);   // We need this because both the backprop error and the weight gradient calculations depend on W and I
-    float dLdB[1000];
+    float (*dLdW)[c] = calloc(1280, sizeof *dLdW);   // We need this because both the backprop error and the weight gradient calculations depend on W and I
+    float dLdB[c];
 
     // Calculate gradient and moving squared means - uses input
-    for (int j = 0; j < 1000; ++j) {
+    for (int j = 0; j < c; ++j) {
         for (int i = 0; i < 1280; ++i) {
             if (j == label) {
-                dLdW[i][j] = I[i]*(O[j] - 1) + LAMBDA*weight[i][j];
+                dLdW[i][j] = I[i]*(O[j] - 1) + LAMBDA*fc_w[i][j][0];
             }
             else {
-                dLdW[i][j] = I[i]*O[j] + LAMBDA*weight[i][j];
+                dLdW[i][j] = I[i]*O[j] + LAMBDA*fc_w[i][j][0];
             }
 
-            Ew[i][j] = E_MOMENTUM*Ew[i][j] + (1 - E_DECAY)*dLdW[i][j]*dLdW[i][j];
+            fc_w[i][j][1] = E_MOMENTUM*fc_w[i][j][1] + (1 - E_DECAY)*dLdW[i][j]*dLdW[i][j];
         }
         if (j == label) {
             dLdB[j] = O[j] - 1;
@@ -271,7 +270,7 @@ void backprop_fc(float I[1280],
             dLdB[j] = O[j];
         }
 
-        Eb[j] = E_MOMENTUM*Eb[j] + (1 - E_DECAY)*dLdB[j]*dLdB[j];
+        fc_b[j][1] = E_MOMENTUM*fc_b[j][1] + (1 - E_DECAY)*dLdB[j]*dLdB[j];
     }
 
     if (frz != 1) {
@@ -279,12 +278,12 @@ void backprop_fc(float I[1280],
         // Calculate backpropagated error (saved in final_pooling[1280] for memory's sake) - uses weights, changes inputs
         for (int i = 0; i < 1280; ++i) {
             I[i] = 0;
-            for (int j = 0; j < 1000; ++j) {
+            for (int j = 0; j < c; ++j) {
                 if (j == label) {
-                    I[i] += weight[i][j] * (O[j] - 1);
+                    I[i] += fc_w[i][j][0] * (O[j] - 1);
                 }
                 else {
-                    I[i] += weight[i][j] * O[j];
+                    I[i] += fc_w[i][j][0] * O[j];
                 }
             }
         }
@@ -292,16 +291,16 @@ void backprop_fc(float I[1280],
     }
 
     // Correct weights and biases - changes weights
-    for (int j = 0; j < 1000; ++j) {
+    for (int j = 0; j < c; ++j) {
         for (int i = 0; i < 1280; ++i) {
-            weight[i][j] = weight[i][j] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ew[i][j])+EPSILON) ) * dLdW[i][j] );
+            fc_w[i][j][0] = fc_w[i][j][0] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(fc_w[i][j][1])+EPSILON) ) * dLdW[i][j] );
         }
-    bias[j] = bias[j] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Eb[j])+EPSILON) ) * dLdB[j] );
+    fc_b[j][0] = fc_b[j][0] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(fc_b[j][1])+EPSILON) ) * dLdB[j] );
     }
     free(dLdW);
 
-    export("fc_w.csv",1,1,1280,1000,weight);
-    export("fc_b.csv",1,1,1,1000,bias);
+    exportW("fc_w.csv",1280,c,fc_w);
+    exportB("fc_b.csv",c,fc_b);
 }
 
 void backprop_avrgpool(float I[7][7][1280], float O[1280]) {

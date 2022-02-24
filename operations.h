@@ -38,17 +38,16 @@ void avgpool(float data[7][7][1280], float pred[1280]);
 
 void softmax(float *input, int input_len);
 
-void fully_connect(int isize, int osize, float w[isize][osize], float *b, float *idata, float *odata);
+void fully_connect(int isize, int osize, float w[isize][osize][2], float b[osize][2], float *idata, float *odata);
 
 void decode(float *pred);
 
-void backprop_fc(float I[1280],
-        float O[1000],
+void backprop_fc(int c,
+        float I[1280],
+        float O[c],
         int label,
-        float weight[1280][1000],
-        float bias[1000],
-        float Ew[1280][1000],
-        float Eb[1000]);
+        float fc_w[1280][c][2],
+        float fc_b[c][2]);
 
 void backprop_avrgpool(float I[7][7][1280], float O[1280]);
 

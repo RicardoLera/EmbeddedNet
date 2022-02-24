@@ -237,7 +237,7 @@ void import_dweights(int depth, int ksize, int idx, float kdata[ksize][ksize][de
     fclose(fptr);
 }
 
-void import_fc(int isize, int osize, float weight[isize][osize], float *bias) {
+void import_fc(int isize, int osize, float weight[isize][osize][2], float bias[osize][2]) {
 
     // open file
     FILE *fptr;
@@ -261,7 +261,7 @@ void import_fc(int isize, int osize, float weight[isize][osize], float *bias) {
             }
             s[i] = '\0';
             float f = atof(s);    // convert to float
-            weight[y][x] = f;     // save on array
+            weight[y][x][0] = f;  // save on array
             c = fgetc(fptr);
         }
     }
@@ -286,7 +286,7 @@ void import_fc(int isize, int osize, float weight[isize][osize], float *bias) {
         }
         s[i] = '\0';
         float f = atof(s);  // convert to float
-        bias[x] = f;        // save on array
+        bias[x][0] = f;     // save on array
         c = fgetc(fptr);
     }
     fclose(fptr);
@@ -302,28 +302,17 @@ void importTransfer() {
     }
 
     char c = fgetc(fptr); // generic char
-    char s[4];
+    char s[5];
     char *p;
     int i = 0;
 
     while (c != ' ') {
-        c = fgetc(fptr);
         s[i] = c;
+        c = fgetc(fptr);
         ++i;
     }
     s[i] = '\0';
     class = strtol(s, &p, 10);
-
-    c = fgetc(fptr);
-
-    i = 0;
-    while (c != ' ') {
-        c = fgetc(fptr);
-        s[i] = c;
-        ++i;
-    }
-    s[i] = '\0';
-    hidden = strtol(s, &p, 10);
 
     fclose(fptr);
 }
@@ -347,6 +336,37 @@ void export(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d
     fclose(fptr);
     printf("Saved %s\n", name);
 }
+
+void exportW(char* name, int d, int c, float data[d][c][2]) {
+    FILE *fptr;
+    fptr = fopen(name, "w");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < d; ++i) {
+        for (int j = 0; j < c; ++j) {
+            fprintf(fptr, "%.7e\n", data[i][j][0]);
+        }
+    }
+    fclose(fptr);
+    printf("Saved %s\n", name);
+}
+
+void exportB(char* name, int c, float data[c][2]) {
+    FILE *fptr;
+    fptr = fopen(name, "w");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    for (int j = 0; j < c; ++j) {
+        fprintf(fptr, "%.7e\n", data[j][0]);
+    }
+    fclose(fptr);
+    printf("Saved %s\n", name);
+}
+
 
 void exportConv(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
     FILE *fptr;
@@ -378,9 +398,6 @@ void exportTransfer() {
 
     char s[4];
     sprintf(s, "%d", class);
-    fprintf(fptr, "%s ", s);
-
-    sprintf(s, "%d", hidden);
     fprintf(fptr, "%s ", s);
 
     fclose(fptr);
