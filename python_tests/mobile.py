@@ -41,6 +41,7 @@ plt.imshow(np.uint8(image_batch[0]))
 # Preprocess
 processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
 
+
 def full_network():    
     # Predict
     predictions = mobilenetv2_model.predict(processed_image)
@@ -55,6 +56,7 @@ def full_network():
         #('n02127052', 'lynx', 0.007303906)
         #('n04074963', 'remote_control', 0.0032443653)
 
+
 def layer(n):
     # Displays layer information
     model = tf.keras.applications.MobileNetV2(
@@ -68,6 +70,7 @@ def layer(n):
     classifier_activation="softmax",)
 
     print(model.layers[n].output)
+    
     
 def save(s):
     if s == 1:
@@ -96,7 +99,7 @@ def save(s):
     with open('../Debug/label1.csv', 'w') as outfile:
         outfile.write("282 ")
     
-    # Save Conv2D Weights
+        # Save Conv2D Weights
     indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]
     i = 1
     for x in indexC:
@@ -146,6 +149,79 @@ def save(s):
     with open('../Debug/fc_b.csv', 'w') as outfile:
         np.savetxt(outfile, data, fmt='%-1.7e')
     
+    
+def savebyte(s):
+    if s == 1:
+        weight = "imagenet"
+    else:
+        weight = None
+    model = tf.keras.applications.MobileNetV2(
+    input_shape=(224,224,3),
+    alpha=1.0,
+    include_top=True,
+    weights=weight,
+    input_tensor=None,
+    pooling=None,
+    classes=1000,
+    classifier_activation="softmax",)
+    
+    # Save All Parameters
+    import os
+    from array import array
+    name = '../Debug/par'
+    os.remove(name)
+    indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]
+    indexBN = [2, 5, 8, 10, 14, 17, 19, 22, 25, 28, 32, 35, 37, 40, 43, 46, 49, 52, 55, 59, 62, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 99, 102, 105, 108, 111, 114, 117, 121, 124, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152]
+    indexD = [4, 13, 21, 31, 39, 48, 58, 66, 75, 84, 93, 101, 110, 120, 128, 137, 146]
+    indexFC = [155]
+    
+    for i in range(156):
+        
+        if (i in indexC):
+            print("Saving C  " + str(i))
+            data = np.array(model.layers[i].get_weights())[0,:,:,:,:]
+            with open(name, 'ab') as outfile:
+                for threeD_data_slice in data:
+                    for twoD_data_slice in threeD_data_slice:
+                        for oneD_data_slice in twoD_data_slice:
+                            float_array = array('f', oneD_data_slice)
+                            float_array.tofile(outfile)
+            
+        elif (i in indexBN):
+            print("Saving BN " + str(i))
+            data = np.array(model.layers[i].get_weights())
+            with open(name, 'ab') as outfile:
+                for twoD_data_slice in data: 
+                    #for oneD_data_slice in twoD_data_slice:
+                        float_array = array('f', twoD_data_slice)
+                        float_array.tofile(outfile)
+                            
+        elif (i in indexD):
+            print("Saving D  " + str(i))
+            data = np.array(model.layers[i].get_weights())[0,:,:,:,0]
+            with open(name, 'ab') as outfile:
+                for threeD_data_slice in data:
+                    for twoD_data_slice in threeD_data_slice:
+                        #for oneD_data_slice in twoD_data_slice:
+                            float_array = array('f', twoD_data_slice)
+                            float_array.tofile(outfile)
+                            
+        elif (i in indexFC):
+            print("Saving FC weights")
+            data = model.layers[i].get_weights()[0]
+            with open(name, 'ab') as outfile:
+                for twoD_data_slice in data:
+                    #for oneD_data_slice in twoD_data_slice:
+                        float_array = array('f', twoD_data_slice)
+                        float_array.tofile(outfile)
+                            
+            print("Saving FC biases")
+            data = model.layers[i].get_weights()[1]
+            with open(name, 'ab') as outfile:
+                float_array = array('f', data)
+                float_array.tofile(outfile)    
+             
+                
 def testlayer(n, l):
     import keras.backend as K
     model = tf.keras.applications.MobileNetV2(
@@ -168,11 +244,13 @@ def testlayer(n, l):
     plt.imshow(output)
     plt.show()
     
+    
 def read(x):   
     file = open("../Debug/output.txt")
     fromC = np.loadtxt(file, delimiter=", ", usecols=range(x))
     plt.imshow(fromC)
     file.close()
+    
     
 def train():
     import keras.backend as K
@@ -207,58 +285,3 @@ def train():
     newmodel.train_on_batch(x=processed_image, y=y_true, sample_weight=None, class_weight=None)
 
     print(newmodel.layers[155].get_weights())
-
-
-    
-
-
-    
-    
-    
-    
-    #func = K.function(full_model.layers[1].input, full_model.layers[154].output)
-    #conv_output = func([processed_image])
-    #data = np.single(conv_output)
-    
-    #model = Sequential()
-    #model.add(Input(shape=(1, 1280)))
-    #model.add(Dense(1000, activation='softmax'))
-    
-    #np.random.seed(0)
-    #weights = np.random.rand(3,2)
-    
-    #model.compile(loss='sparse_categorical_crossentropy', optimizer='rmsprop')
-    #model.train_on_batch(x=data,y=None,sample_weight=None, class_weight=None)
-
-    
-    
-    
-    #model.fit(
-    #x=data,
-    #y=grad,
-    #batch_size=1,
-    #epochs=1,
-    #shuffle=False,
-    #)
-
-    
-    
-
-
-    #y_true = [1, 2]
-    #y_pred = [[0.05, 0.95, 0], [0.1, 0.8, 0.1]]
-    # Using 'auto'/'sum_over_batch_size' reduction type.
-    #scce = tf.keras.losses.SparseCategoricalCrossentropy()
-    #scce(y_true, y_pred).numpy()
-
-
-
-
-
-
-
-
-
-
-
-
