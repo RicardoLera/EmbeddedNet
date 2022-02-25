@@ -4,7 +4,9 @@
 // Count index
 extern int epoch_count;
 
-// Freeze index
+// Training indexes
+extern int n_img;
+extern int n_epoch;
 extern int frz;
 
 // Transfer indexes

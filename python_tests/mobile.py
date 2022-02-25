@@ -85,26 +85,19 @@ def save(s):
     input_tensor=None,
     pooling=None,
     classes=1000,
-    classifier_activation="softmax",)
+    classifier_activation="softmax",)     
+    
+    # Save Classification Labels
+    print("Saving classification labels")
+    import shutil
+    shutil.copyfile("labels.txt", "../Debug/labels.txt")
 
     # Save Transfer Parameter
     print("Saving transfer parameter")
     with open('../Debug/transfer.csv', 'w') as outfile:
         outfile.write("1000 ")
-
-    # Save Image and Label
-    print("Saving image")
-    data = processed_image[0,:,:,:]
-    with open('../Debug/image1.csv', 'w') as outfile:
-        for threeD_data_slice in data:
-            for twoD_data_slice in threeD_data_slice:
-                np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
-
-    print("Saving label")
-    with open('../Debug/label1.csv', 'w') as outfile:
-        outfile.write("282 ")
     
-        # Save Conv2D Weights
+    # Save Conv2D Weights
     indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]
     i = 1
     for x in indexC:
@@ -225,6 +218,69 @@ def savebyte(s):
             with open(name, 'ab') as outfile:
                 float_array = array('f', data)
                 float_array.tofile(outfile)    
+             
+def saveimage():
+    for x in range(10):
+        # Load image in PIL format 244x244
+        filename = '/home/ricardo/EmbeddedNet/python_tests/sun' + str(x+1) + '.jpg'
+        original = load_img(filename, target_size=(224, 224))
+        plt.imshow(original)
+        plt.show()
+        
+        # Convert to numpy array 244x244x3
+        numpy_image = img_to_array(original)
+        plt.imshow(np.uint8(numpy_image))
+        plt.show()
+        
+        # Add batchsize dimension 1x244x244x3
+        image_batch = np.expand_dims(numpy_image, axis=0)
+        plt.imshow(np.uint8(image_batch[0]))
+        
+        # Preprocess
+        processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+    
+        # Save Images and Labels
+        print("Saving sun image " + str(x+1))
+        data = processed_image[0,:,:,:]
+        with open('../Debug/image' + str(x+1) + '.csv', 'w') as outfile:
+            for threeD_data_slice in data:
+                for twoD_data_slice in threeD_data_slice:
+                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+
+        print("Saving sun label " + str(x+1))
+        with open('../Debug/label' + str(x+1) + '.csv', 'w') as outfile:
+            outfile.write("0 ")
+            
+    for x in range(10):
+        # Load image in PIL format 244x244
+        filename = '/home/ricardo/EmbeddedNet/python_tests/moon' + str(x+1) + '.jpg'
+        original = load_img(filename, target_size=(224, 224))
+        plt.imshow(original)
+        plt.show()
+        
+        # Convert to numpy array 244x244x3
+        numpy_image = img_to_array(original)
+        plt.imshow(np.uint8(numpy_image))
+        plt.show()
+        
+        # Add batchsize dimension 1x244x244x3
+        image_batch = np.expand_dims(numpy_image, axis=0)
+        plt.imshow(np.uint8(image_batch[0]))
+        
+        # Preprocess
+        processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+    
+        # Save Images and Labels
+        print("Saving moon image " + str(x+1))
+        data = processed_image[0,:,:,:]
+        with open('../Debug/image' + str(x+11) + '.csv', 'w') as outfile:
+            for threeD_data_slice in data:
+                for twoD_data_slice in threeD_data_slice:
+                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+
+        print("Saving moon label " + str(x+1))
+        with open('../Debug/label' + str(x+11) + '.csv', 'w') as outfile:
+            outfile.write("1 ")
              
                 
 def testlayer(n, l):

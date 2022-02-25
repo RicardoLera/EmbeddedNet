@@ -204,8 +204,14 @@ void decode(float *pred) {
     fclose(fp);
     printf("Saved fc_pred.csv\n");
 
+    int n_cor;
+    if (class >= 5)
+        n_cor = 5;
+    else
+        n_cor = class;
+
     printf("\n");
-    for (int n = 0; n < 5; n++)
+    for (int n = 0; n < n_cor; n++)
         printf("Correlation %d: %e / Index = %d\n", n+1, cor[n].prediction, cor[n].idx);
     printf("\n");
 
@@ -219,7 +225,7 @@ void decode(float *pred) {
     char s[122];
     int j;
 
-    for (int n = 0; n < 5; n++)
+    for (int n = 0; n < n_cor; n++)
     {
         char c = fgetc(fptr);
         for (int i = 0; i < cor[n].idx; ++i)

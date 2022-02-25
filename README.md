@@ -27,13 +27,14 @@ A Keras application of MobileNetV2 is used for pre-training as well as developme
  - Implemented Layer Freezing
  - Profiled performance with Gprof - Bottleneck is at convolution functions: Managed to improve backprop_conv2d at the cost of memory.
  - Profiled memory usage with Massif - Peak memory at 5,211,736B due to backprop_fc's gradient allocation.
+ - Implemented recursive training
+ - Implemented FC Transfer Learning
 
 ## TO DO
 
-Current Main Task: **Implement Transfer Learning**
+Current Main Task: **Finish Transfer Learning**
 
 Other Tasks:
- - Implement recursive training.
  - Streamline import/export functions both in C and in Python.
  - Finish commenting all functions.
 
@@ -42,10 +43,13 @@ Other Tasks:
 First Argument: `run`, `train` or `transfer`.
  - `run`: Runs a single inference of the network for imported image, generating a prediction.
  - `train`: Trains network using imported image. Prediction is generated before training.
-    - `frz`: Second argument in Train command, defines which layers are frozen during training. Possible values are: `exp`, `b3` ... `b18` and `fc`.
+    - `n_img`: Number of images in one epoch (1 - 20, default 1).
+    - `n_epoch`: Number of epochs to run the training for (1 - 50, default 1).
+    - `frz`: Second argument in Train command, defines which layers are frozen during training. Possible values are: `exp`, `b3` ... `b18` and `fc`. Defaults to no freezing.
  - `transfer`: Performs Transfer Learning based on imported parameters and a few arguments that depend on the implementation.
     - `tfr`: Selects which layers to transfer the parameters into. Possible values are the same as `frz`.
     - `class`: How many classification neurons are in the last layer of the new model.
+    - `label`: Destination of new classification labels file.
 
 ## Code Description
 

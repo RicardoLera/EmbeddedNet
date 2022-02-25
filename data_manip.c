@@ -404,6 +404,31 @@ void exportTransfer() {
     printf("Saved Transfer Parameters\n");
 }
 
+void copyLabels(char* path) {
+    FILE *source, *target;
+    char ch;
+
+    source = fopen(path, "r");
+    if (source == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+
+    target = fopen("labels.txt", "w");
+    if (source == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+
+    while ((ch = fgetc(source)) != EOF)
+       fputc(ch, target);
+
+    fclose(source);
+    fclose(target);
+
+    printf("Labels copied successfully\n");
+}
+
 void fillRandom(char* name, int n) {
 
 }

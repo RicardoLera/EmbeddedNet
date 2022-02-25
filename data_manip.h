@@ -13,6 +13,7 @@ void exportConv(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d
 void exportW(char* name, int d, int c, float data[d][c][2]);
 void exportB(char* name, int c, float data[c][2]);
 void exportTransfer();
+void copyLabels(char* path);
 void fillRandom(char* name, int n);
 
 //void import(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]);
