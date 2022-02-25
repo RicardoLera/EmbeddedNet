@@ -9,8 +9,10 @@
 
 void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2]) {
 
+    printf("Inferring...\n");
+
     // Initial Block
-    printf("Entering Initial Block: 224x224x3\n");
+    //printf("Entering Initial Block: 224x224x3\n");
 
     conv2d(224, 112, 3,                         // Input size, output size, kernel size
             2,                                  // Stride
@@ -35,7 +37,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Expanded Block
-    printf("Entering Expanded Block: 112x112x32\n");
+    //printf("Entering Expanded Block: 112x112x32\n");
 
     S1depthwise(112, 3,                         // Size and kernel size
             1,                                  // Padding
@@ -74,7 +76,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 3 - Stride 2 (Block 1 in Python)
-    printf("Entering Block 3: 112x112x16\n");
+    //printf("Entering Block 3: 112x112x16\n");
 
     S2block(112, 56,    // Input and output size / Depthwise factor
             16, 24,     // Input and output depth / Project factor
@@ -90,7 +92,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 4 - Stride 1 (Block 2 in Python)
-    printf("Entering Block 4: 56x56x24\n");
+    //printf("Entering Block 4: 56x56x24\n");
 
     S1block(56,         // Input and output size
             24,         // Input depth
@@ -106,7 +108,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 5 - Stride 2 (Block 3 in Python)
-    printf("Entering Block 5: 56x56x24\n");
+    //printf("Entering Block 5: 56x56x24\n");
 
     S2block(56, 28,     // Input and output size / Depthwise factor
             24, 32,     // Input and output depth / Project factor
@@ -122,7 +124,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 6 - Stride 1 (Block 4 in Python)
-    printf("Entering Block 6: 28x28x32\n");
+    //printf("Entering Block 6: 28x28x32\n");
 
     S1block(28,         // Input and output size
             32,         // Input depth
@@ -138,7 +140,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 7 - Stride 1 (Block 5 in Python)
-    printf("Entering Block 7: 28x28x32\n");
+    //printf("Entering Block 7: 28x28x32\n");
 
     S1block(28,         // Input and output size
             32,         // Input depth
@@ -154,7 +156,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 8 - Stride 2 (Block 6 in Python)
-    printf("Entering Block 8: 28x28x32\n");
+    //printf("Entering Block 8: 28x28x32\n");
 
     S2block(28, 14,     // Input and output size / depthwise factor
             32, 64,     // input and output depth / project factor
@@ -170,7 +172,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 9 - Stride 1 (Block 7 in Python)
-    printf("Entering Block 9: 14x14x64\n");
+    //printf("Entering Block 9: 14x14x64\n");
 
     S1block(14,         // Input and output size
             64,         // Input depth
@@ -186,7 +188,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 10 - Stride 1 (Block 8 in Python)
-    printf("Entering Block 10: 14x14x64\n");
+    //printf("Entering Block 10: 14x14x64\n");
 
     S1block(14,         // Input and output size
             64,         // Input depth
@@ -202,7 +204,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 11 - Stride 1 (Block 9 in Python)
-    printf("Entering Block 11: 14x14x64\n");
+    //printf("Entering Block 11: 14x14x64\n");
 
     S1block(14,         // Input and output size
             64,         // Input depth
@@ -218,7 +220,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 12 - Stride 1 - Over-Project (Block 10 in Python)
-    printf("Entering Block 12: 14x14x64\n");
+    //printf("Entering Block 12: 14x14x64\n");
 
     S1block(14,         // Input and output size
             64,         // Input depth
@@ -234,7 +236,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 13 - Stride 1 (Block 11 in Python)
-    printf("Entering Block 13: 14x14x96\n");
+    //printf("Entering Block 13: 14x14x96\n");
 
     S1block(14,         // Input and output size
             96,         // Input depth
@@ -250,7 +252,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 14 - Stride 1 (Block 12 in Python)
-    printf("Entering Block 14: 14x14x96\n");
+    //printf("Entering Block 14: 14x14x96\n");
 
     S1block(14,         // Input and output size
             96,         // Input depth
@@ -266,7 +268,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 15 - Stride 2 (Block 13 in Python)
-    printf("Entering Block 15: 14x14x96\n");
+    //printf("Entering Block 15: 14x14x96\n");
 
     S2block(14, 7,      // Input and output size / depthwise factor
             96, 160,    // Input depth / project factor
@@ -282,7 +284,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 16 - Stride 1 (Block 14 in Python)
-    printf("Entering Block 16: 7x7x160\n");
+    //printf("Entering Block 16: 7x7x160\n");
 
     S1block(7,              // Input and output size
             160,            // Input depth
@@ -298,7 +300,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 17 - Stride 1 (Block 15 in Python)
-    printf("Entering Block 17: 7x7x160\n");
+    //printf("Entering Block 17: 7x7x160\n");
 
     S1block(7,              // Input and output size
             160,            // Input depth
@@ -314,7 +316,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Block 18 - Stride 1 - Over-Project (Block 16 in Python)
-    printf("Entering Block 18: 7x7x160\n");
+    //printf("Entering Block 18: 7x7x160\n");
 
     S1block(7,              // Input and output size
             160,            // Input depth
@@ -330,7 +332,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 
 
     // Final Block
-    printf("Entering Final Block: 7x7x320\n");
+    //printf("Entering Final Block: 7x7x320\n");
 
     conv2d(7, 7, 1,                         // Input size, output size, kernel size
             1,                              // Stride
@@ -398,7 +400,6 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 void train(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2]){
 
     inference(c, predictions, fc_w, fc_b);
-    printf("\n");
 
     // Final Block
     backprop_fc(c,                              // Classification Layer Parameter
@@ -776,12 +777,13 @@ void train(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2]
 void transfer() {
 
     // Fully Connected
-    fillRandom("fc.csv", class); // correct later
+    fillRandom("fc_w.csv", class*1280);
+    fillRandom("fc_b.csv", class);
 
     // Final Layer
     if (tfr >= 2) {
         fillRandom("param52.csv", sizeof(par->final_par_conv2d_BN)/4);
-        fillRandom("weight35.csv", sizeof(par->final_par_conv2d)/4);
+        fillRandom("weights35.csv", sizeof(par->final_par_conv2d)/4);
     }
 
     // etc...

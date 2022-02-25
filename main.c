@@ -29,8 +29,13 @@ int main( int argc, char *argv[] ) {
 
     if (strcmp(argv[1],"run") == 0 ) {
 
-        if ( argc > 2) {
-            printf("Too many arguments for RUN command\n");
+        if (argc != 3) {
+            printf("RUN command must specify number of image for inference\n");
+            return(0);
+        }
+
+        if (argv[3] < 0 || argv[3] > 101) {
+            printf("Invalid image number (1 - 101)\n");
             return(0);
         }
 
@@ -42,7 +47,7 @@ int main( int argc, char *argv[] ) {
         float (*fc_b)[2] = calloc(class, sizeof *fc_b);
 
         // Fill input using data0[y][x][d] syntax (y are lines, x are columns)
-        import_image(0);
+        import_image(argv[3]);
 
         inference(class, predictions, fc_w, fc_b);
 
@@ -57,14 +62,13 @@ int main( int argc, char *argv[] ) {
         char *temp;
 
         if (argc >= 3) {
-            if (strtol(argv[2], &temp, 10) < 1 || strtol(argv[2], &temp, 10) > 20) {
-                printf("Invalid number of images (1 - 20)\n");
+            if (strtol(argv[2], &temp, 10) < 1 || strtol(argv[2], &temp, 10) > 100) {
+                printf("Invalid number of images (1 - 100)\n");
                 return(0);
             }
             else
                 n_img = strtol(argv[2], &temp, 10);
         }
-        printf("%d\n", n_img);
 
         if (argc >= 4) {
             if (strtol(argv[3], &temp, 10) < 1 || strtol(argv[3], &temp, 10) > 50) {

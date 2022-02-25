@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "var.h"
 
 //for testing
@@ -23,7 +24,7 @@ void import_image(int l) {
 
     // Define name from index
     char name[12]; // maximum number of characters is "imagexx.csv" = 11
-    sprintf(name, "image%d.csv", l+1);
+    sprintf(name, "image%d.csv", l);
 
     // open file
     FILE *fptr;
@@ -55,7 +56,7 @@ void import_image(int l) {
     }
     fclose(fptr);
 
-    sprintf(name, "label%d.csv", l+1);
+    sprintf(name, "label%d.csv", l);
 
     fptr = fopen(name, "r");
     if (fptr == NULL) {
@@ -72,6 +73,7 @@ void import_image(int l) {
     }
     s[i] = '\0';
     label = strtol(s,&a,10);
+                                                                                    printf("\nCurrent label: %d\n\n", label);
     fclose(fptr);
 }
 
@@ -430,6 +432,18 @@ void copyLabels(char* path) {
 }
 
 void fillRandom(char* name, int n) {
+    srand(time(NULL));
+    FILE *fptr;
+    fptr = fopen(name, "w");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+
+    for(int i = 0; i < n; ++i) {
+        float f = (float)rand()/RAND_MAX;
+        fprintf(fptr, "%.7e ", f);
+    }
 
 }
 

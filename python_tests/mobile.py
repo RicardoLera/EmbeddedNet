@@ -220,68 +220,61 @@ def savebyte(s):
                 float_array.tofile(outfile)    
              
 def saveimage():
-    for x in range(10):
-        # Load image in PIL format 244x244
-        filename = '/home/ricardo/EmbeddedNet/python_tests/sun' + str(x+1) + '.jpg'
-        original = load_img(filename, target_size=(224, 224))
-        plt.imshow(original)
-        plt.show()
-        
-        # Convert to numpy array 244x244x3
-        numpy_image = img_to_array(original)
-        plt.imshow(np.uint8(numpy_image))
-        plt.show()
-        
-        # Add batchsize dimension 1x244x244x3
-        image_batch = np.expand_dims(numpy_image, axis=0)
-        plt.imshow(np.uint8(image_batch[0]))
-        
-        # Preprocess
-        processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+    import random
+    random.seed(72)
+    num = random.sample(range(100), 100)
     
-        # Save Images and Labels
-        print("Saving sun image " + str(x+1))
-        data = processed_image[0,:,:,:]
-        with open('../Debug/image' + str(x+1) + '.csv', 'w') as outfile:
-            for threeD_data_slice in data:
-                for twoD_data_slice in threeD_data_slice:
-                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+    for x in range(100):
+        
+        if (num[x] < 50):
+            # Load image in PIL format 244x244
+            filename = 'yes/y' + str(num[x]) + '.jpg'
+            original = load_img(filename, target_size=(224, 224))
 
-        print("Saving sun label " + str(x+1))
-        with open('../Debug/label' + str(x+1) + '.csv', 'w') as outfile:
-            outfile.write("0 ")
+            # Convert to numpy array 244x244x3
+            numpy_image = img_to_array(original)
+            plt.imshow(np.uint8(numpy_image))
+            plt.show()
+        
+            # Add batchsize dimension 1x244x244x3
+            image_batch = np.expand_dims(numpy_image, axis=0)
+            plt.imshow(np.uint8(image_batch[0]))
             
-    for x in range(10):
-        # Load image in PIL format 244x244
-        filename = '/home/ricardo/EmbeddedNet/python_tests/moon' + str(x+1) + '.jpg'
-        original = load_img(filename, target_size=(224, 224))
-        plt.imshow(original)
-        plt.show()
-        
-        # Convert to numpy array 244x244x3
-        numpy_image = img_to_array(original)
-        plt.imshow(np.uint8(numpy_image))
-        plt.show()
-        
-        # Add batchsize dimension 1x244x244x3
-        image_batch = np.expand_dims(numpy_image, axis=0)
-        plt.imshow(np.uint8(image_batch[0]))
-        
-        # Preprocess
-        processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+            # Preprocess
+            processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+            
+            label = "0 "
+        else:
+            # Load image in PIL format 244x244
+            filename = 'no/no' + str(num[x]) + '.jpg'
+            original = load_img(filename, target_size=(224, 224))
+            plt.imshow(original)
+            plt.show()
+            
+            # Convert to numpy array 244x244x3
+            numpy_image = img_to_array(original)
+            plt.imshow(np.uint8(numpy_image))
+            plt.show()
+            
+            # Add batchsize dimension 1x244x244x3
+            image_batch = np.expand_dims(numpy_image, axis=0)
+            plt.imshow(np.uint8(image_batch[0]))
+            
+            # Preprocess
+            processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
     
+            label = "1 "
+        
         # Save Images and Labels
-        print("Saving moon image " + str(x+1))
+        print("Saving image " + str(x) + " (" + str(num[x]) + ")")
         data = processed_image[0,:,:,:]
-        with open('../Debug/image' + str(x+11) + '.csv', 'w') as outfile:
+        with open('../Debug/image' + str(x) + '.csv', 'w') as outfile:
             for threeD_data_slice in data:
                 for twoD_data_slice in threeD_data_slice:
                     np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
-
-        print("Saving moon label " + str(x+1))
-        with open('../Debug/label' + str(x+11) + '.csv', 'w') as outfile:
-            outfile.write("1 ")
-             
+                
+        with open('../Debug/label' + str(x) + '.csv', 'w') as outfile:
+            outfile.write(label)        
                 
 def testlayer(n, l):
     import keras.backend as K
