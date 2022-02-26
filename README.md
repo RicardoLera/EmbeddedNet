@@ -28,13 +28,14 @@ A Keras application of MobileNetV2 is used for pre-training as well as developme
  - Profiled performance with Gprof - Bottleneck is at convolution functions: Managed to improve backprop_conv2d at the cost of memory.
  - Profiled memory usage with Massif - Peak memory at 5,211,736B due to backprop_fc's gradient allocation.
  - Implemented recursive training
- - Implemented FC Transfer Learning
+ - Implemented Transfer Learning and tested with brain tumor images, obtaining good results.
 
 ## TO DO
 
-Current Main Task: **Finish Transfer Learning**
+Current Main Task: **Finish Testing Transfer Learning**
 
 Other Tasks:
+ - Fix bug with huge executable files when using Empty Struct.
  - Streamline import/export functions both in C and in Python.
  - Finish commenting all functions.
 
