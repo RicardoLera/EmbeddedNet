@@ -219,7 +219,7 @@ def savebyte(s):
                 float_array = array('f', data)
                 float_array.tofile(outfile)    
              
-def saveimage():
+def saveimages():
     import random
     random.seed(72)
     num = random.sample(range(100), 100)
@@ -275,7 +275,35 @@ def saveimage():
                 
         with open('../Debug/label' + str(x) + '.csv', 'w') as outfile:
             outfile.write(label)        
+
+def savetestimage(x):
+    # Load image in PIL format 244x244
+    filename = 'test' + str(x) + '.jpg'
+    original = load_img(filename, target_size=(224, 224))
+
+    # Convert to numpy array 244x244x3
+    numpy_image = img_to_array(original)
+    plt.imshow(np.uint8(numpy_image))
+    plt.show()
+        
+    # Add batchsize dimension 1x244x244x3
+    image_batch = np.expand_dims(numpy_image, axis=0)
+    plt.imshow(np.uint8(image_batch[0]))
+            
+    # Preprocess
+    processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+
+    # Save Images and Labels
+    print("Saving test image")
+    data = processed_image[0,:,:,:]
+    with open('../Debug/image100.csv', 'w') as outfile:
+        for threeD_data_slice in data:
+            for twoD_data_slice in threeD_data_slice:
+                np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
                 
+    with open('../Debug/label100.csv', 'w') as outfile:
+        outfile.write("no ")
+
 def testlayer(n, l):
     import keras.backend as K
     model = tf.keras.applications.MobileNetV2(

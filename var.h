@@ -201,17 +201,18 @@ struct variables {
     float block18_depth_relu[7][7][960];
     float block18_project[7][7][320];
     //float block18_project_BN[7][7][320];
-    float block18_add[7][7][320];            // Same here
+    float block18_add[7][7][320];               // Same here
 
     // Final Block
     float final_conv2d[7][7][1280];
     //float final_conv2d_BN[7][7][1280];
     float final_conv2d_relu[7][7][1280];
     float final_pooling[1280];
-    //float predictions[1000];                // Allocated Dynamically due to Transfer
+    //float predictions[1000];                  // Allocated Dynamically due to Transfer
 };
 
-struct variables var;   // Done this way so that I don't have to instantiate every variable again
+struct variables var;                           // Done this way so that I don't have to instantiate every variable again
+//static const struct variables EmptyStruct;
 
 
 // The following is the 3.4M parameter struct

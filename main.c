@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "actions.h"
 #include "data_manip.h"
 #include "var.h"
@@ -29,12 +30,13 @@ int main( int argc, char *argv[] ) {
 
     if (strcmp(argv[1],"run") == 0 ) {
 
+        char* temp;
+
         if (argc != 3) {
             printf("RUN command must specify number of image for inference\n");
             return(0);
         }
-
-        if (argv[3] < 0 || argv[3] > 101) {
+        if (strtol(argv[2], &temp, 10) < 0 || strtol(argv[2], &temp, 10) > 101) {
             printf("Invalid image number (1 - 101)\n");
             return(0);
         }
@@ -47,7 +49,7 @@ int main( int argc, char *argv[] ) {
         float (*fc_b)[2] = calloc(class, sizeof *fc_b);
 
         // Fill input using data0[y][x][d] syntax (y are lines, x are columns)
-        import_image(argv[3]);
+        import_image(strtol(argv[2], &temp, 10));
 
         inference(class, predictions, fc_w, fc_b);
 
@@ -121,9 +123,12 @@ int main( int argc, char *argv[] ) {
                 import_image(i);
                 train(class, predictions, fc_w, fc_b);
                 printf("\n");
+                printf("%.7e\n", var.block18_add[0][0][0]);
+                //var = EmptyStruct;
             }
         }
-
+        free(fc_w);
+        free(fc_b);
     }
     else if (strcmp(argv[1],"transfer") == 0 ) {
 
@@ -170,6 +175,8 @@ int main( int argc, char *argv[] ) {
         copyLabels(argv[4]);
 
         exportTransfer();
+
+        srand(time(NULL));
 
         transfer();
 
