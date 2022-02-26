@@ -8,7 +8,7 @@
 #define LAMBDA 0.00004
 #define EPSILON 0.0000001           // original: 0.0000001
 #define LR 0.045                    // original: 0.045
-#define LR_DECAY 0.98
+#define LR_DECAY 0.98               // original: 0.98
 #define E_MOMENTUM 0.9
 #define E_DECAY 0.9
 #define RHO 0.999
@@ -27,6 +27,7 @@ void convolution2D(int isize,   // width/height of input
     for (int oy = 0; oy < osize; ++oy) {
     for (int ox = 0; ox < osize; ++ox) {
     for (int od = 0; od < odepth; ++od) {
+        odata[oy][ox][od] = 0;  // When you iterate multiple times without closing the program, this number would stack up to infinity, so we have to zero it out every time.
         for (int ky = 0; ky < ksize; ++ky) {
         for (int kx = 0; kx < ksize; ++kx) {
             // map position in output and kernel to the input
@@ -48,16 +49,21 @@ void batch_normalize(int size,
         float odata[size][size][depth],
         float pdata[4][depth])
 {
+
+    float (*normI)[size][depth] = calloc(size,sizeof *normI);   // This is so that the actual input is not changed, so that it can be reused in backpropagation.
+
     for (int d = 0; d < depth; ++d)
     {
         // [0][:] is gamma, [1][:] is beta, [2][:] is moving mean, [3][:] is moving variance
         // Here we use moving mean and variance instead of calculating them, as opposed to training.
         for (int y = 0; y < size; ++y) {
         for (int x = 0; x < size; ++x) {
-            idata[y][x][d] = (idata[y][x][d] - pdata[2][d]) / sqrt(pdata[3][d] + epsilon); // normalize
-            odata[y][x][d] = (idata[y][x][d] * pdata[0][d]) + pdata[1][d]; // scale and shift
+            normI[y][x][d] = (idata[y][x][d] - pdata[2][d]) / sqrt(pdata[3][d] + epsilon); // normalize
+            odata[y][x][d] = (normI[y][x][d] * pdata[0][d]) + pdata[1][d]; // scale and shift
         }}
     }
+
+    free(normI);
 }
 
 void relu6(int size, int depth, float data[size][size][depth])
@@ -84,6 +90,7 @@ void depthwise_convolution(int isize,
     for (int oy = 0; oy < osize; ++oy) {
     for (int ox = 0; ox < osize; ++ox) {
     for (int od = 0; od < depth; ++od) {
+        odata[oy][ox][od] = 0;  // When you iterate multiple times without closing the program, this number would stack up to infinity, so we have to zero it out every time.
         for (int ky = 0; ky < ksize; ++ky) {
         for (int kx = 0; kx < ksize; ++kx) {
                 // map position in output and kernel to the input

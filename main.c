@@ -124,7 +124,6 @@ int main( int argc, char *argv[] ) {
                 train(class, predictions, fc_w, fc_b);
                 printf("\n");
                 printf("%.7e\n", var.block18_add[0][0][0]);
-                //var = EmptyStruct;
             }
         }
         free(fc_w);
