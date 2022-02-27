@@ -781,10 +781,28 @@ void transfer() {
     fillRandom("fc_b.csv", class);
 
     // Final Layer
-    if (tfr >= 2) {
+    if (frz >= 2) {
         fillRandom("param52.csv", sizeof(par->final_par_conv2d_BN)/4);
         fillRandom("weights35.csv", sizeof(par->final_par_conv2d)/4);
     }
 
     // etc...
+
+
+    // Train
+    float predictions[class];
+    float (*fc_w)[class][2] = calloc(1280, sizeof *fc_w);
+    float (*fc_b)[2] = calloc(class, sizeof *fc_b);
+
+    for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
+        printf("Epoch %d\n", epoch_count + 1);
+        for (int i = 0; i < n_img; ++i) {
+            printf("Image %d\n", i + 1);
+            import_image(i);
+            train(class, predictions, fc_w, fc_b);
+            printf("\n");
+        }
+    }
+    free(fc_w);
+    free(fc_b);
 }

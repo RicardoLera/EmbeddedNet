@@ -15,7 +15,7 @@ int n_epoch = 1;
 int frz;
 
 // Initialize transfer indexes
-int tfr;
+int frz;
 int class;
 
 // Initialize image and label
@@ -123,7 +123,6 @@ int main( int argc, char *argv[] ) {
                 import_image(i);
                 train(class, predictions, fc_w, fc_b);
                 printf("\n");
-                printf("%.7e\n", var.block18_add[0][0][0]);
             }
         }
         free(fc_w);
@@ -131,51 +130,69 @@ int main( int argc, char *argv[] ) {
     }
     else if (strcmp(argv[1],"transfer") == 0 ) {
 
-        if (argc != 5) {
-            printf("TRANSFER command must have 3 extra arguments:\n"
-                    " - tfr: Selects which layers to transfer the parameters into. Possible values are the same as frz.\n"
+        if (argc != 7) {
+            printf("TRANSFER command must have exactly 5 extra arguments:\n"
+                    " - n_img: Number of images (1 - 100).\n"
+                    " - n_epoch: Number of epochs (1 - 50)\n"
+                    " - frz: Which layers to transfer the parameters into. Possible values are the same as training's frz.\n"
                     " - class: How many classification neurons are in the last layer of the new model.\n"
                     " - label: Destination of new classification labels file.\n");
             return(0);
         }
 
-        if      ((strcmp(argv[2],"fc")   == 0)) {tfr = 1;}
-        else if ((strcmp(argv[2],"b18")  == 0)) {tfr = 2;}
-        else if ((strcmp(argv[2],"b17")  == 0)) {tfr = 3;}
-        else if ((strcmp(argv[2],"b16")  == 0)) {tfr = 4;}
-        else if ((strcmp(argv[2],"b15")  == 0)) {tfr = 5;}
-        else if ((strcmp(argv[2],"b14")  == 0)) {tfr = 6;}
-        else if ((strcmp(argv[2],"b13")  == 0)) {tfr = 7;}
-        else if ((strcmp(argv[2],"b12")  == 0)) {tfr = 8;}
-        else if ((strcmp(argv[2],"b11")  == 0)) {tfr = 9;}
-        else if ((strcmp(argv[2],"b10")  == 0)) {tfr = 10;}
-        else if ((strcmp(argv[2],"b9")   == 0)) {tfr = 11;}
-        else if ((strcmp(argv[2],"b8")   == 0)) {tfr = 12;}
-        else if ((strcmp(argv[2],"b7")   == 0)) {tfr = 13;}
-        else if ((strcmp(argv[2],"b6")   == 0)) {tfr = 14;}
-        else if ((strcmp(argv[2],"b5")   == 0)) {tfr = 15;}
-        else if ((strcmp(argv[2],"b4")   == 0)) {tfr = 16;}
-        else if ((strcmp(argv[2],"b3")   == 0)) {tfr = 17;}
-        else if ((strcmp(argv[2],"exp")  == 0)) {tfr = 18;}
+        char *temp;
+
+        if (strtol(argv[2], &temp, 10) < 1 || strtol(argv[2], &temp, 10) > 100) {
+            printf("Invalid number of images (1 - 100)\n");
+            return(0);
+        }
+        else
+            n_img = strtol(argv[2], &temp, 10);
+
+        if (strtol(argv[3], &temp, 10) < 1 || strtol(argv[3], &temp, 10) > 50) {
+            printf("Invalid number of epochs (1 - 50)\n");
+            return(0);
+        }
+        else
+            n_epoch = strtol(argv[3], &temp, 10);
+
+        if      ((strcmp(argv[4],"fc")   == 0)) {frz = 1;}
+        else if ((strcmp(argv[4],"b18")  == 0)) {frz = 2;}
+        else if ((strcmp(argv[4],"b17")  == 0)) {frz = 3;}
+        else if ((strcmp(argv[4],"b16")  == 0)) {frz = 4;}
+        else if ((strcmp(argv[4],"b15")  == 0)) {frz = 5;}
+        else if ((strcmp(argv[4],"b14")  == 0)) {frz = 6;}
+        else if ((strcmp(argv[4],"b13")  == 0)) {frz = 7;}
+        else if ((strcmp(argv[4],"b12")  == 0)) {frz = 8;}
+        else if ((strcmp(argv[4],"b11")  == 0)) {frz = 9;}
+        else if ((strcmp(argv[4],"b10")  == 0)) {frz = 10;}
+        else if ((strcmp(argv[4],"b9")   == 0)) {frz = 11;}
+        else if ((strcmp(argv[4],"b8")   == 0)) {frz = 12;}
+        else if ((strcmp(argv[4],"b7")   == 0)) {frz = 13;}
+        else if ((strcmp(argv[4],"b6")   == 0)) {frz = 14;}
+        else if ((strcmp(argv[4],"b5")   == 0)) {frz = 15;}
+        else if ((strcmp(argv[4],"b4")   == 0)) {frz = 16;}
+        else if ((strcmp(argv[4],"b3")   == 0)) {frz = 17;}
+        else if ((strcmp(argv[4],"exp")  == 0)) {frz = 18;}
         else
         {
             printf("Invalid freeze index\n");
             return(0);
         }
 
-        char *temp;
-
-        class = strtol(argv[3], &temp, 10);
+        class = strtol(argv[5], &temp, 10);
         if (class < 1 || class > 1000) {
             printf("Invalid class index (1 - 1000)\n");
             return(0);
         }
 
-        copyLabels(argv[4]);
+        copyLabels(argv[6]);
 
         exportTransfer();
 
         srand(time(NULL));
+
+        printf("class = %d\n",class);
 
         transfer();
 

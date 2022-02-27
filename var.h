@@ -11,7 +11,7 @@ extern int frz;
 
 // Transfer indexes
 extern int tfr;     // Same as frz
-extern int class;   // Maximum 999
+extern int class;   // Maximum 1000
 
 // Declare image and label
 extern float image[224][224][3];
@@ -212,7 +212,6 @@ struct variables {
 };
 
 struct variables var;                           // Done this way so that I don't have to instantiate every variable again
-//static const struct variables EmptyStruct;
 
 
 // The following is the 3.4M parameter struct

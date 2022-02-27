@@ -442,7 +442,9 @@ void fillRandom(char* name, int n) {
         float f = (float)rand()/RAND_MAX;
         fprintf(fptr, "%.7e ", f);
     }
+    fclose(fptr);
 
+    printf("Randomized %s\n", name);
 }
 
 
