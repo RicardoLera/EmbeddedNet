@@ -7,7 +7,7 @@
 
 #define LAMBDA 0.00004
 #define EPSILON 0.0000001           // original: 0.0000001
-#define LR 0.045                    // original: 0.045
+#define LR 0.45                    // original: 0.045
 #define LR_DECAY 0.98               // original: 0.98
 #define E_MOMENTUM 0.9
 #define E_DECAY 0.9
@@ -378,6 +378,7 @@ void backprop_bn(int s, int d,
     }
 
     // Backpropagate
+    float sum;
     for (int k = 0; k < d; ++k) {
         float dIhatdI = 1/sqrt(par[3][k] + EPSILON);    // Calc dIhat/dI
         float dMdI = 1 / (d*d);                         // Calc dM/dI
@@ -386,6 +387,7 @@ void backprop_bn(int s, int d,
         float dLdM = 0;
         float dLdV = 0;
 
+        // Variables
         for (int i = 0; i < s; ++i) {
             for (int j = 0; j < s; ++j) {
                 dVdI[i][j] = (2*(I[i][j][k] - par[2][k])) / (d*d);                                          // Calc dV/dI
@@ -395,6 +397,24 @@ void backprop_bn(int s, int d,
             }
         }
 
+        // New Moving Mean and Moving Variance
+        sum = 0;
+        for (int i = 0; i < s; ++i) {
+            for (int j = 0; j < s; ++j) {
+                sum += I[i][j][k];
+            }
+        }
+        par[2][k] = par[2][k] * RHO + (1 - RHO) * (sum / (s*s));
+
+        sum = 0;
+        for (int i = 0; i < s; ++i) {
+            for (int j = 0; j < s; ++j) {
+                sum += (I[i][j][k] - par[2][k]) * (I[i][j][k] - par[2][k]);
+            }
+        }
+        par[3][k] = par[3][k] * RHO + (1 - RHO) * (sum / (s*s));
+
+        // Error
         for (int i = 0; i < s; ++i) {
             for (int j = 0; j < s; ++j) {
                 I[i][j][k] = (dLdIhat[i][j] * dIhatdI) + (dLdV * dVdI[i][j]) + (dLdM * dMdI);   // Calc Error based on previous 6 variables and update
@@ -409,6 +429,8 @@ void backprop_bn(int s, int d,
         par[0][k] = par[0][k] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ep[0][k])+EPSILON) ) * Ggrad[k] );
     }
 
+
+/*              Can't calculate things here because 'I' is now backpropagated error
     // Calculate new Moving Mean and Moving Variance
     float sum;
     for (int k = 0; k < d; ++k) {
@@ -428,6 +450,7 @@ void backprop_bn(int s, int d,
         }
         par[3][k] = par[3][k] * RHO + (1 - RHO) * (sum / (s*s));
     }
+*/
 
     // Export
     char name[12]; // maximum number of characters is "paramxx.csv" = 11
@@ -465,17 +488,17 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
 
 
     // iterate over the output
-    for (int oy = 0; oy < osize; ++oy) {
-    for (int ox = 0; ox < osize; ++ox) {
-    for (int od = 0; od < odepth; ++od) {
-        for (int ky = 0; ky < ksize; ++ky) {
-        for (int kx = 0; kx < ksize; ++kx) {
+    for (int oy = 0; oy < osize; ++oy) { // p
+    for (int ox = 0; ox < osize; ++ox) { // q
+    for (int od = 0; od < odepth; ++od) { // k
+        for (int ky = 0; ky < ksize; ++ky) { // i
+        for (int kx = 0; kx < ksize; ++kx) { // j
             // map position in output and kernel to the input
             int iy = stride * oy + ky - pad;
             int ix = stride * ox + kx - pad;
             // use only valid inputs
             if (iy >= 0 && iy < isize && ix >= 0 && ix < isize)
-                for (int id = 0; id < idepth; ++id) {
+                for (int id = 0; id < idepth; ++id) { // c
                     dLdW[od][ky][kx][id] += O[oy][ox][od] * I[iy][ix][id];          // Calculate Gradient
                     if (backprop != 0)
                         error[iy][ix][id] += O[oy][ox][od] * par[od][ky][kx][id];   // Backpropagate

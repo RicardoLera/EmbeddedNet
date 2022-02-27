@@ -32,10 +32,9 @@ A Keras application of MobileNetV2 is used for pre-training as well as developme
 
 ## TO DO
 
-Current Main Task: **Finish Testing Transfer Learning**
+Current Main Task: **Understand problem with Conv2D transfer learning convergence.**
 
 Other Tasks:
- - Fix bug with huge executable files when using Empty Struct.
  - Streamline import/export functions both in C and in Python.
  - Finish commenting all functions.
 

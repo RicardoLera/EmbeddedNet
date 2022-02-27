@@ -117,9 +117,8 @@ int main( int argc, char *argv[] ) {
         float (*fc_b)[2] = calloc(class, sizeof *fc_b);
 
         for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
-            printf("Epoch %d\n", epoch_count + 1);
             for (int i = 0; i < n_img; ++i) {
-                printf("Image %d\n", i + 1);
+                printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
                 import_image(i);
                 train(class, predictions, fc_w, fc_b);
                 printf("\n");
