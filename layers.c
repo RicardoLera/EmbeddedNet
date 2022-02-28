@@ -13,7 +13,7 @@ void conv2d(int isize,          // width/height of input
         float kdata[odepth][ksize][ksize][idepth])
 {
     // fill kernel using kdata [od][y][x][id] syntax
-    import_weights(idepth,  // input depth (layers)
+    import_conv2d(idepth,   // input depth (layers)
             ksize,          // sizes
             odepth,         // output depth (number of filters)
             idx,            // weight file index
@@ -57,7 +57,7 @@ void S1depthwise (int size,
         float kdata[ksize][ksize][depth])
 {
     // fill kernel using kdata [y][x][d] syntax
-    import_dweights(depth,
+    import_depth(depth,
             ksize,
             idx,
             kdata);
@@ -80,7 +80,7 @@ void S2depthwise (int isize,
         float kdata[ksize][ksize][depth])
 {
     // fill kernel using kdata [y][x][d] syntax
-    import_dweights(depth,
+    import_depth(depth,
             ksize,
             idx,
             kdata);

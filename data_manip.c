@@ -76,7 +76,7 @@ void import_image(int l) {
     fclose(fptr);
 }
 
-void import_weights(int id, int size, int od, int idx, float kdata[od][size][size][id]) {
+void import_conv2d(int id, int size, int od, int idx, float kdata[od][size][size][id]) {
 
     // Define name from index
     char name[14]; // maximum number of characters is "weightsxx.csv" = 13
@@ -201,7 +201,7 @@ void import_moving(int depth, int idx, float pdata[4][depth]) {
 }
 
 
-void import_dweights(int depth, int ksize, int idx, float kdata[ksize][ksize][depth]) {
+void import_depth(int depth, int ksize, int idx, float kdata[ksize][ksize][depth]) {
 
     // Define name from index
     char name[15]; // maximum number of characters is "dweightsxx.csv" = 14
@@ -293,6 +293,108 @@ void import_fc(int isize, int osize, float weight[isize][osize][2], float bias[o
     fclose(fptr);
 }
 
+void export(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
+    FILE *fptr;
+    fptr = fopen(name, "w");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < d1; ++i) {
+        for (int j = 0; j < d2; ++j) {
+            for (int k = 0; k < d3; ++k) {
+                for (int l = 0; l < d4; ++l) {
+                    fprintf(fptr, "%.7e\n", data[i][j][k][l]);
+                }
+            }
+        }
+    }
+    fclose(fptr);
+    printf("Saved %s\n", name);
+}
+
+void export_fc(int d, int c, float w[d][c][2], float b[c][2]) {
+    FILE *fptr;
+    fptr = fopen("fc_w.csv", "w");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < d; ++i) {
+        for (int j = 0; j < c; ++j) {
+            fprintf(fptr, "%.7e\n", w[i][j][0]);
+        }
+    }
+    fclose(fptr);
+    printf("Saved %s\n", "fc_w.csv");
+
+    FILE *fp;
+    fp = fopen("fc_b.csv", "w");
+    if (fp == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    for (int j = 0; j < c; ++j) {
+        fprintf(fp, "%.7e\n", b[j][0]);
+    }
+    fclose(fp);
+    printf("Saved %s\n", "fc_b.csv");
+}
+
+void export_depth(char* name, int ks, int d, float data[ks][ks][d]) {
+    FILE *fptr;
+    fptr = fopen(name, "w");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < ks; ++i) {
+        for (int j = 0; j < ks; ++j) {
+            for (int k = 0; k < d; ++k) {
+                fprintf(fptr, "%.7e\n", data[i][j][k]);
+            }
+        }
+    }
+    fclose(fptr);
+    printf("Saved %s\n", name);
+}
+
+void export_bn(char* name, int d, float data[d][4]) {
+    FILE *fptr;
+    fptr = fopen(name, "w");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < d; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            fprintf(fptr, "%.7e\n", data[i][j]);
+        }
+    }
+    fclose(fptr);
+    printf("Saved %s\n", name);
+}
+
+void export_conv2d(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
+    FILE *fptr;
+    fptr = fopen(name, "w");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < d3; ++i) {
+        for (int j = 0; j < d2; ++j) {
+            for (int k = 0; k < d4; ++k) {
+                for (int l = 0; l < d1; ++l) {
+                    fprintf(fptr, "%.7e\n", data[l][i][j][k]);
+                }
+            }
+        }
+    }
+    fclose(fptr);
+    printf("Saved %s\n", name);
+}
+
 void importTransfer() {
     // open file
     FILE *fptr;
@@ -316,77 +418,6 @@ void importTransfer() {
     class = strtol(s, &p, 10);
 
     fclose(fptr);
-}
-
-void export(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
-    FILE *fptr;
-    fptr = fopen(name, "w");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-    for (int i = 0; i < d1; ++i) {
-        for (int j = 0; j < d2; ++j) {
-            for (int k = 0; k < d3; ++k) {
-                for (int l = 0; l < d4; ++l) {
-                    fprintf(fptr, "%.7e\n", data[i][j][k][l]);
-                }
-            }
-        }
-    }
-    fclose(fptr);
-    printf("Saved %s\n", name);
-}
-
-void exportW(char* name, int d, int c, float data[d][c][2]) {
-    FILE *fptr;
-    fptr = fopen(name, "w");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-    for (int i = 0; i < d; ++i) {
-        for (int j = 0; j < c; ++j) {
-            fprintf(fptr, "%.7e\n", data[i][j][0]);
-        }
-    }
-    fclose(fptr);
-    printf("Saved %s\n", name);
-}
-
-void exportB(char* name, int c, float data[c][2]) {
-    FILE *fptr;
-    fptr = fopen(name, "w");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-    for (int j = 0; j < c; ++j) {
-        fprintf(fptr, "%.7e\n", data[j][0]);
-    }
-    fclose(fptr);
-    printf("Saved %s\n", name);
-}
-
-
-void exportConv(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
-    FILE *fptr;
-    fptr = fopen(name, "w");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-    for (int i = 0; i < d3; ++i) {
-        for (int j = 0; j < d2; ++j) {
-            for (int k = 0; k < d4; ++k) {
-                for (int l = 0; l < d1; ++l) {
-                    fprintf(fptr, "%.7e ", data[l][i][j][k]);
-                }
-            }
-        }
-    }
-    fclose(fptr);
-    printf("Saved %s\n", name);
 }
 
 void exportTransfer() {
@@ -446,70 +477,3 @@ void fillRandom(char* name, int n) {
 
     printf("Randomized %s\n", name);
 }
-
-
-
-
-
-
-/*
-void import(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
-    FILE *fptr;
-    fptr = fopen(name, "r");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    char c = fgetc(fptr); // generic char
-    char s[15];           // mantissa, maximum number of characters is "-x.xxxxxxxe-xx" = 14
-
-    for (int i = 0; i < d1; ++i) {
-        for (int j = 0; j < d2; ++j) {
-            for (int k = 0; k < d3; ++k) {
-                for (int l = 0; l < d4; ++l) {
-                    // write string
-                    int i;
-                    for (i = 0; c != '\n' && c != ' '; ++i) {
-                        assert( 0 <= i && i <= 14 );
-                        s[i] = c;
-                        c = fgetc(fptr);
-                    }
-                    s[i] = '\0';
-                    float f = atof(s);      // convert to float
-                    data[i][j][k][l] = f;   // save on array
-                    c = fgetc(fptr);
-                }
-            }
-        }
-    }
-    fclose(fptr);
-}
-
-void import_1D(char* name, int d, float* data) {
-    FILE *fptr;
-    fptr = fopen(name, "r");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    char c = fgetc(fptr); // generic char
-    char s[15];           // mantissa, maximum number of characters is "-x.xxxxxxxe-xx" = 14
-
-    for (int j = 0; j < d; ++j) {
-        // write string
-        int i;
-        for (i = 0; c != '\n' && c != ' '; ++i) {
-            assert( 0 <= i && i <= 14 );
-            s[i] = c;
-            c = fgetc(fptr);
-        }
-        s[i] = '\0';
-        float f = atof(s);      // convert to float
-        data[j] = f;   // save on array
-        c = fgetc(fptr);
-    }
-    fclose(fptr);
-}
-*/

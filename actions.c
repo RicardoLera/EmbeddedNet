@@ -398,9 +398,9 @@ void inference(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c
 }
 
 void train(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2]){
-    printf("\n");
 
     inference(c, predictions, fc_w, fc_b);
+    printf("\n");
 
     // Final Block
     backprop_fc(c,                              // Classification Layer Parameter
@@ -783,14 +783,15 @@ void transfer() {
 
     // Final Layer
     if (frz >= 2) {
-        fillRandom("param52.csv", sizeof(par->final_par_conv2d_BN)/4);          // Problem is in Conv2d parameter update
-        fillRandom("weights35.csv", sizeof(par->final_par_conv2d)/4);
+        fillRandom("param52.csv", sizeof(par->final_par_conv2d_BN)/4);
+        fillRandom("weights35.csv", sizeof(par->final_par_conv2d)/4);           // Problem is in Conv2d parameter update
     }
 
     // etc...
 
 
     // Train
+    printf("\n");
     float predictions[class];
     float (*fc_w)[class][2] = calloc(1280, sizeof *fc_w);
     float (*fc_b)[2] = calloc(class, sizeof *fc_b);

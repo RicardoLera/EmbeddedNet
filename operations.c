@@ -312,8 +312,7 @@ void backprop_fc(int c,
     }
     free(dLdW);
 
-    exportW("fc_w.csv",1280,c,fc_w);
-    exportB("fc_b.csv",c,fc_b);
+    export_fc(1280, c, fc_w, fc_b);
 }
 
 void backprop_avrgpool(float I[7][7][1280], float O[1280]) {
@@ -455,7 +454,7 @@ void backprop_bn(int s, int d,
     // Export
     char name[12]; // maximum number of characters is "paramxx.csv" = 11
     sprintf(name, "param%d.csv", idx);
-    export(name,1,1,4,d,par);
+    export_bn(name, d, par);
 }
 
 void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
@@ -588,7 +587,7 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
     // Export
     char name[14]; // maximum number of characters is "weightsxx.csv" = 13
     sprintf(name, "weights%d.csv", idx);
-    exportConv(name,odepth,ksize,ksize,idepth,par);
+    export_conv2d(name,odepth,ksize,ksize,idepth,par);
 }
 
 void backprop_dw(int isize, int osize, int ksize, int depth,
@@ -648,5 +647,5 @@ void backprop_dw(int isize, int osize, int ksize, int depth,
     // Export
     char name[15]; // maximum number of characters is "dweightsxx.csv" = 14
     sprintf(name, "dweights%d.csv", idx);
-    export(name,1,ksize,ksize,depth,par);
+    export_depth(name, ksize, depth, par);
 }
