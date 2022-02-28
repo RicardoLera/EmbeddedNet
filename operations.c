@@ -7,7 +7,7 @@
 
 #define LAMBDA 0.00004
 #define EPSILON 0.0000001           // original: 0.0000001
-#define LR 0.45                    // original: 0.045
+#define LR 0.45                     // original: 0.045
 #define LR_DECAY 0.98               // original: 0.98
 #define E_MOMENTUM 0.9
 #define E_DECAY 0.9

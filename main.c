@@ -107,7 +107,7 @@ int main( int argc, char *argv[] ) {
             }
         }
         else
-            frz = 0;
+            frz = 19;
 
         importTransfer();
 
@@ -173,6 +173,7 @@ int main( int argc, char *argv[] ) {
         else if ((strcmp(argv[4],"b4")   == 0)) {frz = 16;}
         else if ((strcmp(argv[4],"b3")   == 0)) {frz = 17;}
         else if ((strcmp(argv[4],"exp")  == 0)) {frz = 18;}
+        else if ((strcmp(argv[4],"no")   == 0)) {frz = 19;}
         else
         {
             printf("Invalid freeze index\n");

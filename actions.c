@@ -777,17 +777,189 @@ void train(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2]
 
 void transfer() {
 
+    int i = 1;                  // Index for comparison
+
     // Fully Connected
     fillRandom("fc_w.csv", class*1280);
     fillRandom("fc_b.csv", class);
 
-    // Final Layer
-    if (frz >= 2) {
-        fillRandom("param52.csv", sizeof(par->final_par_conv2d_BN)/4);
+    // Final Block
+    if (frz >= ++i) {
+        fillRandom("param52.csv",   sizeof(par->final_par_conv2d_BN)/4);
         fillRandom("weights35.csv", sizeof(par->final_par_conv2d)/4);           // Problem is in Conv2d parameter update
     }
 
-    // etc...
+    // Block 18
+    if (frz >= ++i) {
+        fillRandom("param51.csv",    sizeof(par->block18_par_project_BN)/4);
+        fillRandom("weights34.csv",  sizeof(par->block18_par_project)/4);
+        fillRandom("param50.csv",    sizeof(par->block18_par_depth_BN)/4);
+        fillRandom("dweights17.csv", sizeof(par->block18_par_depth)/4);
+        fillRandom("param49.csv",    sizeof(par->block18_par_expand_BN)/4);
+        fillRandom("weights33.csv",  sizeof(par->block18_par_expand)/4);
+    }
+
+    // Block 17
+    if (frz >= ++i) {
+        fillRandom("param48.csv",    sizeof(par->block17_par_project_BN)/4);
+        fillRandom("weights32.csv",  sizeof(par->block17_par_project)/4);
+        fillRandom("param47.csv",    sizeof(par->block17_par_depth_BN)/4);
+        fillRandom("dweights16.csv", sizeof(par->block17_par_depth)/4);
+        fillRandom("param46.csv",    sizeof(par->block17_par_expand_BN)/4);
+        fillRandom("weights31.csv",  sizeof(par->block17_par_expand)/4);
+    }
+
+    // Block 16
+    if (frz >= ++i) {
+        fillRandom("param45.csv",    sizeof(par->block16_par_project_BN)/4);
+        fillRandom("weights30.csv",  sizeof(par->block16_par_project)/4);
+        fillRandom("param44.csv",    sizeof(par->block16_par_depth_BN)/4);
+        fillRandom("dweights15.csv", sizeof(par->block16_par_depth)/4);
+        fillRandom("param43.csv",    sizeof(par->block16_par_expand_BN)/4);
+        fillRandom("weights29.csv",  sizeof(par->block16_par_expand)/4);
+    }
+
+    // Block 15
+    if (frz >= ++i) {
+        fillRandom("param42.csv",    sizeof(par->block15_par_project_BN)/4);
+        fillRandom("weights28.csv",  sizeof(par->block15_par_project)/4);
+        fillRandom("param41.csv",    sizeof(par->block15_par_depth_BN)/4);
+        fillRandom("dweights14.csv", sizeof(par->block15_par_depth)/4);
+        fillRandom("param40.csv",    sizeof(par->block15_par_expand_BN)/4);
+        fillRandom("weights27.csv",  sizeof(par->block15_par_expand)/4);
+    }
+
+    // Block 14
+    if (frz >= ++i) {
+        fillRandom("param39.csv",    sizeof(par->block14_par_project_BN)/4);
+        fillRandom("weights26.csv",  sizeof(par->block14_par_project)/4);
+        fillRandom("param38.csv",    sizeof(par->block14_par_depth_BN)/4);
+        fillRandom("dweights13.csv", sizeof(par->block14_par_depth)/4);
+        fillRandom("param37.csv",    sizeof(par->block14_par_expand_BN)/4);
+        fillRandom("weights25.csv",  sizeof(par->block14_par_expand)/4);
+    }
+
+    // Block 13
+    if (frz >= ++i) {
+        fillRandom("param36.csv",    sizeof(par->block13_par_project_BN)/4);
+        fillRandom("weights24.csv",  sizeof(par->block13_par_project)/4);
+        fillRandom("param35.csv",    sizeof(par->block13_par_depth_BN)/4);
+        fillRandom("dweights12.csv", sizeof(par->block13_par_depth)/4);
+        fillRandom("param34.csv",    sizeof(par->block13_par_expand_BN)/4);
+        fillRandom("weights23.csv",  sizeof(par->block13_par_expand)/4);
+    }
+
+    // Block 12
+    if (frz >= ++i) {
+        fillRandom("param33.csv",    sizeof(par->block12_par_project_BN)/4);
+        fillRandom("weights22.csv",  sizeof(par->block12_par_project)/4);
+        fillRandom("param32.csv",    sizeof(par->block12_par_depth_BN)/4);
+        fillRandom("dweights11.csv", sizeof(par->block12_par_depth)/4);
+        fillRandom("param31.csv",    sizeof(par->block12_par_expand_BN)/4);
+        fillRandom("weights21.csv",  sizeof(par->block12_par_expand)/4);
+    }
+
+    // Block 11
+    if (frz >= ++i) {
+        fillRandom("param30.csv",    sizeof(par->block11_par_project_BN)/4);
+        fillRandom("weights20.csv",  sizeof(par->block11_par_project)/4);
+        fillRandom("param29.csv",    sizeof(par->block11_par_depth_BN)/4);
+        fillRandom("dweights10.csv", sizeof(par->block11_par_depth)/4);
+        fillRandom("param28.csv",    sizeof(par->block11_par_expand_BN)/4);
+        fillRandom("weights19.csv",  sizeof(par->block11_par_expand)/4);
+    }
+
+    // Block 10
+    if (frz >= ++i) {
+        fillRandom("param27.csv",    sizeof(par->block10_par_project_BN)/4);
+        fillRandom("weights18.csv",  sizeof(par->block10_par_project)/4);
+        fillRandom("param26.csv",    sizeof(par->block10_par_depth_BN)/4);
+        fillRandom("dweights9.csv",  sizeof(par->block10_par_depth)/4);
+        fillRandom("param25.csv",    sizeof(par->block10_par_expand_BN)/4);
+        fillRandom("weights17.csv",  sizeof(par->block10_par_expand)/4);
+    }
+
+    // Block 9
+    if (frz >= ++i) {
+        fillRandom("param24.csv",    sizeof(par->block9_par_project_BN)/4);
+        fillRandom("weights16.csv",  sizeof(par->block9_par_project)/4);
+        fillRandom("param23.csv",    sizeof(par->block9_par_depth_BN)/4);
+        fillRandom("dweights8.csv",  sizeof(par->block9_par_depth)/4);
+        fillRandom("param22.csv",    sizeof(par->block9_par_expand_BN)/4);
+        fillRandom("weights15.csv",  sizeof(par->block9_par_expand)/4);
+    }
+
+    // Block 8
+    if (frz >= ++i) {
+        fillRandom("param21.csv",    sizeof(par->block8_par_project_BN)/4);
+        fillRandom("weights14.csv",  sizeof(par->block8_par_project)/4);
+        fillRandom("param20.csv",    sizeof(par->block8_par_depth_BN)/4);
+        fillRandom("dweights7.csv",  sizeof(par->block8_par_depth)/4);
+        fillRandom("param19.csv",    sizeof(par->block8_par_expand_BN)/4);
+        fillRandom("weights13.csv",  sizeof(par->block8_par_expand)/4);
+    }
+
+    // Block 7
+    if (frz >= ++i) {
+        fillRandom("param18.csv",    sizeof(par->block7_par_project_BN)/4);
+        fillRandom("weights12.csv",  sizeof(par->block7_par_project)/4);
+        fillRandom("param17.csv",    sizeof(par->block7_par_depth_BN)/4);
+        fillRandom("dweights6.csv",  sizeof(par->block7_par_depth)/4);
+        fillRandom("param16.csv",    sizeof(par->block7_par_expand_BN)/4);
+        fillRandom("weights11.csv",  sizeof(par->block7_par_expand)/4);
+    }
+
+    // Block 6
+    if (frz >= ++i) {
+        fillRandom("param15.csv",    sizeof(par->block6_par_project_BN)/4);
+        fillRandom("weights10.csv",  sizeof(par->block6_par_project)/4);
+        fillRandom("param14.csv",    sizeof(par->block6_par_depth_BN)/4);
+        fillRandom("dweights5.csv",  sizeof(par->block6_par_depth)/4);
+        fillRandom("param13.csv",    sizeof(par->block6_par_expand_BN)/4);
+        fillRandom("weights9.csv",   sizeof(par->block6_par_expand)/4);
+    }
+
+    // Block 5
+    if (frz >= ++i) {
+        fillRandom("param12.csv",    sizeof(par->block5_par_project_BN)/4);
+        fillRandom("weights8.csv",   sizeof(par->block5_par_project)/4);
+        fillRandom("param11.csv",    sizeof(par->block5_par_depth_BN)/4);
+        fillRandom("dweights4.csv",  sizeof(par->block5_par_depth)/4);
+        fillRandom("param10.csv",    sizeof(par->block5_par_expand_BN)/4);
+        fillRandom("weights7.csv",   sizeof(par->block5_par_expand)/4);
+    }
+
+    // Block 4
+    if (frz >= ++i) {
+        fillRandom("param9.csv",     sizeof(par->block4_par_project_BN)/4);
+        fillRandom("weights6.csv",   sizeof(par->block4_par_project)/4);
+        fillRandom("param8.csv",     sizeof(par->block4_par_depth_BN)/4);
+        fillRandom("dweights3.csv",  sizeof(par->block4_par_depth)/4);
+        fillRandom("param7.csv",     sizeof(par->block4_par_expand_BN)/4);
+        fillRandom("weights5.csv",   sizeof(par->block4_par_expand)/4);
+    }
+
+    // Block 3
+    if (frz >= ++i) {
+        fillRandom("param6.csv",     sizeof(par->block3_par_project_BN)/4);
+        fillRandom("weights4.csv",   sizeof(par->block3_par_project)/4);
+        fillRandom("param5.csv",     sizeof(par->block3_par_depth_BN)/4);
+        fillRandom("dweights2.csv",  sizeof(par->block3_par_depth)/4);
+        fillRandom("param4.csv",     sizeof(par->block3_par_expand_BN)/4);
+        fillRandom("weights3.csv",   sizeof(par->block3_par_expand)/4);
+    }
+
+    // Expanded Block
+    if (frz >= ++i) {
+        fillRandom("param3.csv",     sizeof(par->expanded_par_project_BN)/4);
+        fillRandom("weights2.csv",   sizeof(par->expanded_par_project)/4);
+        fillRandom("param2.csv",     sizeof(par->block3_par_depth_BN)/4);
+        fillRandom("dweights1.csv",  sizeof(par->expanded_par_depth)/4);
+
+    // Initial Block
+        fillRandom("param1.csv",     sizeof(par->initial_par_BN)/4);
+        fillRandom("weights1.csv",   sizeof(par->initial_par_conv2d)/4);
+    }
 
 
     // Train

@@ -28,8 +28,9 @@ A Keras application of MobileNetV2 is used for pre-training as well as developme
  - Profiled performance with Gprof - Bottleneck is at convolution functions: Managed to improve backprop_conv2d at the cost of memory.
  - Profiled memory usage with Massif - Peak memory at 5,211,736B due to backprop_fc's gradient allocation.
  - Implemented recursive training
- - Implemented Transfer Learning and tested with brain tumor images, obtaining good results.
-
+ - Implemented FC Transfer Learning and tested with brain tumor images, obtaining good results.
+ - Implemented full Transfer Learning.
+ 
 ## TO DO
 
 Current Main Task: **Understand problem with Conv2D transfer learning convergence.**
@@ -49,7 +50,7 @@ First Argument: `run`, `train` or `transfer`.
  - `transfer`: Performs Transfer Learning based on imported parameters and a few arguments that depend on the implementation.
     - `n_img`: Number of images in one epoch (1 - 20).
     - `n_epoch`: Number of epochs to run the training for (1 - 50).
-    - `frz`: Selects which layers to transfer the parameters into. Possible values are the same as Train's `frz`.
+    - `frz`: Selects which layers to transfer the parameters into. Possible values are the same as Train's `frz` plus `no` for full training.
     - `class`: How many classification neurons are in the last layer of the new model.
     - `label`: Destination of new classification labels file.
 
