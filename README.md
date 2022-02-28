@@ -47,7 +47,9 @@ First Argument: `run`, `train` or `transfer`.
     - `n_epoch`: Number of epochs to run the training for (1 - 50, default 1).
     - `frz`: Second argument in Train command, defines which layers are frozen during training. Possible values are: `exp`, `b3` ... `b18` and `fc`. Defaults to no freezing.
  - `transfer`: Performs Transfer Learning based on imported parameters and a few arguments that depend on the implementation.
-    - `tfr`: Selects which layers to transfer the parameters into. Possible values are the same as `frz`.
+    - `n_img`: Number of images in one epoch (1 - 20).
+    - `n_epoch`: Number of epochs to run the training for (1 - 50).
+    - `frz`: Selects which layers to transfer the parameters into. Possible values are the same as Train's `frz`.
     - `class`: How many classification neurons are in the last layer of the new model.
     - `label`: Destination of new classification labels file.
 
