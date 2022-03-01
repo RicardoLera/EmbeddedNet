@@ -333,7 +333,7 @@ void backprop_relu6(int s, int d, float I[s][s][d]) {
     for (int i = 0; i < s; ++i) {
         for (int j = 0; j < s; ++j) {
             for (int k = 0; k < d; ++k) {
-                if (I[i][j][k] < 0 || I[i][j][k] > 6) {
+                if (I[i][j][k] < (float) 0 || I[i][j][k] > (float) 6) {
                     I[i][j][k] = 0;
                 }
             }
@@ -378,9 +378,9 @@ void backprop_bn(int s, int d,
 
     // Backpropagate
     float sum;
+    float dMdI = 1 / ((float)s*(float)s);               // Calc dM/dI
     for (int k = 0; k < d; ++k) {
         float dIhatdI = 1/sqrt(par[3][k] + EPSILON);    // Calc dIhat/dI
-        float dMdI = 1 / (d*d);                         // Calc dM/dI
         float dVdI[s][s];
         float dLdIhat[s][s];
         float dLdM = 0;
@@ -389,10 +389,10 @@ void backprop_bn(int s, int d,
         // Variables
         for (int i = 0; i < s; ++i) {
             for (int j = 0; j < s; ++j) {
-                dVdI[i][j] = (2*(I[i][j][k] - par[2][k])) / (d*d);                                          // Calc dV/dI
-                dLdIhat[i][j] = O[i][j][k] * par[0][k];                                                     // Calc dL/dIhat
-                dLdM += dLdIhat[i][j] * ( -1 / sqrt(par[3][k] + EPSILON) );                                 // Calc dL/dM
-                dLdV += dLdIhat[i][j] * (I[i][j][k] - par[2][k]) * (-1/2) * pow(par[3][k] + EPSILON, -3/2); // Calc dL/dV
+                dVdI[i][j] = (2*(I[i][j][k] - par[2][k])) / ((float)s*(float)s);                                            // Calc dV/dI
+                dLdIhat[i][j] = O[i][j][k] * par[0][k];                                                                     // Calc dL/dIhat
+                dLdM += dLdIhat[i][j] * ( -1 / sqrt(par[3][k] + EPSILON) );                                                 // Calc dL/dM
+                dLdV += dLdIhat[i][j] * (I[i][j][k] - par[2][k]) * ((float)-1/(float)2) * pow(par[3][k] + EPSILON, -3/2);   // Calc dL/dV
             }
         }
 
@@ -403,7 +403,7 @@ void backprop_bn(int s, int d,
                 sum += I[i][j][k];
             }
         }
-        par[2][k] = par[2][k] * RHO + (1 - RHO) * (sum / (s*s));
+        par[2][k] = par[2][k] * RHO + (1 - RHO) * (sum / ((float)s*(float)s));
 
         sum = 0;
         for (int i = 0; i < s; ++i) {
@@ -411,14 +411,19 @@ void backprop_bn(int s, int d,
                 sum += (I[i][j][k] - par[2][k]) * (I[i][j][k] - par[2][k]);
             }
         }
-        par[3][k] = par[3][k] * RHO + (1 - RHO) * (sum / (s*s));
+        par[3][k] = par[3][k] * RHO + (1 - RHO) * (sum / ((float)s*(float)s));
 
         // Error
         for (int i = 0; i < s; ++i) {
             for (int j = 0; j < s; ++j) {
                 I[i][j][k] = (dLdIhat[i][j] * dIhatdI) + (dLdV * dVdI[i][j]) + (dLdM * dMdI);   // Calc Error based on previous 6 variables and update
+
+                // FOR DEBUGGING
+                if ( (i == 0) & (j == 0) & (k == 0) )
+                    printf("\ndLdIhat = %.7e   dIhatdI = %.7e   dLdV = %.7e   dVdI = %.7e   dLdM = %.7e   dMdI = %.7e\n\n", dLdIhat[i][j], dIhatdI, dLdV, dVdI[i][j], dLdM, dMdI);
             }
         }
+
 
     }
 
@@ -516,35 +521,6 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
 
     free(error);
 
-/* Gradient Export Test
-
-    if (idx == 27) {
-        FILE *fp;
-        fp = fopen("1gradient_NOERROR.txt", "w");
-        for (int i = 0; i < 576; ++i) {
-            for (int j = 0; j < 96; ++j) {
-                fprintf(fp, "%.7e, ", dLdW[i][0][0][j]);
-            }
-            fprintf(fp, "\n");
-        }
-        fclose(fp);
-        printf("Saved output of layer\n");
-    }
-
-    if (idx == 25) {
-        FILE *fp;
-        fp = fopen("1gradient_ERROR.txt", "w");
-        for (int i = 0; i < 576; ++i) {
-            for (int j = 0; j < 96; ++j) {
-                fprintf(fp, "%.7e, ", dLdW[i][0][0][j]);
-            }
-            fprintf(fp, "\n");
-        }
-        fclose(fp);
-        printf("Saved output of layer\n");
-    }
-*/
-
     // Update weights
     for (int od = 0; od < odepth; ++od) {
     for (int ky = 0; ky < ksize; ++ky) {
@@ -554,35 +530,6 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
         par[od][ky][kx][id] = par[od][ky][kx][id] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ew[od][ky][kx][id])+EPSILON) ) * dLdW[od][ky][kx][id] );
     }}}}
     free(dLdW);
-
-/* Weight Export Test
-
-        if (idx == 27) {
-            FILE *fp;
-            fp = fopen("1weights_NOERROR.txt", "w");
-            for (int i = 0; i < 576; ++i) {
-                for (int j = 0; j < 96; ++j) {
-                    fprintf(fp, "%.7e, ", par[i][0][0][j]);
-                }
-                fprintf(fp, "\n");
-            }
-            fclose(fp);
-            printf("Saved output of layer\n");
-        }
-
-        if (idx == 25) {
-            FILE *fp;
-            fp = fopen("1weights_ERROR.txt", "w");
-            for (int i = 0; i < 576; ++i) {
-                for (int j = 0; j < 96; ++j) {
-                    fprintf(fp, "%.7e, ", par[i][0][0][j]);
-                }
-                fprintf(fp, "\n");
-            }
-            fclose(fp);
-            printf("Saved output of layer\n");
-        }
-*/
 
     // Export
     char name[14]; // maximum number of characters is "weightsxx.csv" = 13

@@ -192,8 +192,6 @@ int main( int argc, char *argv[] ) {
 
         srand(time(NULL));
 
-        printf("class = %d\n",class);
-
         transfer();
 
     }
