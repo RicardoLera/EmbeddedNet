@@ -312,6 +312,8 @@ void backprop_fc(int c,
     }
     free(dLdW);
 
+    printf("fc_w convergence index: %.7e\n\n", fabs( fabs(fc_w[0][0][0]) - fabs(fc_w[0][1][0]) ) );
+
     export_fc(1280, c, fc_w, fc_b);
 }
 

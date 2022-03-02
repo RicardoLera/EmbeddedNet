@@ -447,7 +447,7 @@ void copyLabels(char* path) {
     }
 
     target = fopen("labels.txt", "w");
-    if (source == NULL) {
+    if (target == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);
     }

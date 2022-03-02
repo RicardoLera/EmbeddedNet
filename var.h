@@ -9,9 +9,8 @@ extern int n_img;
 extern int n_epoch;
 extern int frz;
 
-// Transfer indexes
-extern int tfr;     // Same as frz
-extern int class;   // Maximum 1000
+// Transfer indexe
+extern int class;
 
 // Declare image and label
 extern float image[224][224][3];
