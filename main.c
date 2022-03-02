@@ -6,6 +6,10 @@
 #include "data_manip.h"
 #include "var.h"
 
+// Initialize structs
+struct variables var;       // Every layer-correspondent variable
+struct parameters par[2];   // Every parameter and its respective moving squared mean
+
 // Initialize epoch counter
 int epoch_count;
 
@@ -21,7 +25,7 @@ int class = 2;
 float image[224][224][3];
 int label;
 
-// Temporary char for string operations
+// Pointer for string operations
 char *temp;
 
 int main(int argc, char *argv[]) {
@@ -155,7 +159,7 @@ int main(int argc, char *argv[]) {
             printf("Invalid arguments for TRANSFER command.\n"
                     " - I: Number of images (1 - 100). Default: 100\n"
                     " - E: Number of epochs (1 - 100). Default: 3\n"
-                    " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n"
+                    " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3', 'exp' and 'no'. Default 'fc'\n"
                     " - C: How many classification neurons are in the last layer of the new model. Default: 2\n"
                     " - L: Destination of new classification labels file. Default: 'newlabels.txt'\n");
             exit(EXIT_FAILURE);
@@ -200,6 +204,7 @@ int main(int argc, char *argv[]) {
                 else if (strcmp(argv[i+1],"b4")  == 0) {frz = 16;}
                 else if (strcmp(argv[i+1],"b3")  == 0) {frz = 17;}
                 else if (strcmp(argv[i+1],"exp") == 0) {frz = 18;}
+                else if (strcmp(argv[i+1],"no")  == 0) {frz = 19;}
                 else
                 {
                     printf("Invalid freeze index\n");

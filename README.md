@@ -43,16 +43,17 @@ Other Tasks:
 
 First Argument: `run`, `train` or `transfer`.
  - `run`: Runs a single inference of the network for imported image, generating a prediction.
+    - `img_idx`: Image index to be inferred (0 - 100, default 100).
  - `train`: Trains network using imported image. Prediction is generated before training.
-    - `n_img`: Number of images in one epoch (1 - 20, default 1).
-    - `n_epoch`: Number of epochs to run the training for (1 - 50, default 1).
-    - `frz`: Second argument in Train command, defines which layers are frozen during training. Possible values are: `exp`, `b3` ... `b18` and `fc`. Defaults to no freezing.
+    - `n_img`: Number of images in one epoch (1 - 100, default 100).
+    - `n_epoch`: Number of epochs to run the training for (1 - 100, default 3).
+    - `frz`: Second argument in Train command, defines which layers are frozen during training. Possible values are: `exp`, `b3` ... `b18` and `fc`. Default `fc`.
  - `transfer`: Performs Transfer Learning based on imported parameters and a few arguments that depend on the implementation.
-    - `n_img`: Number of images in one epoch (1 - 20).
-    - `n_epoch`: Number of epochs to run the training for (1 - 50).
-    - `frz`: Selects which layers to transfer the parameters into. Possible values are the same as Train's `frz` plus `no` for full training.
-    - `class`: How many classification neurons are in the last layer of the new model.
-    - `label`: Destination of new classification labels file.
+    - `n_img`: Number of images in one epoch (1 - 100, default 100).
+    - `n_epoch`: Number of epochs to run the training for (1 - 100, default 3).
+    - `frz`: Selects which layers to transfer the parameters into. Possible values are the same as Train's `frz` plus `no` for full training. Default `fc`.
+    - `class`: How many classification neurons are in the last layer of the new model (2 - 1000, default 2).
+    - `label`: Destination of new classification labels file (Default 'newlabels.txt').
 
 ## Code Description
 

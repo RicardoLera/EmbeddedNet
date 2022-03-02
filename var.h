@@ -9,7 +9,7 @@ extern int n_img;
 extern int n_epoch;
 extern int frz;
 
-// Transfer indexe
+// Transfer index
 extern int class;
 
 // Declare image and label
@@ -210,7 +210,7 @@ struct variables {
     //float predictions[1000];                  // Allocated Dynamically due to Transfer
 };
 
-struct variables var;                           // Done this way so that I don't have to instantiate every variable again
+extern struct variables var;                    // Done this way so that I don't have to instantiate every variable again.
 
 
 // The following is the 3.4M parameter struct
@@ -358,9 +358,9 @@ struct parameters {
     float final_par_conv2d[1280][1][1][320];
     float final_par_conv2d_BN[4][1280];
     //float final_par_fc_w[1280][1000];
-    //float final_par_fc_b[1000];                // Allocated Dynamically due to Transfer
+    //float final_par_fc_b[1000];               // Allocated Dynamically due to Transfer
 };
 
-struct parameters par[2];   // 0 represents trainable parameters; 1 represents moving squared means
+extern struct parameters par[2];                // 0 represents trainable parameters; 1 represents moving squared means
 
 #endif
