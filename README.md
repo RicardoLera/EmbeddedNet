@@ -38,6 +38,9 @@ Current Main Task: **Understand problem with Conv2D transfer learning convergenc
 Other Tasks:
  - Application on embedded system (import/export/conv etc).
  - Finish commenting all functions.
+ 
+ - b18 train iteration time = 821.895789 / 100*3 = **2.74s**
+ - Training on b18 for 3 epochs on 2600 images = ~6 hours
 
 ## Command Line Arguments
 

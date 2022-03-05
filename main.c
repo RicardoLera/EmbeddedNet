@@ -40,6 +40,8 @@ int main(int argc, char *argv[]) {
         // RUN Option
     if (strcmp(argv[1],"run") == 0 ) {
 
+        clock_t begin = clock();
+
         int img_idx = 200;
 
         if (argc > 3) {
@@ -68,6 +70,9 @@ int main(int argc, char *argv[]) {
 
         inference(class, predictions, fc_w, fc_b);
 
+        clock_t end = clock();
+        double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+        printf("\nInference time: %fs\n", time_spent);
     }
 
 
@@ -177,6 +182,8 @@ int main(int argc, char *argv[]) {
         float (*fc_w)[class][2] = calloc(1280, sizeof *fc_w);
         float (*fc_b)[2] = calloc(class, sizeof *fc_b);
 
+        clock_t begin = clock();
+
         // Train
         for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
             for (int i = 0; i < n_img; ++i) {
@@ -187,12 +194,21 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        clock_t end_train = clock();
+
+        begin = clock();
+
         // Test and caclulate metrics
         if (n_test)
             test(class, predictions, fc_w, fc_b);
 
         free(fc_w);
         free(fc_b);
+
+        clock_t end_test = clock();
+        double train_time = (double)(end_train - begin) / CLOCKS_PER_SEC;
+        double test_time = (double)(end_test - end_train) / CLOCKS_PER_SEC;
+        printf("\nTrain time: %fs\nTest time: %fs\n", train_time, test_time);
     }
 
 

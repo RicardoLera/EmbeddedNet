@@ -426,8 +426,8 @@ void backprop_bn(int s, int d,
                 I[i][j][k] = (dLdIhat[i][j] * dIhatdI) + (dLdV * dVdI[i][j]) + (dLdM * dMdI);   // Calc Error based on previous 6 variables and update
 
                 // FOR DEBUGGING
-                if ( (i == 0) & (j == 0) & (k == 0) )
-                    printf("\ndLdIhat = %.7e   dIhatdI = %.7e   dLdV = %.7e   dVdI = %.7e   dLdM = %.7e   dMdI = %.7e\n\n", dLdIhat[i][j], dIhatdI, dLdV, dVdI[i][j], dLdM, dMdI);
+                //if ( (i == 0) & (j == 0) & (k == 0) )
+                    //printf("\ndLdIhat = %.7e   dIhatdI = %.7e   dLdV = %.7e   dVdI = %.7e   dLdM = %.7e   dMdI = %.7e\n\n", dLdIhat[i][j], dIhatdI, dLdV, dVdI[i][j], dLdM, dMdI);
             }
         }
 
