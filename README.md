@@ -46,11 +46,11 @@ Other Tasks:
 
 First Argument: `run`, `train` or `transfer`.
  - `run`: Runs a single inference of the network for imported image, generating a prediction.
-    - `img_idx`: Image index to be inferred (0 - 200, default 200 (extra test image)).
+    - `img_idx`: Image index to be inferred (0 - 399, default 0).
  - `train`: Trains network using imported image. Prediction is generated before training.
-    - `n_img`: Number of images in one epoch (1 - 100, default 100).
+    - `n_img`: Number of images in one epoch (1 - 3000, default 100).
     - `n_epoch`: Number of epochs to run the training for (1 - 100, default 3).
-    - `n_test`: Number of test images (0 - 100, default: 100, 0 does not run testing).
+    - `n_test`: Number of test images (0 - 400, default: 20, 0 does not run testing).
     - `lr`: Learning Rate (0 - 10, default 0.045).
     - `lr_decay`: Learning Rate Decay (0 - 1, default 0.98).
     - `frz`: Second argument in Train command, defines which layers are frozen during training. Possible values are: `exp`, `b3` ... `b18` and `fc`. Default `fc`.

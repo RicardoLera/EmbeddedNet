@@ -19,11 +19,14 @@
 
 // We import everything as CSV files
 
-void import_image(int l) {
+void import_image(int l, int t) {
 
     // Define name from index
-    char name[13]; // maximum number of characters is "imagexxx.csv" = 12
-    sprintf(name, "image%d.csv", l);
+    char name[14]; // maximum number of characters is "imagexxxx.csv" or "imagetxxx.csv" = 13
+    if (t)
+        sprintf(name, "imaget%d.csv", l);
+    else
+        sprintf(name, "image%d.csv", l);
 
     // open file
     FILE *fptr;
@@ -55,7 +58,10 @@ void import_image(int l) {
     }
     fclose(fptr);
 
-    sprintf(name, "label%d.csv", l);
+    if (t)
+        sprintf(name, "labelt%d.csv", l);
+    else
+        sprintf(name, "label%d.csv", l);
 
     fptr = fopen(name, "r");
     if (fptr == NULL) {
@@ -72,7 +78,9 @@ void import_image(int l) {
     }
     s[i] = '\0';
     label = strtol(s,&a,10);
-                                                                                    printf("\nCurrent label: %d\n\n", label);
+
+    printf("\nCurrent label: %d\n\n", label);
+
     fclose(fptr);
 }
 

@@ -787,8 +787,8 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2])
 
     // Test
     for (int i = 0; i < n_test; ++i) {
-        printf("Test Image %d\n", i + 101);
-        import_image(i+100);
+        printf("Test Image %d\n", i);
+        import_image(i, 1);
         inference(class, predictions, fc_w, fc_b);
         printf("\n");
 
@@ -1073,7 +1073,7 @@ void transfer() {
     for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
         for (int i = 0; i < n_img; ++i) {
             printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
-            import_image(i);
+            import_image(i, 0);
             train(class, predictions, fc_w, fc_b);
             printf("\n");
         }

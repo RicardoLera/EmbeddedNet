@@ -221,23 +221,27 @@ def savebin(s):
              
 def saveimages(s):
     if s == 0:   # Save train images
+        rang = 2600
         z = 0
+        save = ''
     elif s == 1: # Save test images
-        z = 0 # DO THIS LATER
+        rang = 400
+        z = 1300
+        save = 'test'
     else:
-        print("Invalid argument");
+        print("Invalid argument")
         quit();
     
     
     import random
     random.seed(72)
-    num = random.sample(range(2600), 2600) # 2600 train / 400 test
+    num = random.sample(range(rang), rang) # 2600 train / 400 test
     
-    for x in range(2600):
+    for x in range(rang):
         
-        if (num[x] < 1300):
+        if (num[x] < rang/2):
             # Load image in PIL format 244x244
-            filename = 'yes/y' + str(num[x]) + '.jpg'
+            filename = 'yes/y' + str(num[x] + z) + '.jpg'
             original = load_img(filename, target_size=(224, 224))
 
             # Convert to numpy array 244x244x3
@@ -255,7 +259,7 @@ def saveimages(s):
             label = "1 "
         else:
             # Load image in PIL format 244x244
-            filename = 'no/no' + str(num[x] - 1300) + '.jpg'
+            filename = 'no/no' + str(num[x] - int(rang/2) + z) + '.jpg'
             original = load_img(filename, target_size=(224, 224))
             plt.imshow(original)
             plt.show()
@@ -275,14 +279,14 @@ def saveimages(s):
             label = "0 "
         
         # Save Images and Labels
-        print("Saving image " + str(x) + " (" + str(num[x]) + ")")
+        print("Saving image " + str(x) + " (" + str(num[x]+z) + ")")
         data = processed_image[0,:,:,:]
-        with open('../Debug/image' + str(x) + '.csv', 'w') as outfile:
+        with open('../Debug/image' + save + str(x) + '.csv', 'w') as outfile:
             for threeD_data_slice in data:
                 for twoD_data_slice in threeD_data_slice:
                     np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
                 
-        with open('../Debug/label' + str(x) + '.csv', 'w') as outfile:
+        with open('../Debug/label' + save + str(x) + '.csv', 'w') as outfile:
             outfile.write(label)        
 
 def savetestimage(x, l):

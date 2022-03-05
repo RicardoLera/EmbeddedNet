@@ -22,7 +22,7 @@ int frz = 1;
 int class = 2;
 
 // Initialize test index
-int n_test = 100;
+int n_test = 20;
 int inf_idx;
 float inf_pred;
 float lr = 0.045;           // original: 0.045
@@ -42,16 +42,16 @@ int main(int argc, char *argv[]) {
 
         clock_t begin = clock();
 
-        int img_idx = 200;
+        int img_idx = 0;
 
         if (argc > 3) {
-            printf("Too many arguments for RUN command.\nOnly extra argument is image index, default: 200\n");
+            printf("Too many arguments for RUN command.\nOnly extra argument is image index: 0 - 399, default: 0\n");
             exit(EXIT_FAILURE);
         }
 
         if (argc > 2) {
-            if (strtol(argv[2], &temp, 10) < 0 || strtol(argv[2], &temp, 10) > 200) {
-                printf("Invalid image index (0 - 200)\n");
+            if (strtol(argv[2], &temp, 10) < 0 || strtol(argv[2], &temp, 10) > 399) {
+                printf("Invalid image index (0 - 399)\n");
                 exit(EXIT_FAILURE);
             }
             else
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
         float (*fc_b)[2] = calloc(class, sizeof *fc_b);
 
         // Fill input using data0[y][x][d] syntax (y are lines, x are columns)
-        import_image(img_idx);
+        import_image(img_idx, 1);
 
         inference(class, predictions, fc_w, fc_b);
 
@@ -81,9 +81,9 @@ int main(int argc, char *argv[]) {
 
         if (argc % 2 != 0) {
             printf("Invalid arguments for TRAIN command.\n"
-                    " - I: Number of images (1 - 100). Default: 100\n"
+                    " - I: Number of images (1 - 3000). Default: 100\n"
                     " - E: Number of epochs (1 - 100). Default: 3\n"
-                    " - T: Number of test images (0 - 100). Default: 100. 0 does not run testing\n"
+                    " - T: Number of test images (0 - 400). Default: 20. 0 does not run testing\n"
                     " - LR: Learning Rate (0 - 10). Default 0.045\n"
                     " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
                     " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n");
@@ -93,8 +93,8 @@ int main(int argc, char *argv[]) {
         for (int i = 2; i < argc; i = i + 2) {
 
             if (strcmp(argv[i],"-I") == 0) {
-                if (strtol(argv[i+1], &temp, 10) < 1 || strtol(argv[i+1], &temp, 10) > 100) {
-                    printf("Invalid image number (1 - 100)\n");
+                if (strtol(argv[i+1], &temp, 10) < 1 || strtol(argv[i+1], &temp, 10) > 3000) {
+                    printf("Invalid image number (1 - 3000)\n");
                     exit(EXIT_FAILURE);
                 }
                 else
@@ -111,8 +111,8 @@ int main(int argc, char *argv[]) {
             }
 
             else if (strcmp(argv[i],"-T") == 0) {
-                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 100) {
-                    printf("Invalid test number (0 - 100)\n");
+                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 400) {
+                    printf("Invalid test number (0 - 400)\n");
                     exit(EXIT_FAILURE);
                 }
                 else
@@ -165,9 +165,9 @@ int main(int argc, char *argv[]) {
 
             else {
                 printf("Invalid argument '%s'\n"
-                        " - I: Number of images (1 - 100). Default: 100\n"
+                        " - I: Number of images (1 - 3000). Default: 100\n"
                         " - E: Number of epochs (1 - 100). Default: 3\n"
-                        " - T: Number of test images (0 - 100). Default: 100. 0 does not run testing\n"
+                        " - T: Number of test images (0 - 400). Default: 20. 0 does not run testing\n"
                         " - LR: Learning Rate (0 - 10). Default 0.045\n"
                         " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
                         " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n", argv[i]);
@@ -188,7 +188,7 @@ int main(int argc, char *argv[]) {
         for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
             for (int i = 0; i < n_img; ++i) {
                 printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
-                import_image(i);
+                import_image(i, 0);
                 train(class, predictions, fc_w, fc_b);
                 printf("\n");
             }
@@ -219,9 +219,9 @@ int main(int argc, char *argv[]) {
 
         if (argc % 2 != 0) {
             printf("Invalid arguments for TRANSFER command.\n"
-                    " - I: Number of images (1 - 100). Default: 100\n"
+                    " - I: Number of images (1 - 3000). Default: 100\n"
                     " - E: Number of epochs (1 - 100). Default: 3\n"
-                    " - T: Number of test images (0 - 100). Default: 100. 0 does not run testing\n"
+                    " - T: Number of test images (0 - 400). Default: 20. 0 does not run testing\n"
                     " - LR: Learning Rate (0 - 10). Default 0.045\n"
                     " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
                     " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3', 'exp' and 'no'. Default 'fc'\n"
@@ -233,8 +233,8 @@ int main(int argc, char *argv[]) {
         for (int i = 2; i < argc; i = i + 2) {
 
             if (strcmp(argv[i],"-I") == 0) {
-                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 100) {
-                    printf("Invalid image number (0 - 100)\n");
+                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 3000) {
+                    printf("Invalid image number (0 - 3000)\n");
                     exit(EXIT_FAILURE);
                 }
                 else
@@ -251,8 +251,8 @@ int main(int argc, char *argv[]) {
             }
 
             else if (strcmp(argv[i],"-T") == 0) {
-                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 100) {
-                    printf("Invalid test number (0 - 100)\n");
+                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 400) {
+                    printf("Invalid test number (0 - 400)\n");
                     exit(EXIT_FAILURE);
                 }
                 else
@@ -319,9 +319,9 @@ int main(int argc, char *argv[]) {
 
             else {
                 printf("Invalid argument '%s'\n"
-                        " - I: Number of images (1 - 100). Default: 100\n"
+                        " - I: Number of images (1 - 3000). Default: 100\n"
                         " - E: Number of epochs (1 - 100). Default: 3\n"
-                        " - T: Number of test images (0 - 100). Default: 100. 0 does not run testing\n"
+                        " - T: Number of test images (0 - 400). Default: 20. 0 does not run testing\n"
                         " - LR: Learning Rate (0 - 10). Default 0.045\n"
                         " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
                         " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n"
