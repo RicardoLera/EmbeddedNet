@@ -22,9 +22,9 @@
 void import_image(int l, int t) {
 
     // Define name from index
-    char name[14]; // maximum number of characters is "imagexxxx.csv" or "imagetxxx.csv" = 13
+    char name[17]; // maximum number of characters is "imagetestxxx.csv" = 16
     if (t)
-        sprintf(name, "imaget%d.csv", l);
+        sprintf(name, "imagetest%d.csv", l);
     else
         sprintf(name, "image%d.csv", l);
 
@@ -59,7 +59,7 @@ void import_image(int l, int t) {
     fclose(fptr);
 
     if (t)
-        sprintf(name, "labelt%d.csv", l);
+        sprintf(name, "labeltest%d.csv", l);
     else
         sprintf(name, "label%d.csv", l);
 
