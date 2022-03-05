@@ -6,9 +6,7 @@
 #include "var.h"
 
 #define LAMBDA 0.00004
-#define EPSILON 0.0000001           // original: 0.0000001
-#define LR 0.45                     // original: 0.045
-#define LR_DECAY 0.98               // original: 0.98
+#define EPSILON 0.0000001       // original: 0.0000001
 #define E_MOMENTUM 0.9
 #define E_DECAY 0.9
 #define RHO 0.999
@@ -199,8 +197,11 @@ void decode(float *pred) {
         cor[n].idx = n;
     }
 
+    // Acquire correct prediction
     qsort(cor, class, sizeof(struct Correlation), compare);
-
+    inf_idx = cor[0].idx;
+    inf_pred = cor[0].prediction;
+/*
     FILE *fp;
     fp = fopen("fc_pred.csv", "w");
     if (fp == NULL) {
@@ -210,7 +211,9 @@ void decode(float *pred) {
     fprintf(fp, "%.7e\n%d\n", cor[0].prediction, cor[0].idx);
     fclose(fp);
     printf("Saved fc_pred.csv\n");
+*/
 
+    // Print correlations
     int n_cor;
     if (class >= 5)
         n_cor = 5;
@@ -222,6 +225,7 @@ void decode(float *pred) {
         printf("Correlation %d: %e / Index = %d\n", n+1, cor[n].prediction, cor[n].idx);
     printf("\n");
 
+    // Print label correlations
     FILE *fptr;
     fptr = fopen("labels.txt", "r");
     if (fptr == NULL) {
@@ -306,13 +310,14 @@ void backprop_fc(int c,
     // Correct weights and biases - changes weights
     for (int j = 0; j < c; ++j) {
         for (int i = 0; i < 1280; ++i) {
-            fc_w[i][j][0] = fc_w[i][j][0] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(fc_w[i][j][1])+EPSILON) ) * dLdW[i][j] );
+            fc_w[i][j][0] = fc_w[i][j][0] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(fc_w[i][j][1])+EPSILON) ) * dLdW[i][j] );
         }
-    fc_b[j][0] = fc_b[j][0] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(fc_b[j][1])+EPSILON) ) * dLdB[j] );
+    fc_b[j][0] = fc_b[j][0] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(fc_b[j][1])+EPSILON) ) * dLdB[j] );
     }
     free(dLdW);
 
-    printf("fc_w convergence index: %.7e\n\n", fabs( fabs(fc_w[0][0][0]) - fabs(fc_w[0][1][0]) ) );
+    // For analyzing overfitting
+    //printf("fc_w convergence index: %.7e\n\n", fabs( fabs(fc_w[0][0][0]) - fabs(fc_w[0][1][0]) ) );
 
     export_fc(1280, c, fc_w, fc_b);
 }
@@ -363,7 +368,7 @@ void backprop_bn(int s, int d,
             }
         }
         Ep[1][k] = E_MOMENTUM*Ep[1][k] + (1 - E_DECAY)*Bgrad*Bgrad;
-        par[1][k] = par[1][k] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ep[1][k])+EPSILON) ) * Bgrad );
+        par[1][k] = par[1][k] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(Ep[1][k])+EPSILON) ) * Bgrad );
     }
 
     // Calculate Gamma Gradient
@@ -380,7 +385,7 @@ void backprop_bn(int s, int d,
 
     // Backpropagate
     float sum;
-    float dMdI = 1 / ((float)s*(float)s);               // Calc dM/dI
+    float dMdI = 1.0 / (s*s);                           // Calc dM/dI
     for (int k = 0; k < d; ++k) {
         float dIhatdI = 1/sqrt(par[3][k] + EPSILON);    // Calc dIhat/dI
         float dVdI[s][s];
@@ -391,10 +396,10 @@ void backprop_bn(int s, int d,
         // Variables
         for (int i = 0; i < s; ++i) {
             for (int j = 0; j < s; ++j) {
-                dVdI[i][j] = (2*(I[i][j][k] - par[2][k])) / ((float)s*(float)s);                                            // Calc dV/dI
+                dVdI[i][j] = (2*(I[i][j][k] - par[2][k])) / (s*s);                                                          // Calc dV/dI
                 dLdIhat[i][j] = O[i][j][k] * par[0][k];                                                                     // Calc dL/dIhat
                 dLdM += dLdIhat[i][j] * ( -1 / sqrt(par[3][k] + EPSILON) );                                                 // Calc dL/dM
-                dLdV += dLdIhat[i][j] * (I[i][j][k] - par[2][k]) * ((float)-1/(float)2) * pow(par[3][k] + EPSILON, -3/2);   // Calc dL/dV
+                dLdV += dLdIhat[i][j] * (I[i][j][k] - par[2][k]) * (-1.0/2) * pow(par[3][k] + EPSILON, -3/2);               // Calc dL/dV
             }
         }
 
@@ -405,7 +410,7 @@ void backprop_bn(int s, int d,
                 sum += I[i][j][k];
             }
         }
-        par[2][k] = par[2][k] * RHO + (1 - RHO) * (sum / ((float)s*(float)s));
+        par[2][k] = par[2][k] * RHO + (1 - RHO) * (sum / (s*s));
 
         sum = 0;
         for (int i = 0; i < s; ++i) {
@@ -413,7 +418,7 @@ void backprop_bn(int s, int d,
                 sum += (I[i][j][k] - par[2][k]) * (I[i][j][k] - par[2][k]);
             }
         }
-        par[3][k] = par[3][k] * RHO + (1 - RHO) * (sum / ((float)s*(float)s));
+        par[3][k] = par[3][k] * RHO + (1 - RHO) * (sum / (s*s));
 
         // Error
         for (int i = 0; i < s; ++i) {
@@ -432,7 +437,7 @@ void backprop_bn(int s, int d,
     // Correct Gamma
     for (int k = 0; k < d; ++k) {
         Ep[0][k] = E_MOMENTUM*Ep[0][k] + (1 - E_DECAY)*Ggrad[k]*Ggrad[k];
-        par[0][k] = par[0][k] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ep[0][k])+EPSILON) ) * Ggrad[k] );
+        par[0][k] = par[0][k] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(Ep[0][k])+EPSILON) ) * Ggrad[k] );
     }
 
 
@@ -529,7 +534,7 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
     for (int kx = 0; kx < ksize; ++kx) {
     for (int id = 0; id < idepth; ++id){
         Ew[od][ky][kx][id] = E_MOMENTUM*Ew[od][ky][kx][id] + (1 - E_DECAY)*dLdW[od][ky][kx][id]*dLdW[od][ky][kx][id];
-        par[od][ky][kx][id] = par[od][ky][kx][id] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ew[od][ky][kx][id])+EPSILON) ) * dLdW[od][ky][kx][id] );
+        par[od][ky][kx][id] = par[od][ky][kx][id] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(Ew[od][ky][kx][id])+EPSILON) ) * dLdW[od][ky][kx][id] );
     }}}}
     free(dLdW);
 
@@ -589,7 +594,7 @@ void backprop_dw(int isize, int osize, int ksize, int depth,
     for (int kx = 0; kx < ksize; ++kx) {
     for (int od = 0; od < depth; ++od){
         Ew[ky][kx][od] = E_MOMENTUM*Ew[ky][kx][od] + (1 - E_DECAY)*dLdW[ky][kx][od]*dLdW[ky][kx][od];
-        par[ky][kx][od] = par[ky][kx][od] - ( ( (LR*pow(LR_DECAY, epoch_count)) / (sqrt(Ew[ky][kx][od])+EPSILON) ) * dLdW[ky][kx][od] );
+        par[ky][kx][od] = par[ky][kx][od] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(Ew[ky][kx][od])+EPSILON) ) * dLdW[ky][kx][od] );
     }}}
     free(dLdW);
 

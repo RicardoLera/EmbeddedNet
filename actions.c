@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "blocks.h"
 #include "layers.h"
 #include "operations.h"
@@ -775,6 +776,93 @@ void train(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2]
             2, 0, 1);                           // Stride, padding and import index
 }
 
+void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2]) {
+
+    int NC = 0;                                                 // Number of correct predictions
+    int (*conf)[c] = calloc(c, sizeof *conf);                   // Confusion matrix: actual (lines) x predicted (columns)
+    float step = 0.02;                                          // Threshold Step
+    int t_number = (1 - 0.5) / step;                            // Number of points
+    int (*conf_arr)[2][t_number] = calloc(2, sizeof *conf_arr); // Confusion matrix array
+
+    // Test
+    for (int i = 0; i < n_test; ++i) {
+        printf("Test Image %d\n", i + 101);
+        import_image(i+100);
+        inference(class, predictions, fc_w, fc_b);
+        printf("\n");
+
+        // Add to Correct Predictions
+        if (inf_idx == label)
+            NC++;
+
+        // Add to Confusion Matrix
+        conf[label][inf_idx]++;
+
+        // Add to Confusion Matrix Array on Thresholds
+        if (c == 2) {
+            for (int t_count = 0; t_count < t_number; ++t_count) {
+                float th = 0.5 + (t_count * step);  // Current threshold
+                int th_idx;                         // Index within threshold
+
+                // Calculate th_idx
+                if (inf_pred >= th)
+                    th_idx = inf_idx;
+                else
+                    th_idx = !inf_idx;
+
+                conf_arr[label][th_idx][t_count]++;
+            }
+        }
+    }
+
+    // Classification Accuracy
+    float acc = (float)NC/(float)n_test;
+    printf("Classification Accuracy = %.2f%%\n", acc*100);
+
+    // Confusion Matrix
+    printf("\nConfusion Matrix = \n");
+    for (int i = 0; i < c; ++i) {
+        for (int j = 0; j < c; ++j) {
+            printf("%d   ",conf[i][j]);
+        }
+        printf("\n");
+    }
+    free(conf);
+
+    // Area Under Curve (only for class = 2)
+    if (c == 2) {
+        float (*ROC)[t_number] = calloc(2, sizeof *ROC);    // ROC Curve: 0 -> FPR / 1 -> TPR
+        float area = 0;                                     // Area Under Curve
+        for (int t_count = 0; t_count < t_number; ++t_count) {
+            ROC[1][t_count] = (float)conf_arr[0][0][t_count] / (conf_arr[0][1][t_count] + conf_arr[0][0][t_count]);    // TPR = TP / (FN + TP)     aka Sensitivity
+            ROC[0][t_count] = (float)conf_arr[1][0][t_count] / (conf_arr[1][1][t_count] + conf_arr[1][0][t_count]);    // FPR = FP / (TN + FP)     aka 1 - Specificity
+            if (t_count != 0) {
+                area += fabs( (ROC[1][t_count] - ROC[1][t_count-1]) * (ROC[0][t_count] - ROC[0][t_count-1]) );  // Area Under Curve = variation of TPR times the variation of FPR, for every variation of threshold, added up
+            }
+        }
+
+        // Print confusion array matrixes
+        printf("\nConfusion Array = \n");
+        for (int t_count = 0; t_count < t_number; ++t_count) {
+            printf("\nMatrix at threshold %.2f:\n", 0.5 + (t_count * step));
+            for (int i = 0; i < c; ++i) {
+                for (int j = 0; j < c; ++j) {
+                    printf("%d   ",conf_arr[i][j][t_count]);
+                }
+                printf("\n");
+            }
+        }
+
+        printf("\nArea Under ROC Curve = %.3f\n", area); // Receiver Operating Characteristic AUC
+
+        // Insert graph making here
+
+        free(ROC);
+    }
+    free(conf_arr);
+
+}
+
 void transfer() {
 
     int i = 1;                  // Index for comparison
@@ -961,7 +1049,6 @@ void transfer() {
         fillRandom("weights1.csv",   sizeof(par->initial_par_conv2d)/4);
     }
 
-
     // Train
     printf("\n");
     float predictions[class];
@@ -976,6 +1063,12 @@ void transfer() {
             printf("\n");
         }
     }
+
+    // Test and caclulate metrics
+    if (n_test)
+        test(class, predictions, fc_w, fc_b);
+
     free(fc_w);
     free(fc_b);
 }
+

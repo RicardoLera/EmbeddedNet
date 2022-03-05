@@ -43,24 +43,26 @@ Other Tasks:
 
 First Argument: `run`, `train` or `transfer`.
  - `run`: Runs a single inference of the network for imported image, generating a prediction.
-    - `img_idx`: Image index to be inferred (0 - 100, default 100).
+    - `img_idx`: Image index to be inferred (0 - 200, default 200 (extra test image)).
  - `train`: Trains network using imported image. Prediction is generated before training.
     - `n_img`: Number of images in one epoch (1 - 100, default 100).
     - `n_epoch`: Number of epochs to run the training for (1 - 100, default 3).
+    - `n_test`: Number of test images (0 - 100, default: 100, 0 does not run testing).
+    - `lr`: Learning Rate (0 - 10, default 0.045).
+    - `lr_decay`: Learning Rate Decay (0 - 1, default 0.98).
     - `frz`: Second argument in Train command, defines which layers are frozen during training. Possible values are: `exp`, `b3` ... `b18` and `fc`. Default `fc`.
  - `transfer`: Performs Transfer Learning based on imported parameters and a few arguments that depend on the implementation.
-    - `n_img`: Number of images in one epoch (1 - 100, default 100).
-    - `n_epoch`: Number of epochs to run the training for (1 - 100, default 3).
+    - All arguments in `train`.
     - `frz`: Selects which layers to transfer the parameters into. Possible values are the same as Train's `frz` plus `no` for full training. Default `fc`.
     - `class`: How many classification neurons are in the last layer of the new model (2 - 1000, default 2).
-    - `label`: Destination of new classification labels file (Default 'newlabels.txt').
+    - `label_file`: Destination of new classification labels file (Default 'newlabels.txt').
 
 ## Code Description
 
 EmbeddedNet works by subdividing the network into smaller concatenated functions. It uses a hierarchy of `.c` files and their respective `.h` headers:
  - `main.c` Reads the input from the call to the program, imports the first Image through Data Manipulation and calls the respective Action (Inference or Training).
  - `actions.c` Describes the entirety of the Inference and Training processes by calling on Blocks, Layers and Operations.
- - `blocks.c` Describes the Stride 2 and Stride 1 blocks (3 through 18) by calling on Layers and Operations
+ - `blocks.c` Describes the Stride 2 and Stride 1 blocks (3 through 18) by calling on Layers and Operations.
  - `layers.c` For each Layer: calls the importing of the its parameters through Data Manipulation and calls the respective Operation.
  - `operations.c` Describes each mathematical operation of the system.
  - `data_manip.c` Manages importing and exporting of data.

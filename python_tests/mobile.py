@@ -72,7 +72,7 @@ def layer(n):
     print(model.layers[n].output)
     
     
-def save(s):
+def savepar(s):
     if s == 1:
         weight = "imagenet"
     else:
@@ -148,7 +148,7 @@ def save(s):
         np.savetxt(outfile, data, fmt='%-1.7e')
     
     
-def savebyte(s):
+def savebin(s):
     if s == 1:
         weight = "imagenet"
     else:
@@ -219,7 +219,16 @@ def savebyte(s):
                 float_array = array('f', data)
                 float_array.tofile(outfile)    
              
-def saveimages():
+def saveimages(s):
+    if s == 0:   # Save train images
+        z = 0
+    elif s == 1: # Save test images
+        z = 100
+    else:
+        print("Invalid argument");
+        quit();
+    
+    
     import random
     random.seed(72)
     num = random.sample(range(100), 100)
@@ -228,7 +237,7 @@ def saveimages():
         
         if (num[x] < 50):
             # Load image in PIL format 244x244
-            filename = 'yes/y' + str(num[x]) + '.jpg'
+            filename = 'yes/y' + str(num[x]+z) + '.jpg'
             original = load_img(filename, target_size=(224, 224))
 
             # Convert to numpy array 244x244x3
@@ -243,10 +252,10 @@ def saveimages():
             # Preprocess
             processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
             
-            label = "0 "
+            label = "1 "
         else:
             # Load image in PIL format 244x244
-            filename = 'no/no' + str(num[x]) + '.jpg'
+            filename = 'no/no' + str(num[x]+z) + '.jpg'
             original = load_img(filename, target_size=(224, 224))
             plt.imshow(original)
             plt.show()
@@ -263,20 +272,21 @@ def saveimages():
             # Preprocess
             processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
     
-            label = "1 "
+            label = "0 "
         
         # Save Images and Labels
-        print("Saving image " + str(x) + " (" + str(num[x]) + ")")
+        print("Saving image " + str(x+z) + " (" + str(num[x]+z) + ")")
         data = processed_image[0,:,:,:]
-        with open('../Debug/image' + str(x) + '.csv', 'w') as outfile:
+        with open('../Debug/image' + str(x+z) + '.csv', 'w') as outfile:
             for threeD_data_slice in data:
                 for twoD_data_slice in threeD_data_slice:
                     np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
                 
-        with open('../Debug/label' + str(x) + '.csv', 'w') as outfile:
+        with open('../Debug/label' + str(x+z) + '.csv', 'w') as outfile:
             outfile.write(label)        
 
-def savetestimage(x):
+def savetestimage(x, l):
+    
     # Load image in PIL format 244x244
     filename = 'test' + str(x) + '.jpg'
     original = load_img(filename, target_size=(224, 224))
@@ -296,13 +306,13 @@ def savetestimage(x):
     # Save Images and Labels
     print("Saving test image")
     data = processed_image[0,:,:,:]
-    with open('../Debug/image100.csv', 'w') as outfile:
+    with open('../Debug/image200.csv', 'w') as outfile:
         for threeD_data_slice in data:
             for twoD_data_slice in threeD_data_slice:
                 np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
                 
-    with open('../Debug/label100.csv', 'w') as outfile:
-        outfile.write("no ")
+    with open('../Debug/label200.csv', 'w') as outfile:
+        outfile.write(l + " ")
 
 def testlayer(n, l):
     import keras.backend as K

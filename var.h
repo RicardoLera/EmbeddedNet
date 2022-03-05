@@ -8,9 +8,16 @@ extern int epoch_count;
 extern int n_img;
 extern int n_epoch;
 extern int frz;
+extern float lr;
+extern float lr_decay;
 
 // Transfer index
 extern int class;
+
+// Test index
+extern int n_test;
+extern int inf_idx;
+extern float inf_pred;
 
 // Declare image and label
 extern float image[224][224][3];

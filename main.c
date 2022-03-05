@@ -21,6 +21,13 @@ int frz = 1;
 // Initialize transfer index
 int class = 2;
 
+// Initialize test index
+int n_test = 100;
+int inf_idx;
+float inf_pred;
+float lr = 0.045;           // original: 0.045
+float lr_decay = 0.98;      // original: 0.98
+
 // Initialize image and label
 float image[224][224][3];
 int label;
@@ -33,16 +40,16 @@ int main(int argc, char *argv[]) {
         // RUN Option
     if (strcmp(argv[1],"run") == 0 ) {
 
-        int img_idx = 100;
+        int img_idx = 200;
 
         if (argc > 3) {
-            printf("Too many arguments for RUN command.\nOnly extra argument is image index, default: 100\n");
+            printf("Too many arguments for RUN command.\nOnly extra argument is image index, default: 200\n");
             exit(EXIT_FAILURE);
         }
 
         if (argc > 2) {
-            if (strtol(argv[2], &temp, 10) < 0 || strtol(argv[2], &temp, 10) > 100) {
-                printf("Invalid image index (0 - 100)\n");
+            if (strtol(argv[2], &temp, 10) < 0 || strtol(argv[2], &temp, 10) > 200) {
+                printf("Invalid image index (0 - 200)\n");
                 exit(EXIT_FAILURE);
             }
             else
@@ -71,13 +78,16 @@ int main(int argc, char *argv[]) {
             printf("Invalid arguments for TRAIN command.\n"
                     " - I: Number of images (1 - 100). Default: 100\n"
                     " - E: Number of epochs (1 - 100). Default: 3\n"
+                    " - T: Number of test images (0 - 100). Default: 100. 0 does not run testing\n"
+                    " - LR: Learning Rate (0 - 10). Default 0.045\n"
+                    " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
                     " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n");
             exit(EXIT_FAILURE);
         }
 
         for (int i = 2; i < argc; i = i + 2) {
 
-            if (strcmp(argv[i],"I") == 0) {
+            if (strcmp(argv[i],"-I") == 0) {
                 if (strtol(argv[i+1], &temp, 10) < 1 || strtol(argv[i+1], &temp, 10) > 100) {
                     printf("Invalid image number (1 - 100)\n");
                     exit(EXIT_FAILURE);
@@ -86,7 +96,7 @@ int main(int argc, char *argv[]) {
                     n_img = strtol(argv[i+1], &temp, 10);
             }
 
-            else if (strcmp(argv[i],"E") == 0) {
+            else if (strcmp(argv[i],"-E") == 0) {
                 if (strtol(argv[i+1], &temp, 10) < 1 || strtol(argv[i+1], &temp, 10) > 100) {
                     printf("Invalid epoch number (1 - 100)\n");
                     exit(EXIT_FAILURE);
@@ -95,7 +105,34 @@ int main(int argc, char *argv[]) {
                     n_epoch = strtol(argv[i+1], &temp, 10);
             }
 
-            else if (strcmp(argv[i],"F") == 0) {
+            else if (strcmp(argv[i],"-T") == 0) {
+                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 100) {
+                    printf("Invalid test number (0 - 100)\n");
+                    exit(EXIT_FAILURE);
+                }
+                else
+                    n_test = strtol(argv[i+1], &temp, 10);
+            }
+
+            else if (strcmp(argv[i],"-LR") == 0) {
+                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 10) {
+                    printf("Invalid learning rate (0 - 10)\n");
+                    exit(EXIT_FAILURE);
+                }
+                else
+                    lr = atof(argv[i+1]);
+            }
+
+            else if (strcmp(argv[i],"-LD") == 0) {
+                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 1) {
+                    printf("Invalid learning rate decay (0 - 1)\n");
+                    exit(EXIT_FAILURE);
+                }
+                else
+                    lr_decay = atof(argv[i+1]);
+            }
+
+            else if (strcmp(argv[i],"-F") == 0) {
                 if      (strcmp(argv[i+1],"fc")  == 0) {frz = 1;}
                 else if (strcmp(argv[i+1],"b18") == 0) {frz = 2;}
                 else if (strcmp(argv[i+1],"b17") == 0) {frz = 3;}
@@ -125,6 +162,9 @@ int main(int argc, char *argv[]) {
                 printf("Invalid argument '%s'\n"
                         " - I: Number of images (1 - 100). Default: 100\n"
                         " - E: Number of epochs (1 - 100). Default: 3\n"
+                        " - T: Number of test images (0 - 100). Default: 100. 0 does not run testing\n"
+                        " - LR: Learning Rate (0 - 10). Default 0.045\n"
+                        " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
                         " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n", argv[i]);
                 exit(EXIT_FAILURE);
             }
@@ -137,6 +177,7 @@ int main(int argc, char *argv[]) {
         float (*fc_w)[class][2] = calloc(1280, sizeof *fc_w);
         float (*fc_b)[2] = calloc(class, sizeof *fc_b);
 
+        // Train
         for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
             for (int i = 0; i < n_img; ++i) {
                 printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
@@ -145,6 +186,11 @@ int main(int argc, char *argv[]) {
                 printf("\n");
             }
         }
+
+        // Test and caclulate metrics
+        if (n_test)
+            test(class, predictions, fc_w, fc_b);
+
         free(fc_w);
         free(fc_b);
     }
@@ -153,21 +199,24 @@ int main(int argc, char *argv[]) {
         // TRANSFER Option
     else if (strcmp(argv[1],"transfer") == 0 ) {
 
-        char L[] = "newlabels.txt";
+        char LF[] = "newlabels.txt";
 
         if (argc % 2 != 0) {
             printf("Invalid arguments for TRANSFER command.\n"
                     " - I: Number of images (1 - 100). Default: 100\n"
                     " - E: Number of epochs (1 - 100). Default: 3\n"
+                    " - T: Number of test images (0 - 100). Default: 100. 0 does not run testing\n"
+                    " - LR: Learning Rate (0 - 10). Default 0.045\n"
+                    " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
                     " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3', 'exp' and 'no'. Default 'fc'\n"
                     " - C: How many classification neurons are in the last layer of the new model. Default: 2\n"
-                    " - L: Destination of new classification labels file. Default: 'newlabels.txt'\n");
+                    " - LF: Destination of new classification labels file. Default: 'newlabels.txt'\n");
             exit(EXIT_FAILURE);
         }
 
         for (int i = 2; i < argc; i = i + 2) {
 
-            if (strcmp(argv[i],"I") == 0) {
+            if (strcmp(argv[i],"-I") == 0) {
                 if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 100) {
                     printf("Invalid image number (0 - 100)\n");
                     exit(EXIT_FAILURE);
@@ -176,7 +225,7 @@ int main(int argc, char *argv[]) {
                     n_img = strtol(argv[i+1], &temp, 10);
             }
 
-            else if (strcmp(argv[i],"E") == 0) {
+            else if (strcmp(argv[i],"-E") == 0) {
                 if (strtol(argv[i+1], &temp, 10) < 1 || strtol(argv[i+1], &temp, 10) > 100) {
                     printf("Invalid epoch number (1 - 100)\n");
                     exit(EXIT_FAILURE);
@@ -185,7 +234,34 @@ int main(int argc, char *argv[]) {
                     n_epoch = strtol(argv[i+1], &temp, 10);
             }
 
-            else if (strcmp(argv[i],"F") == 0) {
+            else if (strcmp(argv[i],"-T") == 0) {
+                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 100) {
+                    printf("Invalid test number (0 - 100)\n");
+                    exit(EXIT_FAILURE);
+                }
+                else
+                    n_test = strtol(argv[i+1], &temp, 10);
+            }
+
+            else if (strcmp(argv[i],"-LR") == 0) {
+                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 10) {
+                    printf("Invalid learning rate (0 - 10)\n");
+                    exit(EXIT_FAILURE);
+                }
+                else
+                    lr = atof(argv[i+1]);
+            }
+
+            else if (strcmp(argv[i],"-LD") == 0) {
+                if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 1) {
+                    printf("Invalid learning rate decay (0 - 1)\n");
+                    exit(EXIT_FAILURE);
+                }
+                else
+                    lr_decay = atof(argv[i+1]);
+            }
+
+            else if (strcmp(argv[i],"-F") == 0) {
                 if      (strcmp(argv[i+1],"fc")  == 0) {frz = 1;}
                 else if (strcmp(argv[i+1],"b18") == 0) {frz = 2;}
                 else if (strcmp(argv[i+1],"b17") == 0) {frz = 3;}
@@ -212,7 +288,7 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            else if (strcmp(argv[i],"C") == 0) {
+            else if (strcmp(argv[i],"-C") == 0) {
                 if (strtol(argv[i+1], &temp, 10) < 2 || strtol(argv[i+1], &temp, 10) > 1000) {
                     printf("Invalid class number (2 - 1000)\n");
                     exit(EXIT_FAILURE);
@@ -221,14 +297,17 @@ int main(int argc, char *argv[]) {
                     class = strtol(argv[i+1], &temp, 10);
             }
 
-            else if (strcmp(argv[i],"L") == 0) {
-                strcpy(L, argv[i+1]);
+            else if (strcmp(argv[i],"-LF") == 0) {
+                strcpy(LF, argv[i+1]);
             }
 
             else {
                 printf("Invalid argument '%s'\n"
                         " - I: Number of images (1 - 100). Default: 100\n"
                         " - E: Number of epochs (1 - 100). Default: 3\n"
+                        " - T: Number of test images (0 - 100). Default: 100. 0 does not run testing\n"
+                        " - LR: Learning Rate (0 - 10). Default 0.045\n"
+                        " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
                         " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n"
                         " - C: How many classification neurons are in the last layer of the new model. Default: 2\n"
                         " - L: Destination of new classification labels file. Default: 'newlabels.txt'\n", argv[i]);
@@ -236,7 +315,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        copyLabels(L);
+        copyLabels(LF);
 
         srand(time(NULL));
 
