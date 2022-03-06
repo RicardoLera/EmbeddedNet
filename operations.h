@@ -68,4 +68,9 @@ void backprop_dw(int isize, int osize, int ksize, int depth,
         float par[ksize][ksize][depth], float Ew[ksize][ksize][depth],
         int stride, int pad, int idx);
 
+float absolute(float n);
+float nat_log (float n);
+
+void loss_plot (int epoch_count);
+
 #endif

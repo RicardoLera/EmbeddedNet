@@ -30,6 +30,14 @@ A Keras application of MobileNetV2 is used for pre-training as well as developme
  - Implemented recursive training
  - Implemented FC Transfer Learning and tested with brain tumor images, obtaining good results.
  - Implemented full Transfer Learning.
+----
+ - Implemented Testing using the following metrics:
+   - Classification Accuracy
+   - Latency
+   - Precision, Recall and F1 Score (only for class = 2)
+   - Confusion Matrix
+   - Receiver Operating Characteristic Curve and Area Under Curve (ROC-AUC) (only for class = 2)
+   - Cross-entropy Loss over Epochs Graph
  
 ## TO DO
 
@@ -38,27 +46,29 @@ Current Main Task: **Understand problem with Conv2D transfer learning convergenc
 Other Tasks:
  - Application on embedded system (import/export/conv etc).
  - Finish commenting all functions.
- 
- - b18 train iteration time = 821.895789 / 100*3 = **2.74s**
- - Training on b18 for 3 epochs on 2600 images = ~6 hours
 
 ## Command Line Arguments
 
 First Argument: `run`, `train` or `transfer`.
  - `run`: Runs a single inference of the network for imported image, generating a prediction.
-    - `img_idx`: Image index to be inferred (0 - 399, default 0).
+    - Image index to be inferred (0 - 399, default 0).
  - `train`: Trains network using imported image. Prediction is generated before training.
-    - `n_img`: Number of images in one epoch (1 - 3000, default 100).
-    - `n_epoch`: Number of epochs to run the training for (1 - 100, default 3).
-    - `n_test`: Number of test images (0 - 400, default: 20, 0 does not run testing).
-    - `lr`: Learning Rate (0 - 10, default 0.045).
-    - `lr_decay`: Learning Rate Decay (0 - 1, default 0.98).
-    - `frz`: Second argument in Train command, defines which layers are frozen during training. Possible values are: `exp`, `b3` ... `b18` and `fc`. Default `fc`.
+    - `-I`: Number of images in one epoch (1 - 3000, default 100).
+    - `-E`: Number of epochs to run the training for (1 - 100, default 3).
+    - `-T`: Number of test images (0 - 400, default: 20, 0 does not run testing).
+    - `-LR`: Learning Rate (0 - 10, default 0.045).
+    - `-LD`: Learning Rate Decay (0 - 1, default 0.98).
+    - `-F`: Second argument in Train command, defines which layers are frozen during training. Possible values are: `exp`, `b3` ... `b18` and `fc`. Default `fc`.
  - `transfer`: Performs Transfer Learning based on imported parameters and a few arguments that depend on the implementation.
     - All arguments in `train`.
-    - `frz`: Selects which layers to transfer the parameters into. Possible values are the same as Train's `frz` plus `no` for full training. Default `fc`.
-    - `class`: How many classification neurons are in the last layer of the new model (2 - 1000, default 2).
-    - `label_file`: Destination of new classification labels file (Default 'newlabels.txt').
+    - `-F`: Selects which layers to transfer the parameters into. Possible values are the same as Train's `-F` plus `no` for full training. Default `fc`.
+    - `-C`: How many classification neurons are in the last layer of the new model (2 - 1000, default 2).
+    - `-LF`: Destination of new classification labels file (Default 'newlabels.txt').
+
+`run`'s single argument doesn't require any indicators before it. For `train` and `transfer`, indicate which arguments to be changed from default with a `-` sign followed by the indicator and the value separated by space. Arguments do not have to be passed in order.
+
+Example:
+`./EmbeddedNet transfer -I 500 -E 4 -F b18 -LR 0.1 -LF '../../data/mylabels.txt'`
 
 ## Code Description
 

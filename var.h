@@ -4,7 +4,7 @@
 // Count index
 extern int epoch_count;
 
-// Training indexes
+// Training parameters
 extern int n_img;
 extern int n_epoch;
 extern int frz;
@@ -14,14 +14,19 @@ extern float lr_decay;
 // Transfer index
 extern int class;
 
-// Test index
+// Test parameters
 extern int n_test;
 extern int inf_idx;
 extern float inf_pred;
+extern float inf_correct;
+extern float loss;
 
 // Declare image and label
 extern float image[224][224][3];
 extern int label;
+
+// CONV2D TESTING
+extern double conv_time;
 
 // The following indexes refer to the OUTPUT of the respective layers. These are necessary for the backpropagation step.
 struct variables {

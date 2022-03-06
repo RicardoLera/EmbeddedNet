@@ -5,6 +5,9 @@
 #include "data_manip.h"
 #include "var.h"
 
+// CONV2D TESTING
+#include <time.h>
+
 #define LAMBDA 0.00004
 #define EPSILON 0.0000001       // original: 0.0000001
 #define E_MOMENTUM 0.9
@@ -21,6 +24,9 @@ void convolution2D(int isize,   // width/height of input
         float odata[osize][osize][odepth],
         float kdata[odepth][ksize][ksize][idepth])
 {
+    // CONV2D TESTING
+    clock_t conv_start = clock();
+
     // iterate over the output
     for (int oy = 0; oy < osize; ++oy) {
     for (int ox = 0; ox < osize; ++ox) {
@@ -37,6 +43,12 @@ void convolution2D(int isize,   // width/height of input
                     odata[oy][ox][od] += kdata[od][ky][kx][id] * idata[iy][ix][id];
         }}
     }}}
+
+    // CONV2D TESTING
+    clock_t conv_end = clock();
+    double temp = (double)(conv_end - conv_start) / CLOCKS_PER_SEC;
+    if (temp > conv_time)
+        conv_time = temp;
 
 }
 
@@ -197,7 +209,8 @@ void decode(float *pred) {
         cor[n].idx = n;
     }
 
-    // Acquire correct prediction
+    // Acquire relevant predictions
+    inf_correct = cor[label].prediction;
     qsort(cor, class, sizeof(struct Correlation), compare);
     inf_idx = cor[0].idx;
     inf_pred = cor[0].prediction;
@@ -602,4 +615,28 @@ void backprop_dw(int isize, int osize, int ksize, int depth,
     char name[15]; // maximum number of characters is "dweightsxx.csv" = 14
     sprintf(name, "dweights%d.csv", idx);
     export_depth(name, ksize, depth, par);
+}
+
+// The following only exist so that main.c and actions.c don't have to include math.h
+float absolute(float n) {
+    return (fabs(n));
+}
+float nat_log (float n) {
+    return (log(n));
+}
+
+void loss_plot (int epoch_count) {
+    loss = loss / n_img;
+
+    // Export to gnuplot
+    FILE *fptr;
+    fptr = fopen("loss_data.txt", "a");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+
+    fprintf(fptr, "%d %f\n", epoch_count + 1, loss);
+
+    fclose(fptr);
 }

@@ -75,8 +75,12 @@ def layer(n):
 def savepar(s):
     if s == 1:
         weight = "imagenet"
-    else:
+    elif s == 0:
         weight = None
+    else:
+        print("Invalid argument")
+        quit();
+    
     model = tf.keras.applications.MobileNetV2(
     input_shape=(224,224,3),
     alpha=1.0,
@@ -85,7 +89,15 @@ def savepar(s):
     input_tensor=None,
     pooling=None,
     classes=1000,
-    classifier_activation="softmax",)     
+    classifier_activation="softmax",)
+    
+    # Reset plots
+    import os
+    import os.path
+    if (os.path.exists('../Debug/roc_data.txt')):
+        os.remove('../Debug/roc_data.txt')
+    if (os.path.exists('../Debug/loss_data.txt')):
+        os.remove('../Debug/loss_data.txt')
     
     # Save Classification Labels
     print("Saving classification labels")
@@ -151,8 +163,12 @@ def savepar(s):
 def savebin(s):
     if s == 1:
         weight = "imagenet"
-    else:
+    elif s == 0:
         weight = None
+    else:
+        print("Invalid argument")
+        quit();
+        
     model = tf.keras.applications.MobileNetV2(
     input_shape=(224,224,3),
     alpha=1.0,
@@ -165,9 +181,11 @@ def savebin(s):
     
     # Save All Parameters
     import os
+    import os.path
     from array import array
     name = '../Debug/par'
-    os.remove(name)
+    if (os.path.exists(name)):
+        os.remove(name)
     indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]
     indexBN = [2, 5, 8, 10, 14, 17, 19, 22, 25, 28, 32, 35, 37, 40, 43, 46, 49, 52, 55, 59, 62, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 99, 102, 105, 108, 111, 114, 117, 121, 124, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152]
     indexD = [4, 13, 21, 31, 39, 48, 58, 66, 75, 84, 93, 101, 110, 120, 128, 137, 146]
@@ -219,19 +237,28 @@ def savebin(s):
                 float_array = array('f', data)
                 float_array.tofile(outfile)    
              
-def saveimages(s):
+def saveimages(s, rang=2600):
+    if (rang % 2) != 0:  
+        print("Range must be even")
+        quit();
     if s == 0:   # Save train images
-        rang = 2600
+        if (rang < 1 or rang > 2600):
+            print("Train range must be between 1 and 2600")
+            quit();
         z = 0
         save = ''
     elif s == 1: # Save test images
-        rang = 400
+        if (rang == 2600):
+            rang = 400
+            print("Assuming default = 400 images")
+        if (rang < 1 or rang > 400):
+            print("Test range must be between 1 and 400")
+            quit();
         z = 1300
         save = 'test'
     else:
         print("Invalid argument")
         quit();
-    
     
     import random
     random.seed(72)
@@ -310,12 +337,12 @@ def savetestimage(x, l):
     # Save Images and Labels
     print("Saving test image")
     data = processed_image[0,:,:,:]
-    with open('../Debug/image200.csv', 'w') as outfile:
+    with open('../Debug/image3000.csv', 'w') as outfile:
         for threeD_data_slice in data:
             for twoD_data_slice in threeD_data_slice:
                 np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
                 
-    with open('../Debug/label200.csv', 'w') as outfile:
+    with open('../Debug/label3000.csv', 'w') as outfile:
         outfile.write(l + " ")
 
 def testlayer(n, l):

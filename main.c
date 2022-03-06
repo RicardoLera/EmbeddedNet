@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include "actions.h"
+#include "operations.h"
 #include "data_manip.h"
 #include "var.h"
 
@@ -13,20 +14,22 @@ struct parameters par[2];   // Every parameter and its respective moving squared
 // Initialize epoch counter
 int epoch_count;
 
-// Initialize training indexes
+// Initialize training parameters
 int n_img = 100;
 int n_epoch = 3;
 int frz = 1;
+float lr = 0.045;           // original: 0.045
+float lr_decay = 0.98;      // original: 0.98
 
 // Initialize transfer index
 int class = 2;
 
-// Initialize test index
+// Initialize test parameters
 int n_test = 20;
 int inf_idx;
 float inf_pred;
-float lr = 0.045;           // original: 0.045
-float lr_decay = 0.98;      // original: 0.98
+float inf_correct;
+float loss;
 
 // Initialize image and label
 float image[224][224][3];
@@ -34,6 +37,9 @@ int label;
 
 // Pointer for string operations
 char *temp;
+
+// CONV2D TESTING
+double conv_time = 0;
 
 int main(int argc, char *argv[]) {
 
@@ -186,29 +192,33 @@ int main(int argc, char *argv[]) {
 
         // Train
         for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
+            if (n_test)
+                loss = 0;
             for (int i = 0; i < n_img; ++i) {
                 printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
                 import_image(i, 0);
                 train(class, predictions, fc_w, fc_b);
+                if (n_test)
+                    loss += -nat_log(inf_correct);   // Maybe toss standard weight decay here too
                 printf("\n");
             }
+            if (n_test)
+                loss_plot(epoch_count);
         }
 
         clock_t end_train = clock();
-
-        begin = clock();
 
         // Test and caclulate metrics
         if (n_test)
             test(class, predictions, fc_w, fc_b);
 
-        free(fc_w);
-        free(fc_b);
-
         clock_t end_test = clock();
         double train_time = (double)(end_train - begin) / CLOCKS_PER_SEC;
         double test_time = (double)(end_test - end_train) / CLOCKS_PER_SEC;
         printf("\nTrain time: %fs\nTest time: %fs\n", train_time, test_time);
+
+        free(fc_w);
+        free(fc_b);
     }
 
 
@@ -344,5 +354,9 @@ int main(int argc, char *argv[]) {
         printf("Invalid action\n");
         exit(EXIT_FAILURE);
     }
+
+    // CONV2D TESTING
+    printf("\nConv2D Worst Time = %fs\n", conv_time);
+
     return 0;
 }

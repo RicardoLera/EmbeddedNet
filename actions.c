@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include <time.h>
 #include "blocks.h"
 #include "layers.h"
@@ -828,22 +827,27 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2])
         }
         printf("\n");
     }
-    free(conf);
 
-    // Area Under Curve (only for class = 2)
+    // Precision, Recall and F1 Score (currently only for class = 2)
     if (c == 2) {
+        float precision = (float)conf[1][1] / (conf[1][1] + conf[0][1]);    // Precision = TP / (TP + FP)
+        float recall = (float)conf[1][1] / (conf[1][1] + conf[1][0]);       // Recall = TP / (TP + FN)      aka Sensitivity
+        float F1 = 2.0 / ( (1/precision) + (1/recall) );                    // F1 Score
+        printf("\nPrecision = %f\nRecall = %f\nF1 Score = %f\n", precision, recall, F1);
+
+    // Receiver Operating Characteristic Curve and ROC Area Under Curve (only for class = 2)
         float (*ROC)[t_number + 1] = calloc(2, sizeof *ROC);    // ROC Curve: 0 -> FPR / 1 -> TPR
         float area = 0;                                         // Area Under Curve
         for (int t_count = 0; t_count < t_number; ++t_count) {
             ROC[1][t_count] = (float)conf_arr[1][1][t_count] / (conf_arr[1][0][t_count] + conf_arr[1][1][t_count]);    // TPR = TP / (FN + TP)     aka Sensitivity
             ROC[0][t_count] = (float)conf_arr[0][1][t_count] / (conf_arr[0][0][t_count] + conf_arr[0][1][t_count]);    // FPR = FP / (TN + FP)     aka 1 - Specificity
             if (t_count != 0) {
-                area += fabs( ( (ROC[1][t_count] + ROC[1][t_count-1]) / 2) * (ROC[0][t_count] - ROC[0][t_count-1]) );  // Area Under Curve (trapezoid approximation)
+                area += absolute( ( (ROC[1][t_count] + ROC[1][t_count-1]) / 2) * (ROC[0][t_count] - ROC[0][t_count-1]) );  // Area Under Curve (trapezoid approximation)
             }
         }
         ROC[1][t_number] = 1;
         ROC[0][t_number] = 1;
-        area += fabs( ( (ROC[1][t_number] + ROC[1][t_number-1]) / 2) * (ROC[0][t_number] - ROC[0][t_number-1]) );
+        area += absolute( ( (1 + ROC[1][t_number-1]) / 2) * (1 - ROC[0][t_number-1]) );
 
         // Print confusion array matrixes
         printf("\nConfusion Array = \n");
@@ -857,7 +861,8 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2])
             }
         }
 
-        printf("\nArea Under ROC Curve = %.3f\n", area); // Receiver Operating Characteristic AUC
+        // Receiver Operating Characteristic AUC
+        printf("\nArea Under ROC Curve = %.3f\n", area);
 
         // Export to gnuplot
         FILE *fptr;
@@ -870,8 +875,10 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2])
         for (int t_count = 0; t_count < t_number+1; ++t_count)
             fprintf(fptr, "%f %f\n", ROC[0][t_count], ROC[1][t_count]);
 
+        fclose (fptr);
         free(ROC);
     }
+    free(conf);
     free(conf_arr);
 
 }
@@ -1071,12 +1078,18 @@ void transfer() {
     float (*fc_b)[2] = calloc(class, sizeof *fc_b);
 
     for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
+        if (n_test)
+            loss = 0;
         for (int i = 0; i < n_img; ++i) {
             printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
             import_image(i, 0);
             train(class, predictions, fc_w, fc_b);
+            if (n_test)
+                loss += -nat_log(inf_correct);   // Maybe toss standard weight decay here too
             printf("\n");
         }
+        if (n_test)
+            loss_plot(epoch_count);
     }
 
     clock_t end_train = clock();
