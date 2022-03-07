@@ -94,10 +94,11 @@ def savepar(s):
     # Reset plots
     import os
     import os.path
-    if (os.path.exists('../Debug/roc_data.txt')):
-        os.remove('../Debug/roc_data.txt')
-    if (os.path.exists('../Debug/loss_data.txt')):
-        os.remove('../Debug/loss_data.txt')
+    files_in_directory = os.listdir("../Debug")
+    filtered_files = [file for file in files_in_directory if file.endswith(".dat")]
+    for file in filtered_files:
+        path_to_file = os.path.join("../Debug", file)
+        os.remove(path_to_file)
     
     # Save Classification Labels
     print("Saving classification labels")

@@ -787,7 +787,7 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2],
 
     // Test
     for (int i = 0; i < n; ++i) {
-        printf("Test/Validation Image %d\n", i);
+        printf("\nTest/Validation Image %d\n", i);
         import_image(i, 1);
         inference(class, predictions, fc_w, fc_b);
 
@@ -840,17 +840,14 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2],
 
     // Receiver Operating Characteristic Curve and ROC Area Under Curve (only for class = 2)
         float (*ROC)[t_number + 1] = calloc(2, sizeof *ROC);    // ROC Curve: 0 -> FPR / 1 -> TPR
+        ROC[1][0] = 1;
+        ROC[0][0] = 1;
         float area = 0;                                         // Area Under Curve
-        for (int t_count = 0; t_count < t_number; ++t_count) {
+        for (int t_count = 1; t_count < t_number + 1; ++t_count) {
             ROC[1][t_count] = (float)conf_arr[1][1][t_count] / (conf_arr[1][0][t_count] + conf_arr[1][1][t_count]);    // TPR = TP / (FN + TP)     aka Sensitivity
             ROC[0][t_count] = (float)conf_arr[0][1][t_count] / (conf_arr[0][0][t_count] + conf_arr[0][1][t_count]);    // FPR = FP / (TN + FP)     aka 1 - Specificity
-            if (t_count != 0) {
-                area += absolute( ( (ROC[1][t_count] + ROC[1][t_count-1]) / 2) * (ROC[0][t_count] - ROC[0][t_count-1]) );  // Area Under Curve (trapezoid approximation)
-            }
+            area += absolute( ( (ROC[1][t_count] + ROC[1][t_count-1]) / 2) * (ROC[0][t_count] - ROC[0][t_count-1]) );  // Area Under Curve (trapezoid approximation)
         }
-        ROC[1][t_number] = 1;
-        ROC[0][t_number] = 1;
-        area += absolute( ( (1 + ROC[1][t_number-1]) / 2) * (1 - ROC[0][t_number-1]) );
 
         /* Print confusion array matrixes
         printf("\nConfusion Array = \n");
@@ -870,7 +867,7 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2],
 
         // Export to gnuplot
         char name[15]; // maximum number of characters is "roc_dataxx.txt" = 14
-        sprintf(name,"roc_data%d.txt",epoch_count);
+        sprintf(name,"roc_data%d.dat",epoch_count);
         FILE *fptr;
         fptr = fopen(name, "w");
         if (fptr == NULL) {

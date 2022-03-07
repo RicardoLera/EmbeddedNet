@@ -617,7 +617,7 @@ void backprop_dw(int isize, int osize, int ksize, int depth,
     export_depth(name, ksize, depth, par);
 }
 
-// The following only exist so that main.c and actions.c don't have to include math.h
+// The following only exist so that actions.c doesn't have to include math.h
 float absolute(float n) {
     return (fabs(n));
 }
@@ -630,7 +630,7 @@ void loss_plot (int epoch_count) {
 
     // Export to gnuplot
     FILE *fptr;
-    fptr = fopen("loss_data.txt", "a");
+    fptr = fopen("loss_data.dat", "a");
     if (fptr == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);
