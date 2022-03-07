@@ -15,7 +15,7 @@ extern float lr_decay;
 extern int class;
 
 // Test parameters
-extern int n_test;
+extern int n_val;   // Also acts as n_test
 extern int inf_idx;
 extern float inf_pred;
 extern float inf_correct;

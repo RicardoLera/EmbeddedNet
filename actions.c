@@ -776,20 +776,20 @@ void train(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2]
             2, 0, 1);                           // Stride, padding and import index
 }
 
-void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2]) {
+void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2], int n) {
 
     int NC = 0;                                                 // Number of correct predictions
     int (*conf)[c] = calloc(c, sizeof *conf);                   // Confusion matrix: actual (lines) x predicted (columns)
     float step = 0.02;                                          // Threshold Step
     int t_number = (1 - 0.5) / step;                            // Number of points
     int (*conf_arr)[2][t_number] = calloc(2, sizeof *conf_arr); // Confusion matrix array
+    loss = 0;                                                   // Reset loss
 
     // Test
-    for (int i = 0; i < n_test; ++i) {
-        printf("Test Image %d\n", i);
+    for (int i = 0; i < n; ++i) {
+        printf("Test/Validation Image %d\n", i);
         import_image(i, 1);
         inference(class, predictions, fc_w, fc_b);
-        printf("\n");
 
         // Add to Correct Predictions
         if (inf_idx == label)
@@ -813,11 +813,14 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2])
                 conf_arr[label][th_idx][t_count]++;
             }
         }
+
+        // Add to cross-entropy loss
+        loss += -nat_log(inf_correct);   // Maybe toss standard weight decay here too
     }
 
     // Classification Accuracy
-    float acc = (float)NC/(float)n_test;
-    printf("Classification Accuracy = %.2f%%\n", acc*100);
+    float acc = (float)NC/n;
+    printf("\nClassification Accuracy = %.2f%%\n", acc*100);
 
     // Confusion Matrix
     printf("\nConfusion Matrix = \n");
@@ -849,7 +852,7 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2])
         ROC[0][t_number] = 1;
         area += absolute( ( (1 + ROC[1][t_number-1]) / 2) * (1 - ROC[0][t_number-1]) );
 
-        // Print confusion array matrixes
+        /* Print confusion array matrixes
         printf("\nConfusion Array = \n");
         for (int t_count = 0; t_count < t_number; ++t_count) {
             printf("\nMatrix at threshold %.2f:\n", 0.5 + (t_count * step));
@@ -860,13 +863,16 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2])
                 printf("\n");
             }
         }
+        */
 
         // Receiver Operating Characteristic AUC
         printf("\nArea Under ROC Curve = %.3f\n", area);
 
         // Export to gnuplot
+        char name[15]; // maximum number of characters is "roc_dataxx.txt" = 14
+        sprintf(name,"roc_data%d.txt",epoch_count);
         FILE *fptr;
-        fptr = fopen("roc_data.txt", "w");
+        fptr = fopen(name, "w");
         if (fptr == NULL) {
             perror("fopen()");
             exit(EXIT_FAILURE);
@@ -880,6 +886,10 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2])
     }
     free(conf);
     free(conf_arr);
+
+    // Cross-entropy Loss
+    printf("\nCross-entropy Loss = %f", loss);
+    loss_plot(epoch_count);
 
 }
 
@@ -1078,30 +1088,19 @@ void transfer() {
     float (*fc_b)[2] = calloc(class, sizeof *fc_b);
 
     for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
-        if (n_test)
-            loss = 0;
         for (int i = 0; i < n_img; ++i) {
             printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
             import_image(i, 0);
             train(class, predictions, fc_w, fc_b);
-            if (n_test)
-                loss += -nat_log(inf_correct);   // Maybe toss standard weight decay here too
             printf("\n");
         }
-        if (n_test)
-            loss_plot(epoch_count);
+        if (n_val)
+            test(class, predictions, fc_w, fc_b, n_val);
     }
 
-    clock_t end_train = clock();
-
-    // Test and caclulate metrics
-    if (n_test)
-        test(class, predictions, fc_w, fc_b);
-
-    clock_t end_test = clock();
-    double train_time = (double)(end_train - begin) / CLOCKS_PER_SEC;
-    double test_time = (double)(end_test - end_train) / CLOCKS_PER_SEC;
-    printf("\nTrain time: %fs\nTest time: %fs\n", train_time, test_time);
+    clock_t end = clock();
+    double train_time = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("\nTrain time with validation: %fs\n", train_time);
 
     free(fc_w);
     free(fc_b);

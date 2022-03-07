@@ -626,7 +626,7 @@ float nat_log (float n) {
 }
 
 void loss_plot (int epoch_count) {
-    loss = loss / n_img;
+    loss = loss / n_val;
 
     // Export to gnuplot
     FILE *fptr;

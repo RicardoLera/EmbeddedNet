@@ -25,7 +25,7 @@ float lr_decay = 0.98;      // original: 0.98
 int class = 2;
 
 // Initialize test parameters
-int n_test = 20;
+int n_val = 50;
 int inf_idx;
 float inf_pred;
 float inf_correct;
@@ -87,12 +87,12 @@ int main(int argc, char *argv[]) {
 
         if (argc % 2 != 0) {
             printf("Invalid arguments for TRAIN command.\n"
-                    " - I: Number of images (1 - 3000). Default: 100\n"
-                    " - E: Number of epochs (1 - 100). Default: 3\n"
-                    " - T: Number of test images (0 - 400). Default: 20. 0 does not run testing\n"
-                    " - LR: Learning Rate (0 - 10). Default 0.045\n"
-                    " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
-                    " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n");
+                    " -I: Number of images (1 - 3000). Default: 100\n"
+                    " -E: Number of epochs (1 - 100). Default: 3\n"
+                    " -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n"
+                    " -LR: Learning Rate (0 - 10). Default 0.045\n"
+                    " -LD: Learning Rate Decay (0 - 1). Default 0.98\n"
+                    " -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n");
             exit(EXIT_FAILURE);
         }
 
@@ -116,13 +116,13 @@ int main(int argc, char *argv[]) {
                     n_epoch = strtol(argv[i+1], &temp, 10);
             }
 
-            else if (strcmp(argv[i],"-T") == 0) {
+            else if (strcmp(argv[i],"-V") == 0) {
                 if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 400) {
-                    printf("Invalid test number (0 - 400)\n");
+                    printf("Invalid validation image number (0 - 400)\n");
                     exit(EXIT_FAILURE);
                 }
                 else
-                    n_test = strtol(argv[i+1], &temp, 10);
+                    n_val = strtol(argv[i+1], &temp, 10);
             }
 
             else if (strcmp(argv[i],"-LR") == 0) {
@@ -171,12 +171,12 @@ int main(int argc, char *argv[]) {
 
             else {
                 printf("Invalid argument '%s'\n"
-                        " - I: Number of images (1 - 3000). Default: 100\n"
-                        " - E: Number of epochs (1 - 100). Default: 3\n"
-                        " - T: Number of test images (0 - 400). Default: 20. 0 does not run testing\n"
-                        " - LR: Learning Rate (0 - 10). Default 0.045\n"
-                        " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
-                        " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n", argv[i]);
+                        " -I: Number of images (1 - 3000). Default: 100\n"
+                        " -E: Number of epochs (1 - 100). Default: 3\n"
+                        " -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n"
+                        " -LR: Learning Rate (0 - 10). Default 0.045\n"
+                        " -LD: Learning Rate Decay (0 - 1). Default 0.98\n"
+                        " -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n", argv[i]);
                 exit(EXIT_FAILURE);
             }
         }
@@ -192,30 +192,19 @@ int main(int argc, char *argv[]) {
 
         // Train
         for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
-            if (n_test)
-                loss = 0;
             for (int i = 0; i < n_img; ++i) {
                 printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
                 import_image(i, 0);
                 train(class, predictions, fc_w, fc_b);
-                if (n_test)
-                    loss += -nat_log(inf_correct);   // Maybe toss standard weight decay here too
                 printf("\n");
             }
-            if (n_test)
-                loss_plot(epoch_count);
+            if (n_val)
+                test(class, predictions, fc_w, fc_b, n_val);
         }
 
-        clock_t end_train = clock();
-
-        // Test and caclulate metrics
-        if (n_test)
-            test(class, predictions, fc_w, fc_b);
-
-        clock_t end_test = clock();
-        double train_time = (double)(end_train - begin) / CLOCKS_PER_SEC;
-        double test_time = (double)(end_test - end_train) / CLOCKS_PER_SEC;
-        printf("\nTrain time: %fs\nTest time: %fs\n", train_time, test_time);
+        clock_t end = clock();
+        double train_time = (double)(end - begin) / CLOCKS_PER_SEC;
+        printf("\nTrain time with validation: %fs\n", train_time);
 
         free(fc_w);
         free(fc_b);
@@ -229,14 +218,14 @@ int main(int argc, char *argv[]) {
 
         if (argc % 2 != 0) {
             printf("Invalid arguments for TRANSFER command.\n"
-                    " - I: Number of images (1 - 3000). Default: 100\n"
-                    " - E: Number of epochs (1 - 100). Default: 3\n"
-                    " - T: Number of test images (0 - 400). Default: 20. 0 does not run testing\n"
-                    " - LR: Learning Rate (0 - 10). Default 0.045\n"
-                    " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
-                    " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3', 'exp' and 'no'. Default 'fc'\n"
-                    " - C: How many classification neurons are in the last layer of the new model. Default: 2\n"
-                    " - LF: Destination of new classification labels file. Default: 'newlabels.txt'\n");
+                    " -I: Number of images (1 - 3000). Default: 100\n"
+                    " -E: Number of epochs (1 - 100). Default: 3\n"
+                    " -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n"
+                    " -LR: Learning Rate (0 - 10). Default 0.045\n"
+                    " -LD: Learning Rate Decay (0 - 1). Default 0.98\n"
+                    " -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3', 'exp' and 'no'. Default 'fc'\n"
+                    " -C: How many classification neurons are in the last layer of the new model. Default: 2\n"
+                    " -LF: Destination of new classification labels file. Default: 'newlabels.txt'\n");
             exit(EXIT_FAILURE);
         }
 
@@ -260,13 +249,13 @@ int main(int argc, char *argv[]) {
                     n_epoch = strtol(argv[i+1], &temp, 10);
             }
 
-            else if (strcmp(argv[i],"-T") == 0) {
+            else if (strcmp(argv[i],"-V") == 0) {
                 if (strtol(argv[i+1], &temp, 10) < 0 || strtol(argv[i+1], &temp, 10) > 400) {
-                    printf("Invalid test number (0 - 400)\n");
+                    printf("Invalid validation image number (0 - 400)\n");
                     exit(EXIT_FAILURE);
                 }
                 else
-                    n_test = strtol(argv[i+1], &temp, 10);
+                    n_val = strtol(argv[i+1], &temp, 10);
             }
 
             else if (strcmp(argv[i],"-LR") == 0) {
@@ -329,14 +318,14 @@ int main(int argc, char *argv[]) {
 
             else {
                 printf("Invalid argument '%s'\n"
-                        " - I: Number of images (1 - 3000). Default: 100\n"
-                        " - E: Number of epochs (1 - 100). Default: 3\n"
-                        " - T: Number of test images (0 - 400). Default: 20. 0 does not run testing\n"
-                        " - LR: Learning Rate (0 - 10). Default 0.045\n"
-                        " - LD: Learning Rate Decay (0 - 1). Default 0.98\n"
-                        " - F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n"
-                        " - C: How many classification neurons are in the last layer of the new model. Default: 2\n"
-                        " - L: Destination of new classification labels file. Default: 'newlabels.txt'\n", argv[i]);
+                        " -I: Number of images (1 - 3000). Default: 100\n"
+                        " -E: Number of epochs (1 - 100). Default: 3\n"
+                        " -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n"
+                        " -LR: Learning Rate (0 - 10). Default 0.045\n"
+                        " -LD: Learning Rate Decay (0 - 1). Default 0.98\n"
+                        " -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n"
+                        " -C: How many classification neurons are in the last layer of the new model. Default: 2\n"
+                        " -L: Destination of new classification labels file. Default: 'newlabels.txt'\n", argv[i]);
                 exit(EXIT_FAILURE);
             }
         }
@@ -350,8 +339,43 @@ int main(int argc, char *argv[]) {
         transfer();
 
     }
+
+    // TEST Option
+    else if (strcmp(argv[1],"test") == 0 ) {
+
+        clock_t begin = clock();
+
+        n_val = 400;    // Reusing validation number variable as test number
+
+        if (argc > 3) {
+            printf("Too many arguments for TEST command.\nOnly extra argument is image number: 1 - 400, default: 400\n");
+            exit(EXIT_FAILURE);
+        }
+
+        if (argc > 2) {
+            if (strtol(argv[2], &temp, 10) < 0 || strtol(argv[2], &temp, 10) > 399) {
+                printf("Invalid image number (1 - 400)\n");
+                exit(EXIT_FAILURE);
+            }
+            else
+                n_val = strtol(argv[2], &temp, 10);
+        }
+
+        importTransfer();
+
+        // Allocate FC
+        float predictions[class];
+        float (*fc_w)[class][2] = calloc(1280, sizeof *fc_w);
+        float (*fc_b)[2] = calloc(class, sizeof *fc_b);
+
+        test(class, predictions, fc_w, fc_b, n_val);
+
+        clock_t end = clock();
+        double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+        printf("\nTest time: %fs\n", time_spent);
+    }
     else {
-        printf("Invalid action\n");
+        printf("Invalid action. Valid actions are: run, train, transfer and test.");
         exit(EXIT_FAILURE);
     }
 

@@ -38,6 +38,7 @@ A Keras application of MobileNetV2 is used for pre-training as well as developme
    - Confusion Matrix
    - Receiver Operating Characteristic Curve and Area Under Curve (ROC-AUC) (only for class = 2)
    - Cross-entropy Loss over Epochs Graph
+ - Implemented Validation and separate Testing
  
 ## TO DO
 
@@ -64,8 +65,10 @@ First Argument: `run`, `train` or `transfer`.
     - `-F`: Selects which layers to transfer the parameters into. Possible values are the same as Train's `-F` plus `no` for full training. Default `fc`.
     - `-C`: How many classification neurons are in the last layer of the new model (2 - 1000, default 2).
     - `-LF`: Destination of new classification labels file (Default 'newlabels.txt').
-
-`run`'s single argument doesn't require any indicators before it. For `train` and `transfer`, indicate which arguments to be changed from default with a `-` sign followed by the indicator and the value separated by space. Arguments do not have to be passed in order.
+ - `test`: Runs a set number of inferences and applies metrics to measure its performance.
+    - Number of images for testing (1 - 400, default 400).
+ 
+`run` and `test`'s single arguments don't require any indicators before them. For `train` and `transfer`, indicate which arguments to be changed from default with a `-` sign followed by the indicator and the value separated by space. Arguments do not have to be passed in order.
 
 Example:
 `./EmbeddedNet transfer -I 500 -E 4 -F b18 -LR 0.1 -LF '../../data/mylabels.txt'`
