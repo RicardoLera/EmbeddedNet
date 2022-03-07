@@ -888,7 +888,7 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2],
     free(conf_arr);
 
     // Cross-entropy Loss
-    printf("\nCross-entropy Loss = %f", loss);
+    printf("\nCross-entropy Loss = %f\n", loss);
     loss_plot(epoch_count);
 
 }
@@ -1089,7 +1089,7 @@ void transfer() {
 
     for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
         for (int i = 0; i < n_img; ++i) {
-            printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
+            printf("\nEpoch %d Image %d\n",epoch_count + 1, i + 1);
             import_image(i, 0);
             train(class, predictions, fc_w, fc_b);
             printf("\n");
