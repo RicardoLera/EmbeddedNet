@@ -1,0 +1,191 @@
+
+0000000000007880 <convolution2D>:
+    7880:	f3 0f 1e fa          	endbr64 
+    7884:	55                   	push   rbp
+    7885:	48 89 e5             	mov    rbp,rsp
+    7888:	41 57                	push   r15
+    788a:	41 56                	push   r14
+    788c:	41 55                	push   r13
+    788e:	41 54                	push   r12
+    7890:	53                   	push   rbx
+    7891:	48 81 ec b0 00 00 00 	sub    rsp,0xb0
+    7898:	ff 15 4a a7 00 00    	call   QWORD PTR [rip+0xa74a]        # 11fe8 <mcount@GLIBC_2.2.5>
+    789e:	89 d3                	mov    ebx,edx
+    78a0:	89 55 a8             	mov    DWORD PTR [rbp-0x58],edx
+    78a3:	89 8d 74 ff ff ff    	mov    DWORD PTR [rbp-0x8c],ecx
+    78a9:	49 63 d1             	movsxd rdx,r9d
+    78ac:	48 63 cf             	movsxd rcx,edi
+    78af:	41 89 f2             	mov    r10d,esi
+    78b2:	89 b5 38 ff ff ff    	mov    DWORD PTR [rbp-0xc8],esi
+    78b8:	49 63 c0             	movsxd rax,r8d
+    78bb:	48 0f af ca          	imul   rcx,rdx
+    78bf:	48 63 75 10          	movsxd rsi,DWORD PTR [rbp+0x10]
+    78c3:	49 89 d6             	mov    r14,rdx
+    78c6:	4c 8d 24 95 00 00 00 00 	lea    r12,[rdx*4+0x0]
+    78ce:	41 89 fd             	mov    r13d,edi
+    78d1:	49 89 cb             	mov    r11,rcx
+    78d4:	48 89 8d 60 ff ff ff 	mov    QWORD PTR [rbp-0xa0],rcx
+    78db:	49 63 ca             	movsxd rcx,r10d
+    78de:	4c 8d 0c b5 00 00 00 00 	lea    r9,[rsi*4+0x0]
+    78e6:	49 89 f0             	mov    r8,rsi
+    78e9:	48 0f af f1          	imul   rsi,rcx
+    78ed:	48 63 cb             	movsxd rcx,ebx
+    78f0:	4c 89 8d 48 ff ff ff 	mov    QWORD PTR [rbp-0xb8],r9
+    78f7:	48 0f af d1          	imul   rdx,rcx
+    78fb:	48 8d 3c 95 00 00 00 00 	lea    rdi,[rdx*4+0x0]
+    7903:	45 85 d2             	test   r10d,r10d
+    7906:	0f 8e 73 02 00 00    	jle    7b7f <convolution2D+0x2ff>
+    790c:	48 c1 ef 02          	shr    rdi,0x2
+    7910:	49 c1 e9 02          	shr    r9,0x2
+    7914:	48 89 7d c8          	mov    QWORD PTR [rbp-0x38],rdi
+    7918:	4c 89 e7             	mov    rdi,r12
+    791b:	4c 89 8d 58 ff ff ff 	mov    QWORD PTR [rbp-0xa8],r9
+    7922:	48 c1 ef 02          	shr    rdi,0x2
+    7926:	48 89 bd 50 ff ff ff 	mov    QWORD PTR [rbp-0xb0],rdi
+    792d:	45 85 c0             	test   r8d,r8d
+    7930:	0f 8e 49 02 00 00    	jle    7b7f <convolution2D+0x2ff>
+    7936:	48 c1 e6 02          	shl    rsi,0x2
+    793a:	48 0f af d1          	imul   rdx,rcx
+    793e:	29 c3                	sub    ebx,eax
+    7940:	89 c7                	mov    edi,eax
+    7942:	48 89 b5 30 ff ff ff 	mov    QWORD PTR [rbp-0xd0],rsi
+    7949:	48 8b 75 20          	mov    rsi,QWORD PTR [rbp+0x20]
+    794d:	48 89 85 68 ff ff ff 	mov    QWORD PTR [rbp-0x98],rax
+    7954:	f7 df                	neg    edi
+    7956:	45 8d 7e ff          	lea    r15d,[r14-0x1]
+    795a:	89 9d 70 ff ff ff    	mov    DWORD PTR [rbp-0x90],ebx
+    7960:	89 bd 3c ff ff ff    	mov    DWORD PTR [rbp-0xc4],edi
+    7966:	48 8d 0c 95 00 00 00 00 	lea    rcx,[rdx*4+0x0]
+    796e:	89 7d ac             	mov    DWORD PTR [rbp-0x54],edi
+    7971:	89 5d d4             	mov    DWORD PTR [rbp-0x2c],ebx
+    7974:	48 89 4d 98          	mov    QWORD PTR [rbp-0x68],rcx
+    7978:	4a 8d 0c 9d 00 00 00 00 	lea    rcx,[r11*4+0x0]
+    7980:	c7 45 80 00 00 00 00 	mov    DWORD PTR [rbp-0x80],0x0
+    7987:	48 89 75 88          	mov    QWORD PTR [rbp-0x78],rsi
+    798b:	41 8d 70 ff          	lea    esi,[r8-0x1]
+    798f:	48 89 4d c0          	mov    QWORD PTR [rbp-0x40],rcx
+    7993:	48 8d 04 b5 04 00 00 00 	lea    rax,[rsi*4+0x4]
+    799b:	c7 45 90 00 00 00 00 	mov    DWORD PTR [rbp-0x70],0x0
+    79a2:	48 89 85 28 ff ff ff 	mov    QWORD PTR [rbp-0xd8],rax
+    79a9:	44 89 f0             	mov    eax,r14d
+    79ac:	45 89 ee             	mov    r14d,r13d
+    79af:	41 89 c5             	mov    r13d,eax
+    79b2:	48 8b 85 28 ff ff ff 	mov    rax,QWORD PTR [rbp-0xd8]
+    79b9:	48 03 45 88          	add    rax,QWORD PTR [rbp-0x78]
+    79bd:	48 c7 85 78 ff ff ff 00 00 00 00 	mov    QWORD PTR [rbp-0x88],0x0
+    79c8:	c7 45 84 00 00 00 00 	mov    DWORD PTR [rbp-0x7c],0x0
+    79cf:	c7 45 94 00 00 00 00 	mov    DWORD PTR [rbp-0x6c],0x0
+    79d6:	44 8b 95 70 ff ff ff 	mov    r10d,DWORD PTR [rbp-0x90]
+    79dd:	48 89 45 b0          	mov    QWORD PTR [rbp-0x50],rax
+    79e1:	48 63 45 80          	movsxd rax,DWORD PTR [rbp-0x80]
+    79e5:	48 2b 85 68 ff ff ff 	sub    rax,QWORD PTR [rbp-0x98]
+    79ec:	48 0f af 85 60 ff ff ff 	imul   rax,QWORD PTR [rbp-0xa0]
+    79f4:	48 89 85 40 ff ff ff 	mov    QWORD PTR [rbp-0xc0],rax
+    79fb:	8b 85 3c ff ff ff    	mov    eax,DWORD PTR [rbp-0xc4]
+    7a01:	89 45 d0             	mov    DWORD PTR [rbp-0x30],eax
+    7a04:	48 8b 45 88          	mov    rax,QWORD PTR [rbp-0x78]
+    7a08:	48 8b 9d 78 ff ff ff 	mov    rbx,QWORD PTR [rbp-0x88]
+    7a0f:	4c 8d 04 98          	lea    r8,[rax+rbx*4]
+    7a13:	48 8b 45 28          	mov    rax,QWORD PTR [rbp+0x28]
+    7a17:	48 8b 5d 18          	mov    rbx,QWORD PTR [rbp+0x18]
+    7a1b:	48 89 45 b8          	mov    QWORD PTR [rbp-0x48],rax
+    7a1f:	48 63 45 84          	movsxd rax,DWORD PTR [rbp-0x7c]
+    7a23:	48 2b 85 68 ff ff ff 	sub    rax,QWORD PTR [rbp-0x98]
+    7a2a:	48 0f af 85 50 ff ff ff 	imul   rax,QWORD PTR [rbp-0xb0]
+    7a32:	48 03 85 40 ff ff ff 	add    rax,QWORD PTR [rbp-0xc0]
+    7a39:	48 8d 04 83          	lea    rax,[rbx+rax*4]
+    7a3d:	48 89 45 a0          	mov    QWORD PTR [rbp-0x60],rax
+    7a41:	66 66 2e 0f 1f 84 00 00 00 00 00 	data16 nop WORD PTR cs:[rax+rax*1+0x0]
+    7a4c:	0f 1f 40 00          	nop    DWORD PTR [rax+0x0]
+    7a50:	8b 45 a8             	mov    eax,DWORD PTR [rbp-0x58]
+    7a53:	41 c7 00 00 00 00 00 	mov    DWORD PTR [r8],0x0
+    7a5a:	45 31 db             	xor    r11d,r11d
+    7a5d:	48 8b 5d a0          	mov    rbx,QWORD PTR [rbp-0x60]
+    7a61:	44 8b 4d ac          	mov    r9d,DWORD PTR [rbp-0x54]
+    7a65:	85 c0                	test   eax,eax
+    7a67:	0f 8e 98 00 00 00    	jle    7b05 <convolution2D+0x285>
+    7a6d:	0f 1f 00             	nop    DWORD PTR [rax]
+    7a70:	45 85 c9             	test   r9d,r9d
+    7a73:	78 7b                	js     7af0 <convolution2D+0x270>
+    7a75:	45 39 ce             	cmp    r14d,r9d
+    7a78:	7e 76                	jle    7af0 <convolution2D+0x270>
+    7a7a:	48 8b 45 b8          	mov    rax,QWORD PTR [rbp-0x48]
+    7a7e:	8b 55 d0             	mov    edx,DWORD PTR [rbp-0x30]
+    7a81:	48 89 de             	mov    rsi,rbx
+    7a84:	4a 8d 3c 98          	lea    rdi,[rax+r11*4]
+    7a88:	eb 13                	jmp    7a9d <convolution2D+0x21d>
+    7a8a:	66 0f 1f 44 00 00    	nop    WORD PTR [rax+rax*1+0x0]
+    7a90:	ff c2                	inc    edx
+    7a92:	4c 01 e7             	add    rdi,r12
+    7a95:	4c 01 e6             	add    rsi,r12
+    7a98:	44 39 d2             	cmp    edx,r10d
+    7a9b:	74 53                	je     7af0 <convolution2D+0x270>
+    7a9d:	85 d2                	test   edx,edx
+    7a9f:	78 ef                	js     7a90 <convolution2D+0x210>
+    7aa1:	41 39 d6             	cmp    r14d,edx
+    7aa4:	7e ea                	jle    7a90 <convolution2D+0x210>
+    7aa6:	45 85 ed             	test   r13d,r13d
+    7aa9:	7e e5                	jle    7a90 <convolution2D+0x210>
+    7aab:	c4 c1 7a 10 08       	vmovss xmm1,DWORD PTR [r8]
+    7ab0:	31 c0                	xor    eax,eax
+    7ab2:	66 66 2e 0f 1f 84 00 00 00 00 00 	data16 nop WORD PTR cs:[rax+rax*1+0x0]
+    7abd:	0f 1f 00             	nop    DWORD PTR [rax]
+    7ac0:	c5 fa 10 04 87       	vmovss xmm0,DWORD PTR [rdi+rax*4]
+    7ac5:	48 89 c1             	mov    rcx,rax
+    7ac8:	c5 fa 59 04 86       	vmulss xmm0,xmm0,DWORD PTR [rsi+rax*4]
+    7acd:	48 ff c0             	inc    rax
+    7ad0:	c5 f2 58 c8          	vaddss xmm1,xmm1,xmm0
+    7ad4:	c4 c1 7a 11 08       	vmovss DWORD PTR [r8],xmm1
+    7ad9:	49 39 cf             	cmp    r15,rcx
+    7adc:	75 e2                	jne    7ac0 <convolution2D+0x240>
+    7ade:	ff c2                	inc    edx
+    7ae0:	4c 01 e7             	add    rdi,r12
+    7ae3:	4c 01 e6             	add    rsi,r12
+    7ae6:	44 39 d2             	cmp    edx,r10d
+    7ae9:	75 b2                	jne    7a9d <convolution2D+0x21d>
+    7aeb:	0f 1f 44 00 00       	nop    DWORD PTR [rax+rax*1+0x0]
+    7af0:	4c 03 5d c8          	add    r11,QWORD PTR [rbp-0x38]
+    7af4:	48 03 5d c0          	add    rbx,QWORD PTR [rbp-0x40]
+    7af8:	41 ff c1             	inc    r9d
+    7afb:	44 3b 4d d4          	cmp    r9d,DWORD PTR [rbp-0x2c]
+    7aff:	0f 85 6b ff ff ff    	jne    7a70 <convolution2D+0x1f0>
+    7b05:	48 8b 5d 98          	mov    rbx,QWORD PTR [rbp-0x68]
+    7b09:	49 83 c0 04          	add    r8,0x4
+    7b0d:	48 01 5d b8          	add    QWORD PTR [rbp-0x48],rbx
+    7b11:	4c 3b 45 b0          	cmp    r8,QWORD PTR [rbp-0x50]
+    7b15:	0f 85 35 ff ff ff    	jne    7a50 <convolution2D+0x1d0>
+    7b1b:	8b 9d 74 ff ff ff    	mov    ebx,DWORD PTR [rbp-0x8c]
+    7b21:	8b 45 94             	mov    eax,DWORD PTR [rbp-0x6c]
+    7b24:	48 8b 8d 48 ff ff ff 	mov    rcx,QWORD PTR [rbp-0xb8]
+    7b2b:	01 5d d0             	add    DWORD PTR [rbp-0x30],ebx
+    7b2e:	48 01 4d b0          	add    QWORD PTR [rbp-0x50],rcx
+    7b32:	01 5d 84             	add    DWORD PTR [rbp-0x7c],ebx
+    7b35:	48 8b 8d 58 ff ff ff 	mov    rcx,QWORD PTR [rbp-0xa8]
+    7b3c:	41 01 da             	add    r10d,ebx
+    7b3f:	48 01 8d 78 ff ff ff 	add    QWORD PTR [rbp-0x88],rcx
+    7b46:	ff c0                	inc    eax
+    7b48:	39 85 38 ff ff ff    	cmp    DWORD PTR [rbp-0xc8],eax
+    7b4e:	74 08                	je     7b58 <convolution2D+0x2d8>
+    7b50:	89 45 94             	mov    DWORD PTR [rbp-0x6c],eax
+    7b53:	e9 ac fe ff ff       	jmp    7a04 <convolution2D+0x184>
+    7b58:	8b 4d 90             	mov    ecx,DWORD PTR [rbp-0x70]
+    7b5b:	48 8b b5 30 ff ff ff 	mov    rsi,QWORD PTR [rbp-0xd0]
+    7b62:	01 5d d4             	add    DWORD PTR [rbp-0x2c],ebx
+    7b65:	01 5d ac             	add    DWORD PTR [rbp-0x54],ebx
+    7b68:	01 5d 80             	add    DWORD PTR [rbp-0x80],ebx
+    7b6b:	48 01 75 88          	add    QWORD PTR [rbp-0x78],rsi
+    7b6f:	8d 41 01             	lea    eax,[rcx+0x1]
+    7b72:	39 4d 94             	cmp    DWORD PTR [rbp-0x6c],ecx
+    7b75:	74 08                	je     7b7f <convolution2D+0x2ff>
+    7b77:	89 45 90             	mov    DWORD PTR [rbp-0x70],eax
+    7b7a:	e9 33 fe ff ff       	jmp    79b2 <convolution2D+0x132>
+    7b7f:	48 81 c4 b0 00 00 00 	add    rsp,0xb0
+    7b86:	5b                   	pop    rbx
+    7b87:	41 5c                	pop    r12
+    7b89:	41 5d                	pop    r13
+    7b8b:	41 5e                	pop    r14
+    7b8d:	41 5f                	pop    r15
+    7b8f:	5d                   	pop    rbp
+    7b90:	c3                   	ret    
+    7b91:	66 66 2e 0f 1f 84 00 00 00 00 00 	data16 nop WORD PTR cs:[rax+rax*1+0x0]
+    7b9c:	0f 1f 40 00          	nop    DWORD PTR [rax+0x0]

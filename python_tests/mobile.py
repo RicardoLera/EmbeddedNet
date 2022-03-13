@@ -338,13 +338,13 @@ def savetestimage(x, l):
     # Save Images and Labels
     print("Saving test image")
     data = processed_image[0,:,:,:]
-    with open('../Debug/image3000.csv', 'w') as outfile:
+    with open('../Debug/imagetest400.csv', 'w') as outfile:
         for threeD_data_slice in data:
             for twoD_data_slice in threeD_data_slice:
                 np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
                 
-    with open('../Debug/label3000.csv', 'w') as outfile:
-        outfile.write(l + " ")
+    with open('../Debug/labeltest400.csv', 'w') as outfile:
+        outfile.write(str(l) + " ")
 
 def testlayer(n, l):
     import keras.backend as K

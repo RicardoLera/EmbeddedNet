@@ -42,7 +42,7 @@ main-build: EmbeddedNet
 EmbeddedNet: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross GCC Linker'
-	gcc -L/usr/lib -pg -o "EmbeddedNet" $(OBJS) $(USER_OBJS) $(LIBS)
+	clang-12 -L/usr/lib -pg -o "EmbeddedNet" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

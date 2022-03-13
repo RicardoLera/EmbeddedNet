@@ -780,14 +780,14 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2],
 
     int NC = 0;                                                 // Number of correct predictions
     int (*conf)[c] = calloc(c, sizeof *conf);                   // Confusion matrix: actual (lines) x predicted (columns)
-    float step = 0.02;                                          // Threshold Step
+    float step = 0.01;                                          // Threshold Step
     int t_number = (1 - 0.5) / step;                            // Number of points
     int (*conf_arr)[2][t_number] = calloc(2, sizeof *conf_arr); // Confusion matrix array
     loss = 0;                                                   // Reset loss
 
     // Test
     for (int i = 0; i < n; ++i) {
-        printf("\nTest/Validation Image %d\n", i);
+        printf("\nEpoch %d Test/Validation Image %d\n", epoch_count+1, i+1);
         import_image(i, 1);
         inference(class, predictions, fc_w, fc_b);
 
@@ -800,7 +800,7 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2],
 
         // Add to Confusion Matrix Array on Thresholds
         if (c == 2) {
-            for (int t_count = 0; t_count < t_number; ++t_count) {
+            for (int t_count = 0; t_count < t_number + 1; ++t_count) {
                 float th = 0.5 + (t_count * step);  // Current threshold
                 int th_idx;                         // Index within threshold
 
@@ -844,9 +844,9 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2],
         ROC[0][0] = 1;
         float area = 0;                                         // Area Under Curve
         for (int t_count = 1; t_count < t_number + 1; ++t_count) {
-            ROC[1][t_count] = (float)conf_arr[1][1][t_count] / (conf_arr[1][0][t_count] + conf_arr[1][1][t_count]);    // TPR = TP / (FN + TP)     aka Sensitivity
-            ROC[0][t_count] = (float)conf_arr[0][1][t_count] / (conf_arr[0][0][t_count] + conf_arr[0][1][t_count]);    // FPR = FP / (TN + FP)     aka 1 - Specificity
-            area += absolute( ( (ROC[1][t_count] + ROC[1][t_count-1]) / 2) * (ROC[0][t_count] - ROC[0][t_count-1]) );  // Area Under Curve (trapezoid approximation)
+            ROC[1][t_count] = (float)conf_arr[1][1][t_count] / (conf_arr[1][0][t_count] + conf_arr[1][1][t_count]); // TPR = TP / (FN + TP)     aka Sensitivity
+            ROC[0][t_count] = (float)conf_arr[0][1][t_count] / (conf_arr[0][0][t_count] + conf_arr[0][1][t_count]); // FPR = FP / (TN + FP)     aka 1 - Specificity
+            area += ( (ROC[1][t_count] + ROC[1][t_count-1]) / 2) * (ROC[0][t_count-1] - ROC[0][t_count]);           // Area Under Curve (trapezoid approximation) (negative if line goes to the right)
         }
 
         /* Print confusion array matrixes
@@ -885,6 +885,7 @@ void test(int c, float predictions[c], float fc_w[1280][c][2], float fc_b[c][2],
     free(conf_arr);
 
     // Cross-entropy Loss
+    loss = loss / n_val;
     printf("\nCross-entropy Loss = %f\n", loss);
     loss_plot(epoch_count);
 

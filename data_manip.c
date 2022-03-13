@@ -478,7 +478,7 @@ void fillRandom(char* name, int n) {
     }
 
     for(int i = 0; i < n; ++i) {
-        float f = (float)rand()/RAND_MAX;
+        double f = (float)rand()/RAND_MAX;
         fprintf(fptr, "%.7e ", f);
     }
     fclose(fptr);

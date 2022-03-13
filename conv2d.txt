@@ -268,15 +268,15 @@
      
         # odata[oy][ox][od] += kdata[od][ky][kx][id] * idata[iy][ix][id];
         
-        40d:	4d 89 f8             	mov    %r15,%r8
+        40d:	4d 89 f8             	mov    %r15,%r8              #
         410:	49 c1 e8 02          	shr    $0x2,%r8
         414:	4c 8b 8d 30 ff ff ff 	mov    -0xd0(%rbp),%r9
         41b:	49 c1 e9 02          	shr    $0x2,%r9
         41f:	8b 85 6c ff ff ff    	mov    -0x94(%rbp),%eax
-        425:	48 63 c8             	movslq %eax,%rcx
-        428:	48 63 d3             	movslq %ebx,%rdx
-        42b:	49 63 c5             	movslq %r13d,%rax
-        42e:	48 0f af d0          	imul   %rax,%rdx
+        425:	48 63 c8             	movslq %eax,%rcx             # 1 Cycle
+        428:	48 63 d3             	movslq %ebx,%rdx             # 1 Cycle
+        42b:	49 63 c5             	movslq %r13d,%rax            # 1 Cycle
+        42e:	48 0f af d0          	imul   %rax,%rdx             # 3 Cycles (r/r)
         432:	49 63 c6             	movslq %r14d,%rax
         435:	48 0f af c2          	imul   %rdx,%rax
         439:	48 0f af c1          	imul   %rcx,%rax
@@ -319,11 +319,10 @@
         4ce:	48 01 c8             	add    %rcx,%rax
         4d1:	f3 0f 10 04 82       	movss  (%rdx,%rax,4),%xmm0
         
-        
+        # 3 Cycles
         4d6:	f3 0f 59 c8          	mulss  %xmm0,%xmm1
-        4da:	48 8b bd d0 fe ff ff 	mov    -0x130(%rbp),%rdi
         
-        
+        4da:	48 8b bd d0 fe ff ff 	mov    -0x130(%rbp),%rdi    
         4e1:	48 89 fe             	mov    %rdi,%rsi
         4e4:	48 c1 ee 02          	shr    $0x2,%rsi
         4e8:	8b 85 74 ff ff ff    	mov    -0x8c(%rbp),%eax

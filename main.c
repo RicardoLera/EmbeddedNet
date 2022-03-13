@@ -51,13 +51,13 @@ int main(int argc, char *argv[]) {
         int img_idx = 0;
 
         if (argc > 3) {
-            printf("Too many arguments for RUN command.\nOnly extra argument is image index: 0 - 399, default: 0\n");
+            printf("Too many arguments for RUN command.\nOnly extra argument is image index: 0 - 400, default: 0\n");
             exit(EXIT_FAILURE);
         }
 
         if (argc > 2) {
-            if (strtol(argv[2], &temp, 10) < 0 || strtol(argv[2], &temp, 10) > 399) {
-                printf("Invalid image index (0 - 399)\n");
+            if (strtol(argv[2], &temp, 10) < 0 || strtol(argv[2], &temp, 10) > 400) {
+                printf("Invalid image index (0 - 400)\n");
                 exit(EXIT_FAILURE);
             }
             else
@@ -378,9 +378,5 @@ int main(int argc, char *argv[]) {
         printf("Invalid action. Valid actions are: run, train, transfer and test.");
         exit(EXIT_FAILURE);
     }
-
-    // CONV2D TESTING
-    printf("\nConv2D Worst Time = %fs\n", conv_time);
-
     return 0;
 }

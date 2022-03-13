@@ -25,8 +25,6 @@ extern float loss;
 extern float image[224][224][3];
 extern int label;
 
-// CONV2D TESTING
-extern double conv_time;
 
 // The following indexes refer to the OUTPUT of the respective layers. These are necessary for the backpropagation step.
 struct variables {
