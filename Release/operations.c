@@ -5,9 +5,6 @@
 #include "data_manip.h"
 #include "var.h"
 
-// DEBUGGING
-#include <assert.h>
-
 #define LAMBDA 0.00004
 #define EPSILON 0.0000001       // original: 0.0000001
 #define E_MOMENTUM 0.9
@@ -20,12 +17,10 @@ void convolution2D(int isize,   // width/height of input
         int stride,             // shift between input pixels, between consecutive outputs
         int pad,                // offset between (0,0) pixels between input and output
         int idepth, int odepth, // number of input and output channels
-        float idata[isize][isize][idepth],
-        float odata[osize][osize][odepth],
-        float kdata[odepth][ksize][ksize][idepth])
+        float idata[restrict isize][isize][idepth],
+        float odata[restrict osize][osize][odepth],
+        float kdata[restrict odepth][ksize][ksize][idepth])
 {
-    float sum = 0;
-
     // iterate over the output
     for (int oy = 0; oy < osize; ++oy) {
     for (int ox = 0; ox < osize; ++ox) {
@@ -39,11 +34,9 @@ void convolution2D(int isize,   // width/height of input
             // use only valid inputs
             if (iy >= 0 && iy < isize && ix >= 0 && ix < isize) {
                 for (int id = 0; id < idepth; ++id)
-                    sum += kdata[od][ky][kx][id] * idata[iy][ix][id];
+                    odata[oy][ox][od] += kdata[od][ky][kx][id] * idata[iy][ix][id];
             }
         }}
-        odata[oy][ox][od] = sum;
-        sum = 0;
     }}}
 
 
@@ -195,14 +188,14 @@ void softmax(float *input, int input_len) {
     }
 }
 
-void fully_connect(int isize, int osize, float w[restrict isize][osize], float b[restrict osize], float *idata, float *odata) {
+void fully_connect(int isize, int osize, float w[restrict isize][osize][2], float b[restrict osize][2], float *idata, float *odata) {
 
     for (int y = 0; y < osize; ++y) { // 1000
         odata[y] = 0;
         for (int x = 0; x < isize; ++x) { // 1280
-            odata[y] += idata[x]*w[x][y];
+            odata[y] += idata[x]*w[x][y][0];
         }
-        odata[y] += b[y];
+        odata[y] += b[y][0];
     }
 }
 
@@ -237,6 +230,17 @@ void decode(float *pred) {
     qsort(cor, class, sizeof(struct Correlation), compare);
     inf_idx = cor[0].idx;
     inf_pred = cor[0].prediction;
+/*
+    FILE *fp;
+    fp = fopen("fc_pred.csv", "w");
+    if (fp == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    fprintf(fp, "%.7e\n%d\n", cor[0].prediction, cor[0].idx);
+    fclose(fp);
+    printf("Saved fc_pred.csv\n");
+*/
 
     // Print correlations
     int n_cor;
@@ -252,7 +256,7 @@ void decode(float *pred) {
 
     // Print label correlations
     FILE *fptr;
-    fptr = fopen("../data/labels.txt", "r");
+    fptr = fopen("labels.txt", "r");
     if (fptr == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);
@@ -286,8 +290,8 @@ void backprop_fc(int c,
         float I[1280],
         float O[c],
         int label,
-        float fc_w[restrict 1280][c],
-        float fc_b[restrict c])
+        float fc_w[restrict 1280][c][2],
+        float fc_b[restrict c][2])
 {
 
     float (*dLdW)[c] = calloc(1280, sizeof *dLdW);   // We need this because both the backprop error and the weight gradient calculations depend on W and I
@@ -297,10 +301,10 @@ void backprop_fc(int c,
     for (int j = 0; j < c; ++j) {
         for (int i = 0; i < 1280; ++i) {
             if (j == label) {
-                dLdW[i][j] = I[i]*(O[j] - 1) + LAMBDA*fc_w[i][j];
+                dLdW[i][j] = I[i]*(O[j] - 1) + LAMBDA*fc_w[i][j][0];
             }
             else {
-                dLdW[i][j] = I[i]*O[j] + LAMBDA*fc_w[i][j];
+                dLdW[i][j] = I[i]*O[j] + LAMBDA*fc_w[i][j][0];
             }
 
             //fc_w[i][j][1] = E_MOMENTUM*fc_w[i][j][1] + (1 - E_DECAY)*dLdW[i][j]*dLdW[i][j];
@@ -322,10 +326,10 @@ void backprop_fc(int c,
             I[i] = 0;
             for (int j = 0; j < c; ++j) {
                 if (j == label) {
-                    I[i] += fc_w[i][j] * (O[j] - 1);
+                    I[i] += fc_w[i][j][0] * (O[j] - 1);
                 }
                 else {
-                    I[i] += fc_w[i][j] * O[j];
+                    I[i] += fc_w[i][j][0] * O[j];
                 }
             }
         }
@@ -335,9 +339,9 @@ void backprop_fc(int c,
     // Correct weights and biases - changes weights
     for (int j = 0; j < c; ++j) {
         for (int i = 0; i < 1280; ++i) {
-            fc_w[i][j] = fc_w[i][j] - (lr*pow(lr_decay, epoch_count) * dLdW[i][j]);   //fc_w[i][j][0] = fc_w[i][j][0] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(fc_w[i][j][1])+EPSILON) ) * dLdW[i][j] );
+            fc_w[i][j][0] = fc_w[i][j][0] - (lr*pow(lr_decay, epoch_count) * dLdW[i][j]);   //fc_w[i][j][0] = fc_w[i][j][0] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(fc_w[i][j][1])+EPSILON) ) * dLdW[i][j] );
         }
-        fc_b[j] = fc_b[j] - (lr*pow(lr_decay, epoch_count) * dLdB[j]);    //fc_b[j][0] = fc_b[j][0] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(fc_b[j][1])+EPSILON) ) * dLdB[j] );
+        fc_b[j][0] = fc_b[j][0] - (lr*pow(lr_decay, epoch_count) * dLdB[j]);    //fc_b[j][0] = fc_b[j][0] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(fc_b[j][1])+EPSILON) ) * dLdB[j] );
     }
     free(dLdW);
 
@@ -376,7 +380,8 @@ void backprop_relu6(int s, int d, float I[restrict s][s][d]) {
 
 void backprop_bn(int s, int d,
         float I[restrict s][s][d], float O[restrict s][s][d],
-        float par[restrict 4][d], int idx)
+        float par[restrict 4][d], float Ep[restrict 4][d],
+        int idx)
 {
     // [0][:] is gamma, [1][:] is beta, [2][:] is moving mean, [3][:] is moving variance
 
@@ -392,18 +397,12 @@ void backprop_bn(int s, int d,
             }
         }
         Bgrad += LAMBDA*par[1][k];
+        //Ep[1][k] = E_MOMENTUM*Ep[1][k] + (1 - E_DECAY)*Bgrad*Bgrad;
         par[1][k] = par[1][k] - (lr*pow(lr_decay, epoch_count) * Bgrad );   //par[1][k] = par[1][k] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(Ep[1][k])+EPSILON) ) * Bgrad );
     }
 
-    // DEBUGGING
-    //assert(d>0);
-
     // Calculate Gamma Gradient
     float Ggrad[d];
-
-    // DEBUGGING
-    //assert(sizeof(Ggrad)>0);
-
     for (int k = 0; k < d; ++k) {
         Ggrad[k] = 0;
         for (int i = 0; i < s; ++i) {
@@ -420,15 +419,7 @@ void backprop_bn(int s, int d,
     float dMdI = 1.0 / (s*s);                           // Calc dM/dI
     for (int k = 0; k < d; ++k) {
         float dIhatdI = 1/sqrt(par[3][k] + EPSILON);    // Calc dIhat/dI
-
-        // DEBUGGING
-        //assert(s>0);
-
         float dVdI[s][s];
-
-        // DEBUGGING
-        //assert(sizeof(dVdI)>0);
-
         float dLdIhat[s][s];
         float dLdM = 0;
         float dLdV = 0;
@@ -476,18 +467,19 @@ void backprop_bn(int s, int d,
 
     // Correct Gamma
     for (int k = 0; k < d; ++k) {
+        //Ep[0][k] = E_MOMENTUM*Ep[0][k] + (1 - E_DECAY)*Ggrad[k]*Ggrad[k];
         par[0][k] = par[0][k] - (lr*pow(lr_decay, epoch_count) * Ggrad[k] );   //par[0][k] = par[0][k] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(Ep[0][k])+EPSILON) ) * Ggrad[k] );
     }
 
     // Export
-    char name[20]; // maximum number of characters is "../data/paramxx.csv" = 19
-    sprintf(name, "../data/param%d.csv", idx);
+    char name[12]; // maximum number of characters is "paramxx.csv" = 11
+    sprintf(name, "param%d.csv", idx);
     export_bn(name, d, par);
 }
 
 void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
         float I[restrict isize][isize][idepth], float O[restrict osize][osize][odepth],
-        float par[restrict odepth][ksize][ksize][idepth],
+        float par[restrict odepth][ksize][ksize][idepth], float Ew[restrict odepth][ksize][ksize][idepth],
         int stride, int pad, int idx)
 {
     int backprop = 1;
@@ -556,14 +548,14 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
     free(dLdW);
 
     // Export
-    char name[22]; // maximum number of characters is "../data/weightsxx.csv" = 21
+    char name[14]; // maximum number of characters is "weightsxx.csv" = 13
     sprintf(name, "weights%d.csv", idx);
     export_conv2d(name,odepth,ksize,ksize,idepth,par);
 }
 
 void backprop_dw(int isize, int osize, int ksize, int depth,
         float I[restrict isize][isize][depth], float O[restrict osize][osize][depth],
-        float par[restrict ksize][ksize][depth],
+        float par[restrict ksize][ksize][depth], float Ew[restrict ksize][ksize][depth],
         int stride, int pad, int idx)
 {
 
@@ -611,13 +603,14 @@ void backprop_dw(int isize, int osize, int ksize, int depth,
     for (int kx = 0; kx < ksize; ++kx) {
     for (int od = 0; od < depth; ++od){
         dLdW[od][ky][kx] += LAMBDA * par[od][ky][kx];
-        par[ky][kx][od] = par[ky][kx][od] - ( (lr*pow(lr_decay, epoch_count)) * dLdW[ky][kx][od] );
+        Ew[ky][kx][od] = E_MOMENTUM*Ew[ky][kx][od] + (1 - E_DECAY)*dLdW[ky][kx][od]*dLdW[ky][kx][od];
+        par[ky][kx][od] = par[ky][kx][od] - ( ( (lr*pow(lr_decay, epoch_count)) / (sqrt(Ew[ky][kx][od])+EPSILON) ) * dLdW[ky][kx][od] );
     }}}
     free(dLdW);
 
     // Export
-    char name[23]; // maximum number of characters is "../data/dweightsxx.csv" = 22
-    sprintf(name, "../data/dweights%d.csv", idx);
+    char name[15]; // maximum number of characters is "dweightsxx.csv" = 14
+    sprintf(name, "dweights%d.csv", idx);
     export_depth(name, ksize, depth, par);
 }
 
@@ -629,7 +622,7 @@ float nat_log (float n) {
 void loss_plot (int epoch_count) {
     // Export to gnuplot
     FILE *fptr;
-    fptr = fopen("../data/loss_data.dat", "a");
+    fptr = fopen("loss_data.dat", "a");
     if (fptr == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);

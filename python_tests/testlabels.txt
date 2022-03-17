@@ -1,4 +1,0 @@
-test1: yes - obvious
-test2: yes - ambiguous
-test3: no  - obvious
-test4: no  - ambiguous - no611

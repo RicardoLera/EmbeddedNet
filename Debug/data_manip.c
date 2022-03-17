@@ -22,11 +22,11 @@
 void import_image(int l, int t) {
 
     // Define name from index
-    char name[25]; // maximum number of characters is "../data/imagetestxxx.csv" = 24
+    char name[17]; // maximum number of characters is "imagetestxxx.csv" = 16
     if (t)
-        sprintf(name, "../data/imagetest%d.csv", l);
+        sprintf(name, "imagetest%d.csv", l);
     else
-        sprintf(name, "../data/image%d.csv", l);
+        sprintf(name, "image%d.csv", l);
 
     // open file
     FILE *fptr;
@@ -59,9 +59,9 @@ void import_image(int l, int t) {
     fclose(fptr);
 
     if (t)
-        sprintf(name, "../data/labeltest%d.csv", l);
+        sprintf(name, "labeltest%d.csv", l);
     else
-        sprintf(name, "../data/label%d.csv", l);
+        sprintf(name, "label%d.csv", l);
 
     fptr = fopen(name, "r");
     if (fptr == NULL) {
@@ -87,8 +87,8 @@ void import_image(int l, int t) {
 void import_conv2d(int id, int size, int od, int idx, float kdata[od][size][size][id]) {
 
     // Define name from index
-    char name[22]; // maximum number of characters is "../data/weightsxx.csv" = 21
-    sprintf(name, "../data/weights%d.csv", idx);
+    char name[14]; // maximum number of characters is "weightsxx.csv" = 13
+    sprintf(name, "weights%d.csv", idx);
 
     // open file
     FILE *fptr;
@@ -129,8 +129,8 @@ void import_bn(int depth, int idx, float pdata[4][depth]) {
     // NOTE: only gamma and beta are imported here, the other two are imported in the next function
 
     // Define name from index
-    char name[20]; // maximum number of characters is "../data/paramxx.csv" = 19
-    sprintf(name, "../data/param%d.csv", idx);
+    char name[12]; // maximum number of characters is "paramxx.csv" = 11
+    sprintf(name, "param%d.csv", idx);
 
     // open file
     FILE *fptr;
@@ -166,8 +166,8 @@ void import_moving(int depth, int idx, float pdata[4][depth]) {
     // [0][:] is gamma, [1][:] is beta, [2][:] is moving mean, [3][:] is moving variance
 
     // Define name from index
-    char name[20]; // maximum number of characters is "../data/paramxx.csv" = 19
-    sprintf(name, "../data/param%d.csv", idx);
+    char name[12]; // maximum number of characters is "paramxx.csv" = 11
+    sprintf(name, "param%d.csv", idx);
 
     // open file
     FILE *fptr;
@@ -212,8 +212,8 @@ void import_moving(int depth, int idx, float pdata[4][depth]) {
 void import_depth(int depth, int ksize, int idx, float kdata[ksize][ksize][depth]) {
 
     // Define name from index
-    char name[23]; // maximum number of characters is "../data/dweightsxx.csv" = 22
-    sprintf(name, "../data/dweights%d.csv", idx);
+    char name[15]; // maximum number of characters is "dweightsxx.csv" = 14
+    sprintf(name, "dweights%d.csv", idx);
 
     // open file
     FILE *fptr;
@@ -246,11 +246,11 @@ void import_depth(int depth, int ksize, int idx, float kdata[ksize][ksize][depth
     fclose(fptr);
 }
 
-void import_fc(int isize, int osize, float weight[isize][osize], float bias[osize]) {
+void import_fc(int isize, int osize, float weight[isize][osize][2], float bias[osize][2]) {
 
     // open file
     FILE *fptr;
-    fptr = fopen("../data/fc_w.csv", "r");
+    fptr = fopen("fc_w.csv", "r");
     if (fptr == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);
@@ -269,15 +269,15 @@ void import_fc(int isize, int osize, float weight[isize][osize], float bias[osiz
                 c = fgetc(fptr);
             }
             s[i] = '\0';
-            float f = atof(s);  // convert to float
-            weight[y][x] = f;   // save on array
+            float f = atof(s);    // convert to float
+            weight[y][x][0] = f;  // save on array
             c = fgetc(fptr);
         }
     }
     fclose(fptr);
 
     // open file
-    fptr = fopen("../data/fc_b.csv", "r");
+    fptr = fopen("fc_b.csv", "r");
     if (fptr == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);
@@ -295,38 +295,58 @@ void import_fc(int isize, int osize, float weight[isize][osize], float bias[osiz
         }
         s[i] = '\0';
         float f = atof(s);  // convert to float
-        bias[x] = f;        // save on array
+        bias[x][0] = f;     // save on array
         c = fgetc(fptr);
     }
     fclose(fptr);
 }
 
-void export_fc(int d, int c, float w[d][c], float b[c]) {
+void export(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
     FILE *fptr;
-    fptr = fopen("../data/fc_w.csv", "w");
+    fptr = fopen(name, "w");
+    if (fptr == NULL) {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < d1; ++i) {
+        for (int j = 0; j < d2; ++j) {
+            for (int k = 0; k < d3; ++k) {
+                for (int l = 0; l < d4; ++l) {
+                    fprintf(fptr, "%.7e\n", data[i][j][k][l]);
+                }
+            }
+        }
+    }
+    fclose(fptr);
+    printf("Saved %s\n", name);
+}
+
+void export_fc(int d, int c, float w[d][c][2], float b[c][2]) {
+    FILE *fptr;
+    fptr = fopen("fc_w.csv", "w");
     if (fptr == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);
     }
     for (int i = 0; i < d; ++i) {
         for (int j = 0; j < c; ++j) {
-            fprintf(fptr, "%.7e\n", w[i][j]);
+            fprintf(fptr, "%.7e\n", w[i][j][0]);
         }
     }
     fclose(fptr);
-    printf("Saved ../data/fc_w.csv\n");
+    printf("Saved %s\n", "fc_w.csv");
 
     FILE *fp;
-    fp = fopen("../data/fc_b.csv", "w");
+    fp = fopen("fc_b.csv", "w");
     if (fp == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);
     }
     for (int j = 0; j < c; ++j) {
-        fprintf(fp, "%.7e\n", b[j]);
+        fprintf(fp, "%.7e\n", b[j][0]);
     }
     fclose(fp);
-    printf("Saved ../data/fc_b.csv\n");
+    printf("Saved %s\n", "fc_b.csv");
 }
 
 void export_depth(char* name, int ks, int d, float data[ks][ks][d]) {
@@ -386,7 +406,7 @@ void export_conv2d(char* name, int d1, int d2, int d3, int d4, float data[d1][d2
 void importTransfer() {
     // open file
     FILE *fptr;
-    fptr = fopen("../data/transfer.csv", "r");
+    fptr = fopen("transfer.csv", "r");
     if (fptr == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);
@@ -410,7 +430,7 @@ void importTransfer() {
 
 void exportTransfer() {
     FILE *fptr;
-    fptr = fopen("../data/transfer.csv", "w");
+    fptr = fopen("transfer.csv", "w");
     if (fptr == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);
@@ -434,7 +454,7 @@ void copyLabels(char* path) {
         exit(EXIT_FAILURE);
     }
 
-    target = fopen("../data/labels.txt", "w");
+    target = fopen("labels.txt", "w");
     if (target == NULL) {
         perror("fopen()");
         exit(EXIT_FAILURE);

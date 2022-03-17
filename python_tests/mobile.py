@@ -21,7 +21,7 @@ classifier_activation="softmax",)
 mobilenetv2_model = mobilenet_v2.MobileNetV2(weights='imagenet')
 
 # Load image in PIL format 244x244
-filename = '/home/ricardo/EmbeddedNet/python_tests/cat.jpg'
+filename = '/home/ricardo/EmbeddedNet/python_tests/test0.jpg'
 original = load_img(filename, target_size=(224, 224))
 print('PIL image size',original.size)
 plt.imshow(original)
@@ -94,20 +94,20 @@ def savepar(s):
     # Reset plots
     import os
     import os.path
-    files_in_directory = os.listdir("../Debug")
+    files_in_directory = os.listdir("../data")
     filtered_files = [file for file in files_in_directory if file.endswith(".dat")]
     for file in filtered_files:
-        path_to_file = os.path.join("../Debug", file)
+        path_to_file = os.path.join("../data", file)
         os.remove(path_to_file)
     
     # Save Classification Labels
     print("Saving classification labels")
     import shutil
-    shutil.copyfile("labels.txt", "../Debug/labels.txt")
+    shutil.copyfile("labels.txt", "../data/labels.txt")
 
     # Save Transfer Parameter
     print("Saving transfer parameter")
-    with open('../Debug/transfer.csv', 'w') as outfile:
+    with open('../data/transfer.csv', 'w') as outfile:
         outfile.write("1000 ")
     
     # Save Conv2D Weights
@@ -116,7 +116,7 @@ def savepar(s):
     for x in indexC:
         print("Saving weights" + str(i) + ".csv")
         data = np.array(model.layers[x].get_weights())[0,:,:,:,:]
-        name = '../Debug/weights' + str(i) + '.csv'
+        name = '../data/weights' + str(i) + '.csv'
         i = i + 1
         with open(name, 'w') as outfile:
             for threeD_data_slice in data:
@@ -129,7 +129,7 @@ def savepar(s):
     for x in indexBN:
         print("Saving param" + str(i) + ".csv")
         data = np.array(model.layers[x].get_weights())
-        name = '../Debug/param' + str(i) + '.csv'
+        name = '../data/param' + str(i) + '.csv'
         i = i + 1
         with open(name, 'w') as outfile:
             for twoD_data_slice in data: 
@@ -141,7 +141,7 @@ def savepar(s):
     for x in indexD:
         print("Saving dweights" + str(i) + ".csv")
         data = np.array(model.layers[x].get_weights())[0,:,:,:,0]
-        name = '../Debug/dweights' + str(i) + '.csv'
+        name = '../data/dweights' + str(i) + '.csv'
         i = i + 1
         with open(name, 'w') as outfile:
             for threeD_data_slice in data:
@@ -151,13 +151,13 @@ def savepar(s):
     # Save Fully Connected Weights/Biases
     print("Saving fc_w.csv")
     data = model.layers[155].get_weights()[0]
-    with open('../Debug/fc_w.csv', 'w') as outfile:
+    with open('../data/fc_w.csv', 'w') as outfile:
         for twoD_data_slice in data:
             np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
             
     print("Saving fc_b.csv")
     data = model.layers[155].get_weights()[1]
-    with open('../Debug/fc_b.csv', 'w') as outfile:
+    with open('../data/fc_b.csv', 'w') as outfile:
         np.savetxt(outfile, data, fmt='%-1.7e')
     
     
@@ -184,7 +184,7 @@ def savebin(s):
     import os
     import os.path
     from array import array
-    name = '../Debug/par'
+    name = '../data/par'
     if (os.path.exists(name)):
         os.remove(name)
     indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]
@@ -309,12 +309,12 @@ def saveimages(s, rang=2600):
         # Save Images and Labels
         print("Saving image " + str(x) + " (" + str(num[x]+z) + ")")
         data = processed_image[0,:,:,:]
-        with open('../Debug/image' + save + str(x) + '.csv', 'w') as outfile:
+        with open('../data/image' + save + str(x) + '.csv', 'w') as outfile:
             for threeD_data_slice in data:
                 for twoD_data_slice in threeD_data_slice:
                     np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
                 
-        with open('../Debug/label' + save + str(x) + '.csv', 'w') as outfile:
+        with open('../data/label' + save + str(x) + '.csv', 'w') as outfile:
             outfile.write(label)        
 
 def savetestimage(x, l):
@@ -338,12 +338,12 @@ def savetestimage(x, l):
     # Save Images and Labels
     print("Saving test image")
     data = processed_image[0,:,:,:]
-    with open('../Debug/imagetest400.csv', 'w') as outfile:
+    with open('../data/imagetest400.csv', 'w') as outfile:
         for threeD_data_slice in data:
             for twoD_data_slice in threeD_data_slice:
                 np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
                 
-    with open('../Debug/labeltest400.csv', 'w') as outfile:
+    with open('../data/labeltest400.csv', 'w') as outfile:
         outfile.write(str(l) + " ")
 
 def testlayer(n, l):
@@ -370,7 +370,7 @@ def testlayer(n, l):
     
     
 def read(x):   
-    file = open("../Debug/output.txt")
+    file = open("../data/output.txt")
     fromC = np.loadtxt(file, delimiter=", ", usecols=range(x))
     plt.imshow(fromC)
     file.close()

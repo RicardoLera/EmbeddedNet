@@ -147,22 +147,22 @@ void backprop_S1(int size,                          // input and output sizes
                  float depth_relu[size][size][ex],
                  float project[size][size][pr],
                  float add[size][size][pr],
-                 float par_expand[ex][1][1][d],
-                 float par_expand_BN[4][ex],
-                 float par_depth[3][3][ex],
-                 float par_depth_BN[4][ex],
-                 float par_project[pr][1][1][ex],
-                 float par_project_BN[4][pr])
+                 float par_expand[ex][1][1][d],   float par_expand_E[ex][1][1][d],
+                 float par_expand_BN[4][ex],      float par_expand_BN_E[4][ex],
+                 float par_depth[3][3][ex],       float par_depth_E[3][3][ex],
+                 float par_depth_BN[4][ex],       float par_depth_BN_E[4][ex],
+                 float par_project[pr][1][1][ex], float par_project_E[pr][1][1][ex],
+                 float par_project_BN[4][pr],     float par_project_BN_E[4][pr])
 {
     // Re-Project
     backprop_bn(size, pr,   // Size and Depth
             project, add,
-            par_project_BN,
+            par_project_BN, par_project_BN_E,
             idxBN + 3);     // Import index
 
     backprop_conv2d(size, size, 1, ex, pr,  // Line size, column size, kernel size, input depth, output depth
             depth_relu, project,
-            par_project,
+            par_project, par_project_E,
             1, 0, idx2D + 2);               // Stride, padding and import index
 
     // Re-Depthwise
@@ -171,12 +171,12 @@ void backprop_S1(int size,                          // input and output sizes
 
     backprop_bn(size, ex,   // Size and Depth
             depth, depth_relu,
-            par_depth_BN,
+            par_depth_BN, par_depth_BN_E,
             idxBN + 2);     // Import index
 
     backprop_dw(size, size, 3, ex,  // Input size, output size, kernel size, depth
             expand_relu, depth,
-            par_depth,
+            par_depth, par_depth_E,
             1, 1, idxDW + 1);       // Stride, padding and import index
 
     // Re-Expand
@@ -185,12 +185,12 @@ void backprop_S1(int size,                          // input and output sizes
 
     backprop_bn(size, ex,   // Size and Depth
             expand, expand_relu,
-            par_expand_BN,
+            par_expand_BN, par_expand_BN_E,
             idxBN + 1);     // Import index
 
     backprop_conv2d(size, size, 1, d, ex,   // Line size, column size, kernel size, input depth, output depth
             idata, expand,
-            par_expand,
+            par_expand, par_expand_E,
             1, 0, idx2D + 1);               // Stride, padding and import index
 }
 
@@ -205,22 +205,22 @@ void backprop_S2(int isize, int osize,              // input and output sizes / 
                  float depth_relu[osize][osize][ex],
                  float project[osize][osize][od],
                  float project_BN[osize][osize][od],
-                 float par_expand[ex][1][1][id],
-                 float par_expand_BN[4][ex],
-                 float par_depth[3][3][ex],
-                 float par_depth_BN[4][ex],
-                 float par_project[od][1][1][ex],
-                 float par_project_BN[4][od])
+                 float par_expand[ex][1][1][id],  float par_expand_E[ex][1][1][id],
+                 float par_expand_BN[4][ex],      float par_expand_BN_E[4][ex],
+                 float par_depth[3][3][ex],       float par_depth_E[3][3][ex],
+                 float par_depth_BN[4][ex],       float par_depth_BN_E[4][ex],
+                 float par_project[od][1][1][ex], float par_project_E[od][1][1][ex],
+                 float par_project_BN[4][od],     float par_project_BN_E[4][od])
 {
     // Re-Project
     backprop_bn(osize, od,  // Size and Depth
             project, project_BN,
-            par_project_BN,
+            par_project_BN, par_project_BN_E,
             idxBN + 3);     // Import index
 
     backprop_conv2d(osize, osize, 1, ex, od,    // Line size, column size, kernel size, input depth, output depth
             depth_relu, project,
-            par_project,
+            par_project, par_project_E,
             1, 0, idx2D + 2);                   // Stride, padding and import index
 
     // Re-Depthwise
@@ -229,12 +229,12 @@ void backprop_S2(int isize, int osize,              // input and output sizes / 
 
     backprop_bn(osize, ex,  // Size and Depth
             depth, depth_relu,
-            par_depth_BN,
+            par_depth_BN, par_depth_BN_E,
             idxBN + 2);     // Import index
 
     backprop_dw(isize, osize, 3, ex,    // Input size, output size, kernel size, depth
             expand_relu, depth,
-            par_depth,
+            par_depth, par_depth_E,
             2, 0, idxDW + 1);           // Stride, padding and import index
 
     // Re-Expand
@@ -243,11 +243,11 @@ void backprop_S2(int isize, int osize,              // input and output sizes / 
 
     backprop_bn(isize, ex,  // Size and Depth
             expand, expand_relu,
-            par_expand_BN,
+            par_expand_BN, par_expand_BN_E,
             idxBN + 1);     // Import index
 
     backprop_conv2d(isize, isize, 1, id, ex,    // Line size, column size, kernel size, input depth, output depth
             idata, expand,
-            par_expand,
+            par_expand, par_expand_E,
             1, 0, idx2D + 1);                   // Stride, padding and import index
 }

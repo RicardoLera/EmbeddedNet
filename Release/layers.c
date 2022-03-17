@@ -92,7 +92,7 @@ void S2depthwise (int isize,
             idata, odata, kdata);
 }
 
-void fully_connected(int c, float *data, float *pred, float weight[1280][c], float bias[c]) {
+void fully_connected(int c, float *data, float *pred, float weight[1280][c][2], float bias[c][2]) {
 
     import_fc(1280,
             c,

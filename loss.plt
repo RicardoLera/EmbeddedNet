@@ -5,4 +5,4 @@ set ylabel 'Cross-entropy Loss'
 set xrange [1:1 < * < 100]
 set yrange [0:1 < * < 1000]
 
-plot 'Debug/loss_data.dat' title 'Loss' with lines
+plot 'data/loss_data.dat' title 'Loss' with lines

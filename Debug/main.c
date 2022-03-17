@@ -9,7 +9,7 @@
 
 // Initialize structs
 struct variables var;       // Every layer-correspondent variable
-struct parameters par;      // Every parameter and its respective moving squared mean
+struct parameters par[2];   // Every parameter and its respective moving squared mean
 
 // Initialize epoch counter
 int epoch_count;
@@ -68,8 +68,8 @@ int main(int argc, char *argv[]) {
 
         // Allocate FC
         float predictions[class];
-        float (*fc_w)[class] = calloc(1280, sizeof *fc_w);
-        float fc_b[class];
+        float (*fc_w)[class][2] = calloc(1280, sizeof *fc_w);
+        float (*fc_b)[2] = calloc(class, sizeof *fc_b);
 
         // Fill input using data0[y][x][d] syntax (y are lines, x are columns)
         import_image(img_idx, 1);
@@ -185,8 +185,8 @@ int main(int argc, char *argv[]) {
 
         // Allocate FC
         float predictions[class];
-        float (*fc_w)[class] = calloc(1280, sizeof *fc_w);
-        float fc_b[class];
+        float (*fc_w)[class][2] = calloc(1280, sizeof *fc_w);
+        float (*fc_b)[2] = calloc(class, sizeof *fc_b);
 
         clock_t begin = clock();
 
@@ -207,13 +207,14 @@ int main(int argc, char *argv[]) {
         printf("\nTrain time with validation: %fs\n", train_time);
 
         free(fc_w);
+        free(fc_b);
     }
 
 
         // TRANSFER Option
     else if (strcmp(argv[1],"transfer") == 0 ) {
 
-        char LF[] = "../data/newlabels.txt";
+        char LF[] = "newlabels.txt";
 
         if (argc % 2 != 0) {
             printf("Invalid arguments for TRANSFER command.\n"
@@ -365,8 +366,8 @@ int main(int argc, char *argv[]) {
 
         // Allocate FC
         float predictions[class];
-        float (*fc_w)[class] = calloc(1280, sizeof *fc_w);
-        float fc_b[class];
+        float (*fc_w)[class][2] = calloc(1280, sizeof *fc_w);
+        float (*fc_b)[2] = calloc(class, sizeof *fc_b);
 
         test(class, predictions, fc_w, fc_b, n_val);
 

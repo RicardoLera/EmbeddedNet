@@ -371,6 +371,6 @@ struct parameters {
     //float final_par_fc_b[1000];               // Allocated Dynamically due to Transfer
 };
 
-extern struct parameters par[2];                // 0 represents trainable parameters; 1 represents moving squared means
+extern struct parameters par;                   // Trainable parameters
 
 #endif

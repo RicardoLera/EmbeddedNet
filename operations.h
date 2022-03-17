@@ -38,7 +38,7 @@ void avgpool(float data[restrict 7][7][1280], float pred[1280]);
 
 void softmax(float *input, int input_len);
 
-void fully_connect(int isize, int osize, float w[restrict isize][osize][2], float b[restrict osize][2], float *idata, float *odata);
+void fully_connect(int isize, int osize, float w[restrict isize][osize], float b[restrict osize], float *idata, float *odata);
 
 void decode(float *pred);
 
@@ -46,8 +46,8 @@ void backprop_fc(int c,
         float I[1280],
         float O[c],
         int label,
-        float fc_w[restrict 1280][c][2],
-        float fc_b[restrict c][2]);
+        float fc_w[restrict 1280][c],
+        float fc_b[restrict c]);
 
 void backprop_avrgpool(float I[restrict 7][7][1280], float O[1280]);
 
@@ -55,17 +55,16 @@ void backprop_relu6(int s, int d, float I[restrict s][s][d]);
 
 void backprop_bn(int s, int d,
         float I[restrict s][s][d], float O[restrict s][s][d],
-        float par[restrict 4][d], float Ep[restrict 4][d],
-        int idx);
+        float par[restrict 4][d], int idx);
 
 void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
         float I[restrict isize][isize][idepth], float O[restrict osize][osize][odepth],
-        float par[restrict odepth][ksize][ksize][idepth], float Ew[restrict odepth][ksize][ksize][idepth],
+        float par[restrict odepth][ksize][ksize][idepth],
         int stride, int pad, int idx);
 
 void backprop_dw(int isize, int osize, int ksize, int depth,
         float I[restrict isize][isize][depth], float O[restrict osize][osize][depth],
-        float par[restrict ksize][ksize][depth], float Ew[restrict ksize][ksize][depth],
+        float par[restrict ksize][ksize][depth],
         int stride, int pad, int idx);
 
 float nat_log (float n);
