@@ -48,6 +48,24 @@ Other Tasks:
  - Application on embedded system (import/export/conv etc).
  - Finish commenting all functions.
 
+## Getting Started
+
+Prerequisites: `python3` with `tensorflow` and other common python tools. We utilize Anaconda.
+
+Clone the repository: `git clone git@github.com:RicardoLera/EmbeddedNet.git`
+
+Download the [Br35H Dataset by Ahmed Hamada](https://www.kaggle.com/ahmedhamada0/brain-tumor-detection) on Kaggle. Place the `yes` and `no` folders in `/python_tests`.
+In a terminal, change directory to the `no` file and run: `rename 's/./\L$&/' *` to change the first letter of files 12-19 to lowercase.
+
+Next, open `python_tests/mobile.py`. Running it will create the `data` folder in the main directory.
+
+In the Python terminal run: `savepar(1)` to load pre-trained parameters or `savepar(0)` for random parameters.
+
+To preprocess the images, run `saveimages(0, X)` where `X` is how many images per epoch your network will be trained with (max 2600).
+Then run `saveimages(1, X)` where `X` is the number of test images utilized (max 400). These two processes can take a while.
+
+Finally, run `./EmbeddedNet transfer` in either `Debug` or `Release` with your preferred arguments.
+
 ## Command Line Arguments
 
 First Argument: `run`, `train` or `transfer`.
@@ -56,7 +74,7 @@ First Argument: `run`, `train` or `transfer`.
  - `train`: Trains network using imported image. Prediction is generated before training.
     - `-I`: Number of images in one epoch (1 - 3000, default 100).
     - `-E`: Number of epochs to run the training for (1 - 100, default 3).
-    - `-T`: Number of test images (0 - 400, default: 20, 0 does not run testing).
+    - `-V`: Number of validation images (0 - 400, default: 50, 0 does not validate after every epoch).
     - `-LR`: Learning Rate (0 - 10, default 0.045).
     - `-LD`: Learning Rate Decay (0 - 1, default 0.98).
     - `-F`: Second argument in Train command, defines which layers are frozen during training. Possible values are: `exp`, `b3` ... `b18` and `fc`. Default `fc`.
@@ -64,14 +82,14 @@ First Argument: `run`, `train` or `transfer`.
     - All arguments in `train`.
     - `-F`: Selects which layers to transfer the parameters into. Possible values are the same as Train's `-F` plus `no` for full training. Default `fc`.
     - `-C`: How many classification neurons are in the last layer of the new model (2 - 1000, default 2).
-    - `-LF`: Destination of new classification labels file (Default 'newlabels.txt').
+    - `-LF`: Destination of new classification labels file (Default '../data/newlabels.txt').
  - `test`: Runs a set number of inferences and applies metrics to measure its performance.
     - Number of images for testing (1 - 400, default 400).
  
 `run` and `test`'s single arguments don't require any indicators before them. For `train` and `transfer`, indicate which arguments to be changed from default with a `-` sign followed by the indicator and the value separated by space. Arguments do not have to be passed in order.
 
 Example:
-`./EmbeddedNet transfer -I 500 -E 4 -F b18 -LR 0.1 -LF '../../data/mylabels.txt'`
+`./EmbeddedNet transfer -I 500 -E 4 -F b18 -LR 0.1 -LF '../data/mylabels.txt'`
 
 ## Code Description
 

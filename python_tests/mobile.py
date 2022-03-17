@@ -1,6 +1,8 @@
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import os.path
 
 from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.preprocessing.image import img_to_array
@@ -41,6 +43,9 @@ plt.imshow(np.uint8(image_batch[0]))
 # Preprocess
 processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
 
+# Setup Data File
+if (not os.path.exists("../data")):
+    os.mkdir("../data")
 
 def full_network():    
     # Predict
@@ -92,8 +97,7 @@ def savepar(s):
     classifier_activation="softmax",)
     
     # Reset plots
-    import os
-    import os.path
+
     files_in_directory = os.listdir("../data")
     filtered_files = [file for file in files_in_directory if file.endswith(".dat")]
     for file in filtered_files:
@@ -181,8 +185,6 @@ def savebin(s):
     classifier_activation="softmax",)
     
     # Save All Parameters
-    import os
-    import os.path
     from array import array
     name = '../data/par'
     if (os.path.exists(name)):
