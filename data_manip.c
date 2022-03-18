@@ -95,15 +95,15 @@ void import_fc(int isize, int osize, float weight[isize][osize], float bias[osiz
 }
 
 void export_fc(int d, int c, float w[d][c], float b[c]) {
-    for (int i = 0; i < c; ++i) {
+    for (int i = c; i >= 0; --i) {
         memcpy(buf,&b[i],FSIZE);
         fseek(parbin,-FSIZE,SEEK_CUR);
         fwrite(buf,FSIZE,1,parbin);
         fseek(parbin,-FSIZE,SEEK_CUR);
     }
     printf("Saved ../data/fc_b.csv\n");
-    for (int y = 0; y < d; ++y) {
-    for (int x = 0; x < c; ++x) {
+    for (int y = d; y >= 0; --y) {
+    for (int x = c; x >= 0; --x) {
         memcpy(buf,&w[y][x],FSIZE);
         fseek(parbin,-FSIZE,SEEK_CUR);
         fwrite(buf,FSIZE,1,parbin);
@@ -113,9 +113,9 @@ void export_fc(int d, int c, float w[d][c], float b[c]) {
 }
 
 void export_depth(char* name, int ksize, int depth, float kdata[ksize][ksize][depth]) {
-    for (int y = 0; y < ksize; ++y) {
-    for (int x = 0; x < ksize; ++x) {
-    for (int d = 0; d < depth; ++d) {
+    for (int y = ksize; y >= 0; --y) {
+    for (int x = ksize; x >= 0; --x) {
+    for (int d = depth; d >= 0; --d) {
         memcpy(buf,&kdata[y][x][d],FSIZE);
         fseek(parbin,-FSIZE,SEEK_CUR);
         fwrite(buf,FSIZE,1,parbin);
@@ -125,8 +125,8 @@ void export_depth(char* name, int ksize, int depth, float kdata[ksize][ksize][de
 }
 
 void export_bn(char* name, int depth, float data[4][depth]) {
-    for (int y = 0; y < 4; ++y) {
-    for (int x = 0; x < depth; ++x) {
+    for (int y = 4; y >= 0; --y) {
+    for (int x = depth; x >= 0; --x) {
         memcpy(buf,&data[y][x],FSIZE);
         fseek(parbin,-FSIZE,SEEK_CUR);
         fwrite(buf,FSIZE,1,parbin);
@@ -136,10 +136,10 @@ void export_bn(char* name, int depth, float data[4][depth]) {
 }
 
 void export_conv2d(char* name, int id, int ksize, int od, int idx, float kdata[od][ksize][ksize][id]) {
-    for (int y = 0; y < ksize; ++y) {
-    for (int x = 0; x < ksize; ++x) {
-    for (int l = 0; l < id; ++l) {
-    for (int d = 0; d < od; ++d) {
+    for (int y = ksize; y >= 0; --y) {
+    for (int x = ksize; x >= 0; --x) {
+    for (int l = id; l >= 0; --l) {
+    for (int d = od; d >= 0; --d) {
         memcpy(buf,&kdata[d][y][x][l],FSIZE);
         fseek(parbin,-FSIZE,SEEK_CUR);
         fwrite(buf,FSIZE,1,parbin);

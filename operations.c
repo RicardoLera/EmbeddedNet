@@ -527,7 +527,7 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
             if (iy >= 0 && iy < isize && ix >= 0 && ix < isize)
                 for (int id = 0; id < idepth; ++id) { // c
                     dLdW[od][ky][kx][id] += O[oy][ox][od] * I[iy][ix][id];          // Calculate Gradient
-                    if (backprop != 0)
+                    if (backprop == 1)
                         error[iy][ix][id] += O[oy][ox][od] * par[od][ky][kx][id];   // Backpropagate
                 }
         }}
