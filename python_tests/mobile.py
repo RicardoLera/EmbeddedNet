@@ -97,7 +97,6 @@ def savepar(s):
     classifier_activation="softmax",)
     
     # Reset plots
-
     files_in_directory = os.listdir("../data")
     filtered_files = [file for file in files_in_directory if file.endswith(".dat")]
     for file in filtered_files:
@@ -184,9 +183,26 @@ def savebin(s):
     classes=1000,
     classifier_activation="softmax",)
     
+    # Reset plots
+    files_in_directory = os.listdir("../data")
+    filtered_files = [file for file in files_in_directory if file.endswith(".dat")]
+    for file in filtered_files:
+        path_to_file = os.path.join("../data", file)
+        os.remove(path_to_file)
+    
+    # Save Classification Labels
+    print("Saving classification labels")
+    import shutil
+    shutil.copyfile("labels.txt", "../data/labels.txt")
+
+    # Save Transfer Parameter
+    print("Saving transfer parameter")
+    with open('../data/transfer.csv', 'w') as outfile:
+        outfile.write("1000 ")
+    
     # Save All Parameters
     from array import array
-    name = '../data/par'
+    name = '../data/par.bin'
     if (os.path.exists(name)):
         os.remove(name)
     indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]

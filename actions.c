@@ -368,34 +368,6 @@ void inference(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]) 
             class);                         // Length
 
     decode(predictions);                    // Input/output - Final prediction
-
-/*
-    // Pred Probe Test
-
-    FILE *fp;
-    fp = fopen("output.txt", "w");
-    for (int i = 0; i < 1000; ++i) {
-        fprintf(fp, "%e\n", pred[i]);
-    }
-    fclose(fp);
-    printf("Saved output of layer as \"output.txt\"\n");
-*/
-/*
-    // Probe Test
-
-    printf("output[0][0][0] = %.7f\n", data20[0][0][0]);
-
-    FILE *fp;
-    fp = fopen("output.txt", "w");
-    for (int i = 0; i < 7; ++i) {
-        for (int j = 0; j < 7; ++j) {
-            fprintf(fp, "%.7e, ", data20[i][j][0]);
-        }
-        fprintf(fp, "\n");
-    }
-    fclose(fp);
-    printf("Saved output of layer as \"output.txt\"\n");
-*/
 }
 
 void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
@@ -412,7 +384,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             fc_b);                              // Biases and moving squared means
 
     int i = 0;                  // Index for comparison
-    if (frz == ++i) {return;}   // Freeze point - Fully Connected
+    if (frz == ++i) return;   // Freeze point - Fully Connected
 
     backprop_avrgpool(var.final_conv2d_relu,    // Input
             var.final_pooling);                 // Output
@@ -433,7 +405,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.final_par_conv2d,               // Weights
             1, 0, 35);                          // Stride, padding and import index
 
-    if (frz == ++i) {return;}   // Freeze point - Block 18
+    if (frz == ++i) return;   // Freeze point - Block 18
 
     // Block 18
     backprop_S1(7,          // Input and output size
@@ -448,7 +420,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block18_par_depth,          par.block18_par_depth_BN,       // Depthwise parameters
             par.block18_par_project,        par.block18_par_project_BN);    // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 17
+    if (frz == ++i) return;   // Freeze point - Block 17
 
     // Block 17
     backprop_S1(7,          // Input and output size
@@ -463,7 +435,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block17_par_depth,          par.block17_par_depth_BN,       // Depthwise parameters
             par.block17_par_project,        par.block17_par_project_BN);    // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 16
+    if (frz == ++i) return;   // Freeze point - Block 16
 
     // Block 16
     backprop_S1(7,          // Input and output size
@@ -478,7 +450,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block16_par_depth,          par.block16_par_depth_BN,       // Depthwise parameters
             par.block16_par_project,        par.block16_par_project_BN);    // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 15
+    if (frz == ++i) return;   // Freeze point - Block 15
 
     // Block 15
     backprop_S2(14, 7,      // Input and output size / depthwise factor
@@ -493,7 +465,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block15_par_depth,          par.block15_par_depth_BN,       // Depthwise parameters
             par.block15_par_project,        par.block15_par_project_BN);    // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 14
+    if (frz == ++i) return;   // Freeze point - Block 14
 
     // Block 14
     backprop_S1(14,         // Input and output size
@@ -508,7 +480,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block14_par_depth,          par.block14_par_depth_BN,       // Depthwise parameters
             par.block14_par_project,        par.block14_par_project_BN);    // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 13
+    if (frz == ++i) return;   // Freeze point - Block 13
 
     // Block 13
     backprop_S1(14,         // Input and output size
@@ -523,7 +495,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block13_par_depth,          par.block13_par_depth_BN,       // Depthwise parameters
             par.block13_par_project,        par.block13_par_project_BN);    // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 12
+    if (frz == ++i) return;   // Freeze point - Block 12
 
     // Block 12
     backprop_S1(14,         // Input and output size
@@ -538,7 +510,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block12_par_depth,          par.block12_par_depth_BN,       // Depthwise parameters
             par.block12_par_project,        par.block12_par_project_BN);    // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 11
+    if (frz == ++i) return;   // Freeze point - Block 11
 
     // Block 11
     backprop_S1(14,         // Input and output size
@@ -553,7 +525,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block11_par_depth,          par.block11_par_depth_BN,       // Depthwise parameters
             par.block11_par_project,        par.block11_par_project_BN);    // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 10
+    if (frz == ++i) return;   // Freeze point - Block 10
 
     // Block 10
     backprop_S1(14,         // Input and output size
@@ -568,7 +540,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block10_par_depth,          par.block10_par_depth_BN,       // Depthwise parameters
             par.block10_par_project,        par.block10_par_project_BN);    // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 9
+    if (frz == ++i) return;   // Freeze point - Block 9
 
     // Block 9
     backprop_S1(14,         // Input and output size
@@ -583,7 +555,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block9_par_depth,           par.block9_par_depth_BN,        // Depthwise parameters
             par.block9_par_project,         par.block9_par_project_BN);     // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 8
+    if (frz == ++i) return;   // Freeze point - Block 8
 
     // Block 8
     backprop_S2(28, 14,     // Input and output size / depthwise factor
@@ -598,7 +570,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block8_par_depth,           par.block8_par_depth_BN,        // Depthwise parameters
             par.block8_par_project,         par.block8_par_project_BN);     // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 7
+    if (frz == ++i) return;   // Freeze point - Block 7
 
     // Block 7
     backprop_S1(28,         // Input and output size
@@ -613,7 +585,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block7_par_depth,           par.block7_par_depth_BN,        // Depthwise parameters
             par.block7_par_project,         par.block7_par_project_BN);     // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 6
+    if (frz == ++i) return;   // Freeze point - Block 6
 
     // Block 6
     backprop_S1(28,         // Input and output size
@@ -628,7 +600,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block6_par_depth,           par.block6_par_depth_BN,        // Depthwise parameters
             par.block6_par_project,         par.block6_par_project_BN);     // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 5
+    if (frz == ++i) return;   // Freeze point - Block 5
 
     // Block 5
     backprop_S2(56, 28,     // Input and output size / depthwise factor
@@ -643,7 +615,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block5_par_depth,           par.block5_par_depth_BN,        // Depthwise parameters
             par.block5_par_project,         par.block5_par_project_BN);     // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 4
+    if (frz == ++i) return;   // Freeze point - Block 4
 
     // Block 4
     backprop_S1(56,         // Input and output size
@@ -658,7 +630,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block4_par_depth,           par.block4_par_depth_BN,        // Depthwise parameters
             par.block4_par_project,         par.block4_par_project_BN);     // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Block 3
+    if (frz == ++i) return;   // Freeze point - Block 3
 
     // Block 3
     backprop_S2(112, 56,    // Input and output size / depthwise factor
@@ -673,7 +645,7 @@ void train(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]){
             par.block3_par_depth,           par.block3_par_depth_BN,        // Depthwise parameters
             par.block3_par_project,         par.block3_par_project_BN);     // Project parameters
 
-    if (frz == ++i) {return;}   // Freeze point - Expanded Block
+    if (frz == ++i) return;   // Freeze point - Expanded Block
 
     // Expanded Block
     backprop_bn(112, 16,                        // Size and depth
@@ -725,7 +697,7 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
     int NC = 0;                                                     // Number of correct predictions
     int (*conf)[c] = calloc(c, sizeof *conf);                       // Confusion matrix: actual (lines) x predicted (columns)
     float step = 0.01;                                              // Threshold Step
-    int t_number = (1 - 0.5) / step;                                // Number of points
+    int t_number = 1 / step;                                		// Number of points
     int (*conf_arr)[2][t_number+1] = calloc(2, sizeof *conf_arr);   // Confusion matrix array
     loss = 0;                                                       // Reset loss
 
@@ -745,14 +717,12 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
         // Add to Confusion Matrix Array on Thresholds
         if (c == 2) {
             for (int t_count = 0; t_count < t_number + 1; ++t_count) {
-                float th = 0.5 + (t_count * step);  // Current threshold
-                int th_idx;                         // Index within threshold
+                float th = t_count * step;	// Current threshold
+                int th_idx;                	// Index within threshold
 
                 // Calculate th_idx
-                if (inf_pred >= th)
-                    th_idx = inf_idx;
-                else
-                    th_idx = !inf_idx;
+                if (inf_pred >= th) th_idx = inf_idx;
+                else th_idx = !inf_idx;
 
                 conf_arr[label][th_idx][t_count]++;
             }
@@ -803,8 +773,7 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
                 }
                 printf("\n");
             }
-        }
-        */
+        }*/
 
         // Receiver Operating Characteristic AUC
         printf("\nArea Under ROC Curve = %.3f\n", area);
