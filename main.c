@@ -8,26 +8,30 @@
 #include "var.h"
 
 #define TRAIN_MESSAGE printf("Invalid arguments for TRAIN command.\n" \
-                			" -I: Number of images (1 - 3000). Default: 100\n" \
-							" -E: Number of epochs (1 - 100). Default: 3\n" \
-							" -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n" \
-							" -LR: Learning Rate (0 - 10). Default 0.045\n" \
-							" -LD: Learning Rate Decay (0 - 1). Default 0.98\n" \
-							" -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n");
+                            " -I: Number of images (1 - 3000). Default: 100\n" \
+                            " -E: Number of epochs (1 - 100). Default: 3\n" \
+                            " -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n" \
+                            " -LR: Learning Rate (0 - 10). Default 0.045\n" \
+                            " -LD: Learning Rate Decay (0 - 1). Default 0.98\n" \
+                            " -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n");
 
 #define TRANSFER_MESSAGE printf("Invalid arguments for TRANSFER command.\n" \
-							" -I: Number of images (1 - 3000). Default: 100\n" \
-                    		" -E: Number of epochs (1 - 100). Default: 3\n" \
-                    		" -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n" \
-							" -LR: Learning Rate (0 - 10). Default 0.045\n" \
-							" -LD: Learning Rate Decay (0 - 1). Default 0.98\n" \
-							" -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3', 'exp' and 'no'. Default 'fc'\n" \
-							" -C: How many classification neurons are in the last layer of the new model. Default: 2\n" \
-							" -LF: Destination of new classification labels file. Default: '../newlabels.txt'\n");
+                            " -I: Number of images (1 - 3000). Default: 100\n" \
+                            " -E: Number of epochs (1 - 100). Default: 3\n" \
+                            " -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n" \
+                            " -LR: Learning Rate (0 - 10). Default 0.045\n" \
+                            " -LD: Learning Rate Decay (0 - 1). Default 0.98\n" \
+                            " -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3', 'exp' and 'no'. Default 'fc'\n" \
+                            " -C: How many classification neurons are in the last layer of the new model. Default: 2\n" \
+                            " -LF: Destination of new classification labels file. Default: '../newlabels.txt'\n");
 
 // Initialize structs
 struct variables var;       // Every layer-correspondent variable
 struct parameters par;      // Every parameter and its respective moving squared mean
+
+// Initialize parameter file pointer and buffer
+FILE* parbin;
+unsigned char buf[FSIZE];
 
 // Initialize epoch counter
 int epoch_count;
@@ -60,6 +64,13 @@ char *temp;
 double conv_time = 0;
 
 int main(int argc, char *argv[]) {
+
+    // Open parameter file
+    parbin = fopen("../data/par.bin", "r+");
+    if (parbin == NULL) {
+        perror("../data/par.bin");
+        exit(EXIT_FAILURE);
+    }
 
         // RUN Option
     if (strcmp(argv[1],"run") == 0 ) {
@@ -103,8 +114,8 @@ int main(int argc, char *argv[]) {
     else if (strcmp(argv[1],"train") == 0 ) {
 
         if (argc % 2 != 0) {
-        	TRAIN_MESSAGE
-			exit(EXIT_FAILURE);
+            TRAIN_MESSAGE
+            exit(EXIT_FAILURE);
         }
 
         for (int i = 2; i < argc; i = i + 2) {
@@ -176,8 +187,8 @@ int main(int argc, char *argv[]) {
             }
 
             else {
-            	TRAIN_MESSAGE
-				exit(EXIT_FAILURE);
+                TRAIN_MESSAGE
+                exit(EXIT_FAILURE);
             }
 
         }
@@ -197,7 +208,7 @@ int main(int argc, char *argv[]) {
                 printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
                 import_image(i, 0);
                 train(class, predictions, fc_w, fc_b);
-                printf("\n");
+                rewind(parbin);
             }
             if (n_val) test(class, predictions, fc_w, fc_b, n_val);
         }
@@ -216,8 +227,8 @@ int main(int argc, char *argv[]) {
         char LF[] = "../newlabels.txt";
 
         if (argc % 2 != 0) {
-        	TRANSFER_MESSAGE
-			exit(EXIT_FAILURE);
+            TRANSFER_MESSAGE
+            exit(EXIT_FAILURE);
         }
 
 
@@ -300,11 +311,11 @@ int main(int argc, char *argv[]) {
             }
 
             else if (strcmp(argv[i],"-LF") == 0)
-            	strcpy(LF, argv[i+1]);
+                strcpy(LF, argv[i+1]);
 
             else {
-            	TRANSFER_MESSAGE
-    			exit(EXIT_FAILURE);
+                TRANSFER_MESSAGE
+                exit(EXIT_FAILURE);
             }
 
         }
@@ -357,5 +368,7 @@ int main(int argc, char *argv[]) {
         printf("Invalid action. Valid actions are: run, train, transfer and test.\n");
         exit(EXIT_FAILURE);
     }
+
+    fclose(parbin);
     return 0;
 }

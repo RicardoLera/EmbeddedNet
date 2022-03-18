@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import os.path
+import sys
 
 from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.preprocessing.image import img_to_array
@@ -84,7 +85,7 @@ def savepar(s):
         weight = None
     else:
         print("Invalid argument")
-        quit();
+        sys.exit();
     
     model = tf.keras.applications.MobileNetV2(
     input_shape=(224,224,3),
@@ -171,7 +172,7 @@ def savebin(s):
         weight = None
     else:
         print("Invalid argument")
-        quit();
+        sys.exit();
         
     model = tf.keras.applications.MobileNetV2(
     input_shape=(224,224,3),
@@ -259,11 +260,11 @@ def savebin(s):
 def saveimages(s, rang=2600):
     if (rang % 2) != 0:  
         print("Range must be even")
-        quit();
+        sys.exit();
     if s == 0:   # Save train images
         if (rang < 1 or rang > 2600):
             print("Train range must be between 1 and 2600")
-            quit();
+            sys.exit();
         z = 0
         save = ''
     elif s == 1: # Save test images
@@ -272,12 +273,12 @@ def saveimages(s, rang=2600):
             print("Assuming default = 400 images")
         if (rang < 1 or rang > 400):
             print("Test range must be between 1 and 400")
-            quit();
+            sys.exit();
         z = 1300
         save = 'test'
     else:
         print("Invalid argument")
-        quit();
+        sys.exit();
     
     import random
     random.seed(72)

@@ -1,7 +1,13 @@
 #ifndef VAR_H
 #define VAR_H
 
-// Count index
+#define FSIZE sizeof(float)
+
+// Parameter file pointer (par.bin) and Buffer
+extern FILE* parbin;
+extern unsigned char buf[FSIZE];
+
+// Epoch index
 extern int epoch_count;
 
 // Training parameters
