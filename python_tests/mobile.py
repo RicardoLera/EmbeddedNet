@@ -48,6 +48,7 @@ processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
 if (not os.path.exists("../data")):
     os.mkdir("../data")
 
+
 def full_network():    
     # Predict
     predictions = mobilenetv2_model.predict(processed_image)
@@ -76,6 +77,29 @@ def layer(n):
     classifier_activation="softmax",)
 
     print(model.layers[n].output)
+
+
+def testlayer(n, l):
+    import keras.backend as K
+    model = tf.keras.applications.MobileNetV2(
+    input_shape=(224,224,3),
+    alpha=1.0,
+    include_top=True,
+    weights="imagenet",
+    input_tensor=None,
+    pooling=None,
+    classes=1000,
+    classifier_activation="softmax",)
+    
+    func = K.function([model.layers[1].input], model.layers[n].output)
+    conv_output = func([processed_image])
+    
+    print(conv_output.shape)
+
+    output = np.single(conv_output[0,:,:,l])
+
+    plt.imshow(output)
+    plt.show()
     
     
 def savepar(s):
@@ -257,6 +281,7 @@ def savebin(s):
                 float_array = array('f', data)
                 float_array.tofile(outfile)    
              
+                
 def saveimages(s, rang=2600):
     if (rang % 2) != 0:  
         print("Range must be even")
@@ -336,6 +361,7 @@ def saveimages(s, rang=2600):
         with open('../data/label' + save + str(x) + '.csv', 'w') as outfile:
             outfile.write(label)        
 
+
 def savetestimage(x, l):
     
     # Load image in PIL format 244x244
@@ -364,28 +390,6 @@ def savetestimage(x, l):
                 
     with open('../data/labeltest400.csv', 'w') as outfile:
         outfile.write(str(l) + " ")
-
-def testlayer(n, l):
-    import keras.backend as K
-    model = tf.keras.applications.MobileNetV2(
-    input_shape=(224,224,3),
-    alpha=1.0,
-    include_top=True,
-    weights="imagenet",
-    input_tensor=None,
-    pooling=None,
-    classes=1000,
-    classifier_activation="softmax",)
-    
-    func = K.function([model.layers[1].input], model.layers[n].output)
-    conv_output = func([processed_image])
-    
-    print(conv_output.shape)
-
-    output = np.single(conv_output[0,:,:,l])
-
-    plt.imshow(output)
-    plt.show()
     
     
 def read(x):   

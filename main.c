@@ -63,7 +63,7 @@ char *temp;
 // CONV2D TESTING
 double conv_time = 0;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
 
     // Open parameter file
     parbin = fopen("../data/par.bin", "r+");

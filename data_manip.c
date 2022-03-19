@@ -135,7 +135,7 @@ void export_bn(char* name, int depth, float data[4][depth]) {
     printf("Saved %s\n", name);
 }
 
-void export_conv2d(char* name, int id, int ksize, int od, int idx, float kdata[od][ksize][ksize][id]) {
+void export_conv2d(char* name, int od, int ksize, int id, float kdata[od][ksize][ksize][id]) {
     for (int y = ksize; y >= 0; --y) {
     for (int x = ksize; x >= 0; --x) {
     for (int l = id; l >= 0; --l) {

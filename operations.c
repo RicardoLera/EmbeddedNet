@@ -558,7 +558,7 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
     // Export
     char name[22]; // maximum number of characters is "../data/weightsxx.csv" = 21
     sprintf(name, "weights%d.csv", idx);
-    export_conv2d(name,odepth,ksize,ksize,idepth,par);
+    export_conv2d(name,odepth,ksize,idepth,par);
 }
 
 void backprop_dw(int isize, int osize, int ksize, int depth,
