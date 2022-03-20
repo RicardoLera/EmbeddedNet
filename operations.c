@@ -20,12 +20,10 @@ void convolution2D(int isize,   // width/height of input
         int stride,             // shift between input pixels, between consecutive outputs
         int pad,                // offset between (0,0) pixels between input and output
         int idepth, int odepth, // number of input and output channels
-        float idata[isize][isize][idepth],
-        float odata[osize][osize][odepth],
-        float kdata[odepth][ksize][ksize][idepth])
+        float idata[restrict isize][isize][idepth],
+        float odata[restrict osize][osize][odepth],
+        float kdata[restrict odepth][ksize][ksize][idepth])
 {
-    float sum = 0;
-
     // iterate over the output
     for (int oy = 0; oy < osize; ++oy) {
     for (int ox = 0; ox < osize; ++ox) {
@@ -39,11 +37,9 @@ void convolution2D(int isize,   // width/height of input
             // use only valid inputs
             if (iy >= 0 && iy < isize && ix >= 0 && ix < isize) {
                 for (int id = 0; id < idepth; ++id)
-                    sum += kdata[od][ky][kx][id] * idata[iy][ix][id];
+                    odata[oy][ox][od] += kdata[od][ky][kx][id] * idata[iy][ix][id];
             }
         }}
-        odata[oy][ox][od] = sum;
-        sum = 0;
     }}}
 
 

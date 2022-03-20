@@ -15,6 +15,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]) 
     // Initial Block
     //printf("Entering Initial Block: 224x224x3\n");
 
+
     conv2d(224, 112, 3,                         // Input size, output size, kernel size
             2,                                  // Stride
             0,                                  // Padding
@@ -23,6 +24,30 @@ void inference(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]) 
             image,                              // Input
             var.initial_conv2d,                 // Output
             par.initial_par_conv2d);            // Weights
+
+
+/* Export test
+    printf("=%.20f\n", -0.17165923 * -0.33373192);
+
+    printf("weight[0][0][0][0] = %.8e\n", par.initial_par_conv2d[0][0][0][0]);
+    printf("weight[0][0][0][1] = %.8e\n", par.initial_par_conv2d[1][0][0][0]);
+    printf("weight[0][0][1][0] = %.8e\n", par.initial_par_conv2d[0][0][0][1]);
+    printf("weight Last = %.8e\n", par.initial_par_conv2d[31][2][2][2]);
+
+    FILE *fp;
+    fp = fopen("../output.txt", "w");
+
+    for (int i = 0; i < 112; ++i) {
+        for (int j = 0; j < 112; ++j) {
+            fprintf(fp, "%.8e, ", var.initial_conv2d[i][j][0]);
+        }
+        fprintf(fp, "\n");
+    }
+
+    fclose(fp);
+    exit(0);
+*/
+
 
     batch_normalization(112,                    // Input/output size
             32,                                 // Number of channels

@@ -102,6 +102,13 @@ def testlayer(n, l):
     plt.show()
     
     
+def read(x):   
+    file = open("../output.txt")
+    fromC = np.loadtxt(file, delimiter=", ", usecols=range(x))
+    plt.imshow(fromC)
+    file.close()
+    
+    
 def savepar(s):
     if s == 1:
         weight = "imagenet"
@@ -149,7 +156,7 @@ def savepar(s):
         with open(name, 'w') as outfile:
             for threeD_data_slice in data:
                 for twoD_data_slice in threeD_data_slice:
-                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.8e')
     
     # Save Batch Normalization Weights
     indexBN = [2, 5, 8, 10, 14, 17, 19, 22, 25, 28, 32, 35, 37, 40, 43, 46, 49, 52, 55, 59, 62, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 99, 102, 105, 108, 111, 114, 117, 121, 124, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152]
@@ -390,13 +397,6 @@ def savetestimage(x, l):
                 
     with open('../data/labeltest400.csv', 'w') as outfile:
         outfile.write(str(l) + " ")
-    
-    
-def read(x):   
-    file = open("../data/output.txt")
-    fromC = np.loadtxt(file, delimiter=", ", usecols=range(x))
-    plt.imshow(fromC)
-    file.close()
     
     
 def train():
