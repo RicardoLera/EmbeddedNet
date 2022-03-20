@@ -730,6 +730,7 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
 
     // Test
     for (int i = 0; i < n; ++i) {
+        rewind(parbin);
         printf("\nEpoch %d Test/Validation Image %d\n", epoch_count+1, i+1);
         import_image(i, 1);
         inference(class, predictions, fc_w, fc_b);
@@ -743,7 +744,7 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
         // Add to Confusion Matrix Array on Thresholds
         if (c == 2) {
             for (int t_count = 0; t_count < t_number + 1; ++t_count) {
-                float th = t_count * step;    // Current threshold
+                float th = 0.5 + (t_count * step);    // Current threshold
                 int th_idx;                    // Index within threshold
 
                 // Calculate th_idx
@@ -755,8 +756,6 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
         }
         // Add to cross-entropy loss
         loss += -nat_log(inf_correct);   // Maybe toss standard weight decay here too
-
-        rewind(parbin);
     }
 
     // Classification Accuracy
@@ -790,7 +789,7 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
             area += ( (ROC[1][t_count] + ROC[1][t_count-1]) / 2) * (ROC[0][t_count-1] - ROC[0][t_count]);           // Area Under Curve (trapezoid approximation) (negative if line goes to the right)
         }
 
-        /* Print confusion array matrixes
+        // Print confusion array matrixes
         printf("\nConfusion Array = \n");
         for (int t_count = 0; t_count < t_number; ++t_count) {
             printf("\nMatrix at threshold %.2f:\n", 0.5 + (t_count * step));
@@ -800,7 +799,7 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
                 }
                 printf("\n");
             }
-        }*/
+        }
 
         // Receiver Operating Characteristic AUC
         printf("\nArea Under ROC Curve = %.3f\n", area);
@@ -844,8 +843,8 @@ void transfer() {
 
     // Final Block
     if (frz >= ++i) {
-        fillRandom("../data/param52.csv",   sizeof(par.final_par_conv2d_BN));
-        fillRandom("../data/weights35.csv", sizeof(par.final_par_conv2d));
+        fillRandom("../data/param52.csv",   sizeof(par.final_par_conv2d_BN)/4);
+        fillRandom("../data/weights35.csv", sizeof(par.final_par_conv2d)/4);
     }
 
     // Block 18
@@ -1021,7 +1020,6 @@ void transfer() {
     }
     printf("\n");
 
-    rewind(parbin);
     clock_t begin = clock();
 
     // Train
@@ -1033,8 +1031,8 @@ void transfer() {
         for (int i = 0; i < n_img; ++i) {
             printf("\nEpoch %d Image %d\n",epoch_count + 1, i + 1);
             import_image(i, 0);
-            train(class, predictions, fc_w, fc_b);
             rewind(parbin);
+            train(class, predictions, fc_w, fc_b);
         }
         if (n_val) test(class, predictions, fc_w, fc_b, n_val);
     }

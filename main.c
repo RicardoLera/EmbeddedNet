@@ -207,8 +207,8 @@ int main(int argc, char* argv[]) {
             for (int i = 0; i < n_img; ++i) {
                 printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
                 import_image(i, 0);
-                train(class, predictions, fc_w, fc_b);
                 rewind(parbin);
+                train(class, predictions, fc_w, fc_b);
             }
             if (n_val) test(class, predictions, fc_w, fc_b, n_val);
         }
