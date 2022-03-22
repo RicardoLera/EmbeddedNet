@@ -250,7 +250,7 @@ void decode(float *pred) {
     FILE *fptr;
     fptr = fopen("../data/labels.txt", "r");
     if (fptr == NULL) {
-        perror("fopen()");
+        perror("../data/labels.txt");
         exit(EXIT_FAILURE);
     }
 

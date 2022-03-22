@@ -196,7 +196,7 @@ def savepar(s):
         np.savetxt(outfile, data, fmt='%-1.7e')
     
     
-def savebin(s):
+def savebin(s, path="../data"):
     if s == 1:
         weight = "imagenet"
     elif s == 0:
@@ -204,7 +204,7 @@ def savebin(s):
     else:
         print("Invalid argument")
         sys.exit();
-        
+    
     model = tf.keras.applications.MobileNetV2(
     input_shape=(224,224,3),
     alpha=1.0,
@@ -216,25 +216,25 @@ def savebin(s):
     classifier_activation="softmax",)
     
     # Reset plots
-    files_in_directory = os.listdir("../data")
+    files_in_directory = os.listdir(path)
     filtered_files = [file for file in files_in_directory if file.endswith(".dat")]
     for file in filtered_files:
-        path_to_file = os.path.join("../data", file)
+        path_to_file = os.path.join(path, file)
         os.remove(path_to_file)
     
     # Save Classification Labels
     print("Saving classification labels")
     import shutil
-    shutil.copyfile("labels.txt", "../data/labels.txt")
+    shutil.copyfile("labels.txt", path + "/labels.txt")
 
     # Save Transfer Parameter
     print("Saving transfer parameter")
-    with open('../data/transfer.csv', 'w') as outfile:
+    with open(path + '/transfer.csv', 'w') as outfile:
         outfile.write("1000 ")
     
     # Save All Parameters
     from array import array
-    name = '../data/par.bin'
+    name = path + '/par.bin'
     if (os.path.exists(name)):
         os.remove(name)
     indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]
@@ -289,7 +289,7 @@ def savebin(s):
                 float_array.tofile(outfile)    
              
                 
-def saveimages(s, rang=2600):
+def saveimages(s, rang=2600, path="../data"):
     if (rang % 2) != 0:  
         print("Range must be even")
         sys.exit();
@@ -360,12 +360,12 @@ def saveimages(s, rang=2600):
         # Save Images and Labels
         print("Saving image " + str(x) + " (" + str(num[x]+z) + ")")
         data = processed_image[0,:,:,:]
-        with open('../data/image' + save + str(x) + '.csv', 'w') as outfile:
+        with open(path + '/image' + save + str(x) + '.csv', 'w') as outfile:
             for threeD_data_slice in data:
                 for twoD_data_slice in threeD_data_slice:
                     np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
                 
-        with open('../data/label' + save + str(x) + '.csv', 'w') as outfile:
+        with open(path + '/label' + save + str(x) + '.csv', 'w') as outfile:
             outfile.write(label)        
 
 

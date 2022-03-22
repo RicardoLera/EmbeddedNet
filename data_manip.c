@@ -195,7 +195,7 @@ void copyLabels(char* path) {
 
     source = fopen(path, "r");
     if (source == NULL) {
-        perror("fopen()");
+        perror(path);
         exit(EXIT_FAILURE);
     }
 

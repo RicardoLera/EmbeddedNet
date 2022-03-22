@@ -60,9 +60,6 @@ int label;
 // Pointer for string operations
 char *temp;
 
-// CONV2D TESTING
-double conv_time = 0;
-
 int main(int argc, char* argv[]) {
 
     // Open parameter file
