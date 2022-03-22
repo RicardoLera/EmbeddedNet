@@ -10,7 +10,7 @@
 
 void inference(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]) {
 
-    printf("Inferring...\n");
+    printf("\nInferring...\n");
 
     // Initial Block
     //printf("Entering Initial Block: 224x224x3\n");
@@ -732,7 +732,7 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
     for (int i = 0; i < n; ++i) {
         rewind(parbin);
         printf("\nEpoch %d Test/Validation Image %d\n", epoch_count+1, i+1);
-        import_image(i, 1);
+        import_image(imagetestbin);
         inference(class, predictions, fc_w, fc_b);
 
         // Add to Correct Predictions
@@ -788,7 +788,7 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
             ROC[0][t_count] = (float)conf_arr[0][1][t_count] / (conf_arr[0][0][t_count] + conf_arr[0][1][t_count]); // FPR = FP / (TN + FP)     aka 1 - Specificity
             area += ( (ROC[1][t_count] + ROC[1][t_count-1]) / 2) * (ROC[0][t_count-1] - ROC[0][t_count]);           // Area Under Curve (trapezoid approximation) (negative if line goes to the right)
         }
-
+        /*
         // Print confusion array matrixes
         printf("\nConfusion Array = \n");
         for (int t_count = 0; t_count < t_number; ++t_count) {
@@ -800,6 +800,7 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
                 printf("\n");
             }
         }
+        */
 
         // Receiver Operating Characteristic AUC
         printf("\nArea Under ROC Curve = %.3f\n", area);
@@ -1030,11 +1031,13 @@ void transfer() {
     for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
         for (int i = 0; i < n_img; ++i) {
             printf("\nEpoch %d Image %d\n",epoch_count + 1, i + 1);
-            import_image(i, 0);
+            import_image(imagebin);
             rewind(parbin);
             train(class, predictions, fc_w, fc_b);
         }
         if (n_val) test(class, predictions, fc_w, fc_b, n_val);
+        rewind(imagebin);
+        rewind(imagetestbin);
     }
 
     clock_t end = clock();

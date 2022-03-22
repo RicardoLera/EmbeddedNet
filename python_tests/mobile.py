@@ -258,29 +258,26 @@ def savebin(s, path="../data"):
             print("Saving BN " + str(i))
             data = np.array(model.layers[i].get_weights())
             with open(name, 'ab') as outfile:
-                for twoD_data_slice in data: 
-                    #for oneD_data_slice in twoD_data_slice:
-                        float_array = array('f', twoD_data_slice)
-                        float_array.tofile(outfile)
+                for oneD_data_slice in data: 
+                    float_array = array('f', oneD_data_slice)
+                    float_array.tofile(outfile)
                             
         elif (i in indexD):
             print("Saving D  " + str(i))
             data = np.array(model.layers[i].get_weights())[0,:,:,:,0]
             with open(name, 'ab') as outfile:
-                for threeD_data_slice in data:
-                    for twoD_data_slice in threeD_data_slice:
-                        #for oneD_data_slice in twoD_data_slice:
-                            float_array = array('f', twoD_data_slice)
-                            float_array.tofile(outfile)
+                for twoD_data_slice in data:
+                    for oneD_data_slice in twoD_data_slice:
+                        float_array = array('f', oneD_data_slice)
+                        float_array.tofile(outfile)
                             
         elif (i in indexFC):
             print("Saving FC weights")
             data = model.layers[i].get_weights()[0]
             with open(name, 'ab') as outfile:
-                for twoD_data_slice in data:
-                    #for oneD_data_slice in twoD_data_slice:
-                        float_array = array('f', twoD_data_slice)
-                        float_array.tofile(outfile)
+                for oneD_data_slice in data:
+                    float_array = array('f', oneD_data_slice)
+                    float_array.tofile(outfile)
                             
             print("Saving FC biases")
             data = model.layers[i].get_weights()[1]
@@ -369,6 +366,88 @@ def saveimages(s, rang=2600, path="../data"):
             outfile.write(label)        
 
 
+def savebinimages(s, rang=2600, path="../data"):
+    if (rang % 2) != 0:  
+        print("Range must be even")
+        sys.exit();
+    if s == 0:   # Save train images
+        if (rang < 1 or rang > 2600):
+            print("Train range must be between 1 and 2600")
+            sys.exit();
+        z = 0
+        save = ''
+    elif s == 1: # Save test images
+        if (rang == 2600):
+            rang = 400
+            print("Assuming default = 400 images")
+        if (rang < 1 or rang > 400):
+            print("Test range must be between 1 and 400")
+            sys.exit();
+        z = 1300
+        save = 'test'
+    else:
+        print("Invalid argument")
+        sys.exit();
+    
+    from array import array
+    name = path + '/image' + save + '.bin'
+    if (os.path.exists(name)):
+        os.remove(name)
+    import random
+    random.seed(72)
+    num = random.sample(range(rang), rang) # 2600 train / 400 test
+    
+    for x in range(rang):
+        
+        if (num[x] < rang/2):
+            # Load image in PIL format 244x244
+            filename = 'yes/y' + str(num[x] + z) + '.jpg'
+            original = load_img(filename, target_size=(224, 224))
+
+            # Convert to numpy array 244x244x3
+            numpy_image = img_to_array(original)
+            plt.imshow(np.uint8(numpy_image))
+            plt.show()
+        
+            # Add batchsize dimension 1x244x244x3
+            image_batch = np.expand_dims(numpy_image, axis=0)
+            plt.imshow(np.uint8(image_batch[0]))
+            
+            # Preprocess
+            processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+            
+            label = b'1'
+        else:
+            # Load image in PIL format 244x244
+            filename = 'no/no' + str(num[x] - int(rang/2) + z) + '.jpg'
+            original = load_img(filename, target_size=(224, 224))
+            plt.imshow(original)
+            plt.show()
+            
+            # Convert to numpy array 244x244x3
+            numpy_image = img_to_array(original)
+            plt.imshow(np.uint8(numpy_image))
+            plt.show()
+            
+            # Add batchsize dimension 1x244x244x3
+            image_batch = np.expand_dims(numpy_image, axis=0)
+            plt.imshow(np.uint8(image_batch[0]))
+            
+            # Preprocess
+            processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+    
+            label =b'0'
+        
+        print("Saving image " + str(x) + " (" + str(num[x]+z) + ")")
+        data = processed_image[0,:,:,:]
+        with open(name, 'ab') as outfile:
+            for twoD_data_slice in data:
+                for oneD_data_slice in twoD_data_slice:
+                    float_array = array('f', oneD_data_slice)
+                    float_array.tofile(outfile)
+            outfile.write(label)
+
+
 def savetestimage(x, l):
     
     # Load image in PIL format 244x244
@@ -397,6 +476,37 @@ def savetestimage(x, l):
                 
     with open('../data/labeltest400.csv', 'w') as outfile:
         outfile.write(str(l) + " ")
+
+
+def savetestbinimage(x):
+    
+    # Load image in PIL format 244x244
+    filename = 'test' + str(x) + '.jpg'
+    original = load_img(filename, target_size=(224, 224))
+
+    # Convert to numpy array 244x244x3
+    numpy_image = img_to_array(original)
+    plt.imshow(np.uint8(numpy_image))
+    plt.show()
+        
+    # Add batchsize dimension 1x244x244x3
+    image_batch = np.expand_dims(numpy_image, axis=0)
+    plt.imshow(np.uint8(image_batch[0]))
+            
+    # Preprocess
+    processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+
+    # Save Images and Labels
+    from array import array
+    label = b'0'                        # CHANGE LATER
+    print("Saving test image")
+    data = processed_image[0,:,:,:]
+    with open('../data/imagetest.bin', 'ab') as outfile:
+        for twoD_data_slice in data:
+            for oneD_data_slice in twoD_data_slice:
+                float_array = array('f', oneD_data_slice)
+                float_array.tofile(outfile)
+        outfile.write(label)
     
     
 def train():

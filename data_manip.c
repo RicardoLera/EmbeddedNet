@@ -5,62 +5,15 @@
 
 // These functions depend on the existence of a unix-like file system
 
-void import_image(int l, int t) {
+void import_image(FILE* file) {
 
-    // Define name from index
-    char name[25]; // maximum number of characters is "../data/imagetestxxx.csv" = 24
-    t ? sprintf(name, "../data/imagetest%d.csv", l) : sprintf(name, "../data/image%d.csv", l);
+    for (int y = 0; y < 224; ++y) // lines
+    for (int x = 0; x < 224; ++x) // columns
+    for (int d = 0; d < 3; ++d)   // depth
+        fread(buf,FSIZE,1,file) ? image[y][x][d] = *(float*)&buf : (printf("Failed to read image\n"), exit(EXIT_FAILURE));
 
-    // open file
-    FILE *fptr;
-    fptr = fopen(name, "r");
-    if (fptr == NULL) {
-        perror(name);
-        exit(EXIT_FAILURE);
-    }
-
-    char c = fgetc(fptr); // generic char
-    char s[15];           // mantissa, maximum number of characters is "-x.xxxxxxxe-xx" = 14
-
-    for (int y = 0; y < 224; ++y) {         // lines
-        for (int x = 0; x < 224; ++x) {     // columns
-            for (int d = 0; d < 3; ++d) {   // depth
-                // write string
-                int i;
-                for (i = 0; c != '\n' && c != ' '; ++i) {
-                    s[i] = c;
-                    c = fgetc(fptr);
-                }
-                s[i] = '\0';
-                float f = atof(s);      // convert to float
-                image[y][x][d] = f;     // save on array
-                c = fgetc(fptr);
-            }
-        }
-    }
-    fclose(fptr);
-
-    t ? sprintf(name, "../data/labeltest%d.csv", l) : sprintf(name, "../data/label%d.csv", l);
-
-    fptr = fopen(name, "r");
-    if (fptr == NULL) {
-        perror(name);
-        exit(EXIT_FAILURE);
-    }
-
-    c = fgetc(fptr);
-    char* a;    // pointer for strtol
-    int i;
-    for (i = 0; c != '\n' && c != ' '; ++i) {
-        s[i] = c;
-        c = fgetc(fptr);
-    }
-    s[i] = '\0';
-    label = strtol(s,&a,10);
-
-    printf("\nCurrent label: %d\n\n", label);
-
-    fclose(fptr);
+    fread(buf,LSIZE,1,file) ? label = *(char*)&buf - 48 : (printf("Failed to read label\n"), exit(EXIT_FAILURE));
+    printf("Label = %d\n", label);
 }
 
 void import_conv2d(int id, int ksize, int od, int idx, float kdata[od][ksize][ksize][id]) {
@@ -148,45 +101,42 @@ void export_conv2d(char* name, int od, int ksize, int id, float kdata[od][ksize]
     printf("Saved %s\n", name);
 }
 
-void importTransfer() {
-    // open file
+void importClass() {
+    // Open file
     FILE *fptr;
-    fptr = fopen("../data/transfer.csv", "r");
+    fptr = fopen("../data/labels.txt", "r");
     if (fptr == NULL) {
-        perror("../data/transfer.csv");
+        perror("../data/labels.txt");
         exit(EXIT_FAILURE);
     }
 
-    char c = fgetc(fptr); // generic char
+    // Go to end of file and disregard random-ass extra linebreak
+    fseek(fptr,-1,SEEK_END);
+
+    // Go back until you find last line break
+    char ch = 0;
+    while (ch != '\n') {
+        fseek(fptr,-2,SEEK_CUR);
+        ch = fgetc(fptr);
+    }
+
+    // Get value in string and convert
     char s[5];
-    char *p;
+    char* p;
     int i = 0;
-
-    while (c != ' ') {
-        s[i] = c;
-        c = fgetc(fptr);
-        ++i;
+    ch = fgetc(fptr);   // Discard space
+    ch = fgetc(fptr);   // Move to first number
+    for (i = 0; ch != ':'; ++i) {
+        s[i] = ch;
+        ch = fgetc(fptr);
     }
+    printf("i = %d\n", i);
     s[i] = '\0';
-    class = strtol(s, &p, 10);
+    class = strtol(s, &p, 10) + 1;
+
+    printf("Class = %d\n", class);
 
     fclose(fptr);
-}
-
-void exportTransfer() {
-    FILE *fptr;
-    fptr = fopen("../data/transfer.csv", "w");
-    if (fptr == NULL) {
-        perror("../data/transfer.csv");
-        exit(EXIT_FAILURE);
-    }
-
-    char s[4];
-    sprintf(s, "%d", class);
-    fprintf(fptr, "%s ", s);
-
-    fclose(fptr);
-    printf("Saved Transfer Parameters\n");
 }
 
 void copyLabels(char* path) {

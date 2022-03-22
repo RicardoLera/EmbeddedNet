@@ -29,8 +29,10 @@
 struct variables var;       // Every layer-correspondent variable
 struct parameters par;      // Every parameter and its respective moving squared mean
 
-// Initialize parameter file pointer and buffer
+// Initialize file pointers and buffer
 FILE* parbin;
+FILE* imagebin;
+FILE* imagetestbin;
 unsigned char buf[FSIZE];
 
 // Initialize epoch counter
@@ -62,10 +64,20 @@ char *temp;
 
 int main(int argc, char* argv[]) {
 
-    // Open parameter file
+    // Open files
     parbin = fopen("../data/par.bin", "r+");
     if (parbin == NULL) {
         perror("../data/par.bin");
+        exit(EXIT_FAILURE);
+    }
+    imagebin = fopen("../data/image.bin", "r+");
+    if (parbin == NULL) {
+        perror("../data/image.bin");
+        exit(EXIT_FAILURE);
+    }
+    imagetestbin = fopen("../data/imagetest.bin", "r+");
+    if (parbin == NULL) {
+        perror("../data/imagetest.bin");
         exit(EXIT_FAILURE);
     }
 
@@ -89,15 +101,18 @@ int main(int argc, char* argv[]) {
             else img_idx = strtol(argv[2], &temp, 10);
         }
 
-        importTransfer();
+        importClass();
 
         // Allocate FC
         float predictions[class];
         float (*fc_w)[class] = calloc(1280, sizeof *fc_w);
         float fc_b[class];
 
+        // Skip to test image
+        fseek(imagetestbin, (FSIZE*150528 + 1)*img_idx, SEEK_SET); // 224*224*3 = 150528        CHANGE TO LABEL SIZE LATER
+
         // Fill input using data0[y][x][d] syntax (y are lines, x are columns)
-        import_image(img_idx, 1);
+        import_image(imagetestbin);
 
         inference(class, predictions, fc_w, fc_b);
 
@@ -190,7 +205,7 @@ int main(int argc, char* argv[]) {
 
         }
 
-        importTransfer();
+        importClass();
 
         // Allocate FC
         float predictions[class];
@@ -203,11 +218,13 @@ int main(int argc, char* argv[]) {
         for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
             for (int i = 0; i < n_img; ++i) {
                 printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
-                import_image(i, 0);
+                import_image(imagebin);
                 rewind(parbin);
                 train(class, predictions, fc_w, fc_b);
             }
             if (n_val) test(class, predictions, fc_w, fc_b, n_val);
+            rewind(imagebin);
+            rewind(imagetestbin);
         }
 
         clock_t end = clock();
@@ -322,8 +339,6 @@ int main(int argc, char* argv[]) {
         srand(1);               // Used for consistent results
         //srand(time(NULL));
 
-        exportTransfer();
-
         transfer();
 
     }
@@ -348,7 +363,7 @@ int main(int argc, char* argv[]) {
             else n_val = strtol(argv[2], &temp, 10);
         }
 
-        importTransfer();
+        importClass();
 
         // Allocate FC
         float predictions[class];

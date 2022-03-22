@@ -2,9 +2,12 @@
 #define VAR_H
 
 #define FSIZE sizeof(float)
+#define LSIZE 1             // CHANGE LATER
 
-// Parameter file pointer (par.bin) and Buffer
+// Parameter file pointer (par.bin) Image file pointer (image.bin) Test Image file pointer (imagetest.bin) and Buffer
 extern FILE* parbin;
+extern FILE* imagebin;
+extern FILE* imagetestbin;
 extern unsigned char buf[FSIZE];
 
 // Epoch index
