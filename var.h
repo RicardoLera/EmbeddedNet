@@ -26,8 +26,8 @@ extern int class;
 // Test parameters
 extern int n_val;   // Also acts as n_test
 extern int inf_idx;
-extern float inf_pred;
 extern float inf_correct;
+extern float inf_yes;
 extern float loss;
 
 // Declare image and label

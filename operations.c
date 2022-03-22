@@ -230,9 +230,9 @@ void decode(float *pred) {
 
     // Acquire relevant predictions
     inf_correct = cor[label].prediction;
+    if (class == 2) inf_yes = cor[1].prediction;
     qsort(cor, class, sizeof(struct Correlation), compare);
     inf_idx = cor[0].idx;
-    inf_pred = cor[0].prediction;
 
     // Print correlations
     int n_cor;
@@ -254,7 +254,7 @@ void decode(float *pred) {
         exit(EXIT_FAILURE);
     }
 
-    char s[122];
+    char s[122];    // Measured by hand
     int j;
 
     for (int n = 0; n < n_cor; n++)

@@ -53,6 +53,7 @@ int n_val = 50;
 int inf_idx;
 float inf_pred;
 float inf_correct;
+float inf_yes;
 float loss;
 
 // Initialize image and label

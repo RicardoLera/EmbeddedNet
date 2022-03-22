@@ -724,7 +724,7 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
     int NC = 0;                                                     // Number of correct predictions
     int (*conf)[c] = calloc(c, sizeof *conf);                       // Confusion matrix: actual (lines) x predicted (columns)
     float step = 0.01;                                              // Threshold Step
-    int t_number = 0.5 / step;                                      // Number of points    (0.5 -> 1)
+    int t_number = 1 / step;                                      // Number of points    (0.5 -> 1)
     int (*conf_arr)[2][t_number+1] = calloc(2, sizeof *conf_arr);   // Confusion matrix array
     loss = 0;                                                       // Reset loss
 
@@ -744,12 +744,12 @@ void test(int c, float predictions[c], float fc_w[1280][c], float fc_b[c], int n
         // Add to Confusion Matrix Array on Thresholds
         if (c == 2) {
             for (int t_count = 0; t_count < t_number + 1; ++t_count) {
-                float th = 0.5 + (t_count * step);    // Current threshold
-                int th_idx;                    // Index within threshold
+                float th = t_count * step;  // Current threshold
+                int th_idx;                 // Index within threshold
 
                 // Calculate th_idx
-                if (inf_pred >= th) th_idx = inf_idx;
-                else th_idx = !inf_idx;
+                if (inf_yes >= th) th_idx = 1;
+                else th_idx = 0;
 
                 conf_arr[label][th_idx][t_count]++;
             }
