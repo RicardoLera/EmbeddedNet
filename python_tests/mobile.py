@@ -248,7 +248,7 @@ def savebin(s, path="../data"):    # Saves all parameters in a binary file
                 float_array.tofile(outfile)    
              
                 
-def saveimages(s, rang=2600, path="../data"):    # Saves train/test images and labels as separate .csv files
+def saveimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test images and labels as separate .csv files
     if (rang % 2) != 0:  
         print("Range must be even")
         sys.exit();
@@ -280,7 +280,9 @@ def saveimages(s, rang=2600, path="../data"):    # Saves train/test images and l
             original = load_img(filename, target_size=(224, 224))
             numpy_image = img_to_array(original)
             image_batch = np.expand_dims(numpy_image, axis=0)
-            plt.imshow(np.uint8(image_batch[0]))
+            if plot:
+                plt.imshow(np.uint8(image_batch[0]))
+                plt.show()
             processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
             label = "1 "
         else:
@@ -288,7 +290,9 @@ def saveimages(s, rang=2600, path="../data"):    # Saves train/test images and l
             original = load_img(filename, target_size=(224, 224))
             numpy_image = img_to_array(original)
             image_batch = np.expand_dims(numpy_image, axis=0)
-            plt.imshow(np.uint8(image_batch[0]))
+            if plot:
+                plt.imshow(np.uint8(image_batch[0]))
+                plt.show()
             processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
             label = "0 "
         
@@ -304,7 +308,7 @@ def saveimages(s, rang=2600, path="../data"):    # Saves train/test images and l
             outfile.write(label)        
 
 
-def savebinimages(s, rang=2600, path="../data"):    # Saves train/test images and labels in a single binary file
+def savebinimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test images and labels in a single binary file
     if (rang % 2) != 0:  
         print("Range must be even")
         sys.exit();
@@ -340,7 +344,9 @@ def savebinimages(s, rang=2600, path="../data"):    # Saves train/test images an
             original = load_img(filename, target_size=(224, 224))
             numpy_image = img_to_array(original)
             image_batch = np.expand_dims(numpy_image, axis=0)
-            plt.imshow(np.uint8(image_batch[0]))
+            if plot:
+                plt.imshow(np.uint8(image_batch[0]))
+                plt.show()
             processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
             label = b'1'
         else:
@@ -348,7 +354,9 @@ def savebinimages(s, rang=2600, path="../data"):    # Saves train/test images an
             original = load_img(filename, target_size=(224, 224))            
             numpy_image = img_to_array(original)
             image_batch = np.expand_dims(numpy_image, axis=0)
-            plt.imshow(np.uint8(image_batch[0]))
+            if plot:
+                plt.imshow(np.uint8(image_batch[0]))
+                plt.show()
             processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
             label = b'0'
         
