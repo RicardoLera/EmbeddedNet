@@ -368,6 +368,7 @@ def savebinimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test
                     float_array = array('f', oneD_data_slice)
                     float_array.tofile(outfile)
             outfile.write(label)
+            outfile.write(b'A') # Separator
 
 
 def savetestimage(x, l):    # Saves an extra .csv image and label as index 400
@@ -400,8 +401,7 @@ def savetestbinimage(x, l):    # Saves an extra image amd label appendded to the
 
     # Save Images and Labels
     from array import array
-    if l == 0: label = b'0'
-    elif l == 1: label = b'1'
+    label = l.encode('utf-8')
     print("Saving test image")
     data = processed_image[0,:,:,:]
     with open('../data/imagetest.bin', 'ab') as outfile:
@@ -410,6 +410,8 @@ def savetestbinimage(x, l):    # Saves an extra image amd label appendded to the
                 float_array = array('f', oneD_data_slice)
                 float_array.tofile(outfile)
         outfile.write(label)
+        outfile.write(b'A') # Separator
+
     
     
 def train():    # Runs a single iteration of training on the full network

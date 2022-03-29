@@ -32,7 +32,7 @@ extern float loss;
 
 // Declare image and label
 extern float image[224][224][3];
-extern int label;
+extern unsigned int label;
 
 
 // The following indexes refer to the OUTPUT of the respective layers. These are necessary for the backpropagation step.
