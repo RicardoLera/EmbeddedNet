@@ -1,5 +1,4 @@
 .*
 data
-python_tests/no
-python_tests/yes
+python_tests/data
 !/.gitignore

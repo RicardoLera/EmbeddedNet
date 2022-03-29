@@ -13,7 +13,6 @@ from tensorflow.keras.applications.imagenet_utils import decode_predictions
 from tensorflow.keras.applications import (mobilenet_v2)
 
 import random
-random.seed(72)
 
 indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]
 indexBN = [2, 5, 8, 10, 14, 17, 19, 22, 25, 28, 32, 35, 37, 40, 43, 46, 49, 52, 55, 59, 62, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 99, 102, 105, 108, 111, 114, 117, 121, 124, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152]
@@ -248,9 +247,10 @@ def savebin(s, path="../data"):    # Saves all parameters in a binary file
                 float_array.tofile(outfile)    
              
                 
-def saveimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test images and labels as separate .csv files
-    if (rang % 2) != 0:  
-        print("Range must be even")
+def saveimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Saves train/test images and labels as separate .csv files
+    folders = next(os.walk('data'))[1]    
+    if (rang % len(folders)) != 0:  
+        print("Range must be divisible by number of classes")
         sys.exit();
     if s == 0:   # Save train images
         if (rang < 1 or rang > 2600):
@@ -265,51 +265,46 @@ def saveimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test im
         if (rang < 1 or rang > 400):
             print("Test range must be between 1 and 400")
             sys.exit();
-        z = 1300
+        z = train/len(folders)
         save = 'test'
     else:
         print("Invalid argument")
         sys.exit();
     
+    div = rang / len(folders)
+    random.seed(72)
     num = random.sample(range(rang), rang) # 2600 train / 400 test
     
     for x in range(rang):
-        
-        if (num[x] < rang/2):
-            filename = 'yes/y' + str(num[x] + z) + '.jpg'
-            original = load_img(filename, target_size=(224, 224))
-            numpy_image = img_to_array(original)
-            image_batch = np.expand_dims(numpy_image, axis=0)
-            if plot:
-                plt.imshow(np.uint8(image_batch[0]))
-                plt.show()
-            processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
-            label = "1 "
-        else:
-            filename = 'no/no' + str(num[x] - int(rang/2) + z) + '.jpg'
-            original = load_img(filename, target_size=(224, 224))
-            numpy_image = img_to_array(original)
-            image_batch = np.expand_dims(numpy_image, axis=0)
-            if plot:
-                plt.imshow(np.uint8(image_batch[0]))
-                plt.show()
-            processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
-            label = "0 "
-        
-        # Save Images and Labels
-        print("Saving image " + str(x) + " (" + str(num[x]+z) + ")")
-        data = processed_image[0,:,:,:]
-        with open(path + '/image' + save + str(x) + '.csv', 'w') as outfile:
-            for threeD_data_slice in data:
-                for twoD_data_slice in threeD_data_slice:
-                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+        count = 0
+        for folder in folders:
+            count += 1
+            if ( num[x] < div * (int(folder[0]) + 1) ):
+                filename = 'data/' + folder + '/' + folder[(len(str(count))+1):] + str(int((num[x] + z)/count)) + '.jpg'
+                original = load_img(filename, target_size=(224, 224))
+                numpy_image = img_to_array(original)
+                image_batch = np.expand_dims(numpy_image, axis=0)
+                if plot:
+                    plt.imshow(np.uint8(image_batch[0]))
+                    plt.show()
+                processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+                label = str(count) + ' '
                 
-        with open(path + '/label' + save + str(x) + '.csv', 'w') as outfile:
-            outfile.write(label)        
+                print("Saving image " + str(x) + " (" + str(int(num[x]+z)) + ")")
+                data = processed_image[0,:,:,:]
+                with open(path + '/image' + save + str(x) + '.csv', 'w') as outfile:
+                    for twoD_data_slice in data:
+                        for oneD_data_slice in twoD_data_slice:
+                            np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+                        
+                with open(path + '/label' + save + str(x) + '.csv', 'w') as outfile:
+                    outfile.write(label)   
+                break       
 
 
 def savebinimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test images and labels in a single binary file
-    if (rang % 2) != 0:  
+    folders = next(os.walk('data'))[1]
+    if (rang % len(folders)) != 0:  
         print("Range must be even")
         sys.exit();
     if s == 0:   # Save train images
@@ -325,7 +320,7 @@ def savebinimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test
         if (rang < 1 or rang > 400):
             print("Test range must be between 1 and 400")
             sys.exit();
-        z = 1300
+        z = rang/len(folders)
         save = 'test'
     else:
         print("Invalid argument")
@@ -335,7 +330,37 @@ def savebinimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test
     if (os.path.exists(name)):
         os.remove(name)
 
+    div = rang / len(folders)
+    random.seed(72)
     num = random.sample(range(rang), rang) # 2600 train / 400 test
+    
+    for x in range(rang):
+        count = 0
+        for folder in folders:
+            count += 1
+            if ( num[x] < div * (int(folder[0]) + 1) ):
+                filename = 'data/' + folder + '/' + folder[(len(str(count))+1):] + str(int((num[x] + z)/count)) + '.jpg'
+                original = load_img(filename, target_size=(224, 224))
+                numpy_image = img_to_array(original)
+                image_batch = np.expand_dims(numpy_image, axis=0)
+                if plot:
+                    plt.imshow(np.uint8(image_batch[0]))
+                    plt.show()
+                processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+                label = str.encode(count)
+                
+                print("Saving image " + str(x) + " (" + str(int(num[x]+z)) + ")")
+                data = processed_image[0,:,:,:]
+                with open(name, 'ab') as outfile:
+                    for twoD_data_slice in data:
+                        for oneD_data_slice in twoD_data_slice:
+                            float_array = array('f', oneD_data_slice)
+                            float_array.tofile(outfile)
+                        
+                    outfile.write(label)
+                    outfile.write(b'A') # Separator  
+                break      
+    
     
     for x in range(rang):
         
@@ -391,7 +416,7 @@ def savetestimage(x, l):    # Saves an extra .csv image and label as index 400
         outfile.write(str(l) + " ")
 
 
-def savetestbinimage(x, l):    # Saves an extra image amd label appendded to the image binary file
+def savebintestimage(x, l):    # Saves an extra image amd label appendded to the image binary file
     filename = 'test' + str(x) + '.jpg'
     original = load_img(filename, target_size=(224, 224))
     numpy_image = img_to_array(original)
