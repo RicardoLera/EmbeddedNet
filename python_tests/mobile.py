@@ -265,7 +265,7 @@ def saveimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Saves t
         if (rang < 1 or rang > 400):
             print("Test range must be between 1 and 400")
             sys.exit();
-        z = train/len(folders)
+        z = train / len(folders)
         save = 'test'
     else:
         print("Invalid argument")
@@ -280,7 +280,8 @@ def saveimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Saves t
         for folder in folders:
             count += 1
             if ( num[x] < div * (int(folder[0]) + 1) ):
-                filename = 'data/' + folder + '/' + folder[(len(str(count))+1):] + str(int((num[x] + z)/count)) + '.jpg'
+                index = str(int( ( num[x] - div * (count-1) ) + z ))
+                filename = 'data/' + folder + '/' + folder[(len(str(count))+1):] + index + '.jpg'
                 original = load_img(filename, target_size=(224, 224))
                 numpy_image = img_to_array(original)
                 image_batch = np.expand_dims(numpy_image, axis=0)
@@ -290,19 +291,18 @@ def saveimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Saves t
                 processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
                 label = str(count) + ' '
                 
-                print("Saving image " + str(x) + " (" + str(int(num[x]+z)) + ")")
+                print("Saving image " + str(x) + " (" + index + ")")
                 data = processed_image[0,:,:,:]
                 with open(path + '/image' + save + str(x) + '.csv', 'w') as outfile:
                     for twoD_data_slice in data:
                         for oneD_data_slice in twoD_data_slice:
                             np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
-                        
                 with open(path + '/label' + save + str(x) + '.csv', 'w') as outfile:
                     outfile.write(label)   
                 break       
 
 
-def savebinimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test images and labels in a single binary file
+def savebinimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Saves train/test images and labels in a single binary file
     folders = next(os.walk('data'))[1]
     if (rang % len(folders)) != 0:  
         print("Range must be even")
@@ -320,7 +320,7 @@ def savebinimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test
         if (rang < 1 or rang > 400):
             print("Test range must be between 1 and 400")
             sys.exit();
-        z = rang/len(folders)
+        z = train / len(folders)
         save = 'test'
     else:
         print("Invalid argument")
@@ -339,7 +339,8 @@ def savebinimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test
         for folder in folders:
             count += 1
             if ( num[x] < div * (int(folder[0]) + 1) ):
-                filename = 'data/' + folder + '/' + folder[(len(str(count))+1):] + str(int((num[x] + z)/count)) + '.jpg'
+                index = str(int( ( num[x] - div * (count-1) ) + z ))
+                filename = 'data/' + folder + '/' + folder[(len(str(count))+1):] + index + '.jpg'
                 original = load_img(filename, target_size=(224, 224))
                 numpy_image = img_to_array(original)
                 image_batch = np.expand_dims(numpy_image, axis=0)
@@ -347,53 +348,19 @@ def savebinimages(s, rang=2600, plot = 0, path="../data"):    # Saves train/test
                     plt.imshow(np.uint8(image_batch[0]))
                     plt.show()
                 processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
-                label = str.encode(count)
+                label = str.encode(str(count))
                 
-                print("Saving image " + str(x) + " (" + str(int(num[x]+z)) + ")")
+                print("Saving image " + str(x) + " (" + folder[(len(str(count))+1):] + index + ")")
                 data = processed_image[0,:,:,:]
                 with open(name, 'ab') as outfile:
                     for twoD_data_slice in data:
                         for oneD_data_slice in twoD_data_slice:
                             float_array = array('f', oneD_data_slice)
                             float_array.tofile(outfile)
-                        
+                    for i in str(3 - len(label)):
+                        outfile.write(b'0') # Fill space (max 999) for the sake of fseek in C
                     outfile.write(label)
-                    outfile.write(b'A') # Separator  
-                break      
-    
-    
-    for x in range(rang):
-        
-        if (num[x] < rang/2):
-            filename = 'yes/y' + str(num[x] + z) + '.jpg'
-            original = load_img(filename, target_size=(224, 224))
-            numpy_image = img_to_array(original)
-            image_batch = np.expand_dims(numpy_image, axis=0)
-            if plot:
-                plt.imshow(np.uint8(image_batch[0]))
-                plt.show()
-            processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
-            label = b'1'
-        else:
-            filename = 'no/no' + str(num[x] - int(rang/2) + z) + '.jpg'
-            original = load_img(filename, target_size=(224, 224))            
-            numpy_image = img_to_array(original)
-            image_batch = np.expand_dims(numpy_image, axis=0)
-            if plot:
-                plt.imshow(np.uint8(image_batch[0]))
-                plt.show()
-            processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
-            label = b'0'
-        
-        print("Saving image " + str(x) + " (" + str(num[x]+z) + ")")
-        data = processed_image[0,:,:,:]
-        with open(name, 'ab') as outfile:
-            for twoD_data_slice in data:
-                for oneD_data_slice in twoD_data_slice:
-                    float_array = array('f', oneD_data_slice)
-                    float_array.tofile(outfile)
-            outfile.write(label)
-            outfile.write(b'A') # Separator
+                break
 
 
 def savetestimage(x, l):    # Saves an extra .csv image and label as index 400
@@ -416,7 +383,7 @@ def savetestimage(x, l):    # Saves an extra .csv image and label as index 400
         outfile.write(str(l) + " ")
 
 
-def savebintestimage(x, l):    # Saves an extra image amd label appendded to the image binary file
+def savebintestimage(x, l):    # Saves an extra image and label appendded to the image binary file
     filename = 'test' + str(x) + '.jpg'
     original = load_img(filename, target_size=(224, 224))
     numpy_image = img_to_array(original)
