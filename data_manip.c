@@ -12,8 +12,7 @@ void import_image(FILE* file) {
     for (int d = 0; d < 3; ++d)   // depth
         fread(buf,FSIZE,1,file) ? image[y][x][d] = *(float*)&buf : (printf("Failed to read image\n"), exit(EXIT_FAILURE));
 
-    for (int i = 0; i < LSIZE; ++i) {buf[i] = fgetc(file);printf("%c\n",buf[i]);}
-    //for (unsigned char i = 0, ch = 0; (ch = fgetc(file)) != 'A'; ++i) buf[i] = ch;
+    for (int i = 0; i < LSIZE; ++i) buf[i] = fgetc(file);
     label = strtol((char*)buf, (char **) NULL, 10);
     printf("Label = %d\n", label);
 }
