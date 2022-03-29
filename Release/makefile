@@ -48,7 +48,7 @@ EmbeddedNet: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 
 # Other Targets
 clean:
-	-$(RM) EmbeddedNet
+	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) EmbeddedNet
 	-@echo ' '
 
 .PHONY: all clean dependents main-build

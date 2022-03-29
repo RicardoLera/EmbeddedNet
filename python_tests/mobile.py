@@ -247,8 +247,8 @@ def savebin(s, path="../data"):    # Saves all parameters in a binary file
                 float_array.tofile(outfile)    
              
                 
-def saveimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Saves train/test images and labels as separate .csv files
-    folders = next(os.walk('data'))[1]    
+def saveimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="../data"):    # Saves train/test images and labels as separate .csv files
+    folders = next(os.walk(load))[1]    
     if (rang % len(folders)) != 0:  
         print("Range must be divisible by number of classes")
         sys.exit();
@@ -257,7 +257,7 @@ def saveimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Saves t
             print("Train range must be between 1 and 2600")
             sys.exit();
         z = 0
-        save = ''
+        test = ''
     elif s == 1: # Save test images
         if (rang == 2600):
             rang = 400
@@ -266,7 +266,7 @@ def saveimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Saves t
             print("Test range must be between 1 and 400")
             sys.exit();
         z = train / len(folders)
-        save = 'test'
+        test = 'test'
     else:
         print("Invalid argument")
         sys.exit();
@@ -293,17 +293,17 @@ def saveimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Saves t
                 
                 print("Saving image " + str(x) + " (" + index + ")")
                 data = processed_image[0,:,:,:]
-                with open(path + '/image' + save + str(x) + '.csv', 'w') as outfile:
+                with open(save + '/image' + test + str(x) + '.csv', 'w') as outfile:
                     for twoD_data_slice in data:
                         for oneD_data_slice in twoD_data_slice:
                             np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
-                with open(path + '/label' + save + str(x) + '.csv', 'w') as outfile:
+                with open(save + '/label' + test + str(x) + '.csv', 'w') as outfile:
                     outfile.write(label)   
                 break       
 
 
-def savebinimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Saves train/test images and labels in a single binary file
-    folders = next(os.walk('data'))[1]
+def savebinimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="../data"):    # Saves train/test images and labels in a single binary file
+    folders = next(os.walk(load))[1]
     if (rang % len(folders)) != 0:  
         print("Range must be even")
         sys.exit();
@@ -312,7 +312,7 @@ def savebinimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Save
             print("Train range must be between 1 and 2600")
             sys.exit();
         z = 0
-        save = ''
+        test = ''
     elif s == 1: # Save test images
         if (rang == 2600):
             rang = 400
@@ -321,12 +321,12 @@ def savebinimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Save
             print("Test range must be between 1 and 400")
             sys.exit();
         z = train / len(folders)
-        save = 'test'
+        test = 'test'
     else:
         print("Invalid argument")
         sys.exit();
 
-    name = path + '/image' + save + '.bin'
+    name = save + '/image' + test + '.bin'
     if (os.path.exists(name)):
         os.remove(name)
 
@@ -340,7 +340,7 @@ def savebinimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Save
             count += 1
             if ( num[x] < div * (int(folder[0]) + 1) ):
                 index = str(int( ( num[x] - div * (count-1) ) + z ))
-                filename = 'data/' + folder + '/' + folder[(len(str(count))+1):] + index + '.jpg'
+                filename = load + folder + '/' + folder[(len(str(count))+1):] + index + '.jpg'
                 original = load_img(filename, target_size=(224, 224))
                 numpy_image = img_to_array(original)
                 image_batch = np.expand_dims(numpy_image, axis=0)

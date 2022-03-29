@@ -131,7 +131,6 @@ void importClass() {
         s[i] = ch;
         ch = fgetc(fptr);
     }
-    printf("i = %d\n", i);
     s[i] = '\0';
     class = strtol(s, &p, 10) + 1;
 

@@ -11,14 +11,6 @@ C_SRCS += \
 ../main.c \
 ../operations.c 
 
-C_DEPS += \
-./actions.d \
-./blocks.d \
-./data_manip.d \
-./layers.d \
-./main.d \
-./operations.d 
-
 OBJS += \
 ./actions.o \
 ./blocks.o \
@@ -26,6 +18,14 @@ OBJS += \
 ./layers.o \
 ./main.o \
 ./operations.o 
+
+C_DEPS += \
+./actions.d \
+./blocks.d \
+./data_manip.d \
+./layers.d \
+./main.d \
+./operations.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -36,11 +36,4 @@ OBJS += \
 	@echo 'Finished building: $<'
 	@echo ' '
 
-
-clean: clean--2e-
-
-clean--2e-:
-	-$(RM) ./actions.d ./actions.o ./blocks.d ./blocks.o ./data_manip.d ./data_manip.o ./layers.d ./layers.o ./main.d ./main.o ./operations.d ./operations.o
-
-.PHONY: clean--2e-
 
