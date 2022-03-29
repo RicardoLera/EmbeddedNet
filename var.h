@@ -2,7 +2,7 @@
 #define VAR_H
 
 #define FSIZE sizeof(float)
-#define LSIZE 1             // CHANGE LATER
+#define LSIZE 3
 
 // Parameter file pointer (par.bin) Image file pointer (image.bin) Test Image file pointer (imagetest.bin) and Buffer
 extern FILE* parbin;

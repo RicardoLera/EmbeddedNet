@@ -289,7 +289,7 @@ def saveimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Saves t
                     plt.imshow(np.uint8(image_batch[0]))
                     plt.show()
                 processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
-                label = str(count) + ' '
+                label = str(count-1) + ' '
                 
                 print("Saving image " + str(x) + " (" + index + ")")
                 data = processed_image[0,:,:,:]
@@ -348,7 +348,7 @@ def savebinimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Save
                     plt.imshow(np.uint8(image_batch[0]))
                     plt.show()
                 processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
-                label = str.encode(str(count))
+                label = str.encode(str(count-1))
                 
                 print("Saving image " + str(x) + " (" + folder[(len(str(count))+1):] + index + ")")
                 data = processed_image[0,:,:,:]
@@ -357,7 +357,7 @@ def savebinimages(s, rang=2600, train=2600, plot = 0, path="../data"):    # Save
                         for oneD_data_slice in twoD_data_slice:
                             float_array = array('f', oneD_data_slice)
                             float_array.tofile(outfile)
-                    for i in str(3 - len(label)):
+                    for i in range(3 - len(label)):
                         outfile.write(b'0') # Fill space (max 999) for the sake of fseek in C
                     outfile.write(label)
                 break
@@ -401,8 +401,9 @@ def savebintestimage(x, l):    # Saves an extra image and label appendded to the
             for oneD_data_slice in twoD_data_slice:
                 float_array = array('f', oneD_data_slice)
                 float_array.tofile(outfile)
+        for i in range(3 - len(label)):
+            outfile.write(b'0') # Fill space (max 999) for the sake of fseek in C
         outfile.write(label)
-        outfile.write(b'A') # Separator
 
     
     

@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
         float fc_b[class];
 
         // Skip to test image
-        fseek(imagetestbin, (FSIZE*150528 + 2)*img_idx, SEEK_SET); // 224*224*3 = 150528        CHANGE TO LABEL SIZE LATER
+        fseek(imagetestbin, (FSIZE*150528 + LSIZE)*img_idx, SEEK_SET); // 224*224*3 = 150528
 
         // Fill input using data0[y][x][d] syntax (y are lines, x are columns)
         import_image(imagetestbin);
