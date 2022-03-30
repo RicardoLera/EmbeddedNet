@@ -363,7 +363,7 @@ def savebinimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save=
                 break
 
 
-def savetestimage(x, l):    # Saves an extra .csv image and label as index 400
+def savetestimage(x=0, l=282):    # Saves an extra .csv image and label as index 400
     filename = 'test' + str(x) + '.jpg'
     original = load_img(filename, target_size=(224, 224))
     numpy_image = img_to_array(original)
@@ -383,7 +383,7 @@ def savetestimage(x, l):    # Saves an extra .csv image and label as index 400
         outfile.write(str(l) + " ")
 
 
-def savebintestimage(x, l):    # Saves an extra image and label appendded to the image binary file
+def savebintestimage(x=0, l=282):    # Saves an extra image and label appendded to the image binary file
     filename = 'test' + str(x) + '.jpg'
     original = load_img(filename, target_size=(224, 224))
     numpy_image = img_to_array(original)
@@ -393,7 +393,7 @@ def savebintestimage(x, l):    # Saves an extra image and label appendded to the
 
     # Save Images and Labels
     from array import array
-    label = l.encode('utf-8')
+    label = str(l).encode('utf-8')
     print("Saving test image")
     data = processed_image[0,:,:,:]
     with open('../data/imagetest.bin', 'ab') as outfile:
