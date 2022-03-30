@@ -242,9 +242,6 @@ void decode(float *pred) {
         n_cor = class;
 
     printf("\n");
-    for (int n = 0; n < n_cor; n++)
-        printf("Correlation %d: %e / Index = %d\n", n+1, cor[n].prediction, cor[n].idx);
-    printf("\n");
 
     // Print label correlations
     FILE *fptr;
@@ -272,7 +269,7 @@ void decode(float *pred) {
             c = fgetc(fptr);
         }
         s[j] = '\0';
-        printf("'%s', %.8e\n", s, cor[n].prediction);
+        printf("Index %d: '%s', %.7e\n", cor[n].idx, s, cor[n].prediction);
         rewind(fptr);
     }
     fclose(fptr);
@@ -337,7 +334,7 @@ void backprop_fc(int c,
     }
     free(dLdW);
 
-    // For analyzing overfitting
+    // For analyzing overfitting:
     //printf("fc_w convergence index: %.7e\n\n", fabs( fabs(fc_w[0][0][0]) - fabs(fc_w[0][1][0]) ) );
 
     export_fc(1280, c, fc_w, fc_b);
@@ -476,8 +473,8 @@ void backprop_bn(int s, int d,
     }
 
     // Export
-    char name[20]; // maximum number of characters is "../data/paramxx.csv" = 19
-    sprintf(name, "../data/param%d.csv", idx);
+    char name[9]; // maximum number of characters is "param xx" = 8
+    sprintf(name, "param %d", idx);
     export_bn(name, d, par);
 }
 
@@ -552,8 +549,8 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
     free(dLdW);
 
     // Export
-    char name[22]; // maximum number of characters is "../data/weightsxx.csv" = 21
-    sprintf(name, "../data/weights%d.csv", idx);
+    char name[11]; // maximum number of characters is "weights xx" = 10
+    sprintf(name, "weights %d", idx);
     export_conv2d(name,odepth,ksize,idepth,par);
 }
 
@@ -612,8 +609,8 @@ void backprop_dw(int isize, int osize, int ksize, int depth,
     free(dLdW);
 
     // Export
-    char name[23]; // maximum number of characters is "../data/dweightsxx.csv" = 22
-    sprintf(name, "../data/dweights%d.csv", idx);
+    char name[12]; // maximum number of characters is "dweights xx" = 11
+    sprintf(name, "dweights %d", idx);
     export_depth(name, ksize, depth, par);
 }
 

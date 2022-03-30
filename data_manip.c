@@ -55,7 +55,7 @@ void export_fc(int d, int c, float w[d][c], float b[c]) {
         fwrite(buf,FSIZE,1,parbin);
         fseek(parbin,-FSIZE,SEEK_CUR);
     }
-    printf("Saved ../data/fc_b.csv\n");
+    printf("Saved fc biases\n");
     for (int y = d-1; y >= 0; --y) {
     for (int x = c-1; x >= 0; --x) {
         memcpy(buf,&w[y][x],FSIZE);
@@ -63,7 +63,7 @@ void export_fc(int d, int c, float w[d][c], float b[c]) {
         fwrite(buf,FSIZE,1,parbin);
         fseek(parbin,-FSIZE,SEEK_CUR);
     }}
-    printf("Saved ../data/fc_w.csv\n");
+    printf("Saved fc weights\n");
 }
 
 void export_depth(char* name, int ksize, int depth, float kdata[ksize][ksize][depth]) {

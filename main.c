@@ -7,23 +7,13 @@
 #include "data_manip.h"
 #include "var.h"
 
-#define TRAIN_MESSAGE printf("Invalid arguments for TRAIN command.\n" \
+#define ARG_MSG printf("Invalid arguments for TRANSFER command.\n" \
                             " -I: Number of images (1 - 3000). Default: 100\n" \
                             " -E: Number of epochs (1 - 100). Default: 3\n" \
                             " -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n" \
                             " -LR: Learning Rate (0 - 10). Default 0.045\n" \
                             " -LD: Learning Rate Decay (0 - 1). Default 0.98\n" \
-                            " -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n");
-
-#define TRANSFER_MESSAGE printf("Invalid arguments for TRANSFER command.\n" \
-                            " -I: Number of images (1 - 3000). Default: 100\n" \
-                            " -E: Number of epochs (1 - 100). Default: 3\n" \
-                            " -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n" \
-                            " -LR: Learning Rate (0 - 10). Default 0.045\n" \
-                            " -LD: Learning Rate Decay (0 - 1). Default 0.98\n" \
-                            " -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3', 'exp' and 'no'. Default 'fc'\n" \
-                            " -C: How many classification neurons are in the last layer of the new model. Default: 2\n" \
-                            " -LF: Destination of new classification labels file. Default: '../newlabels.txt'\n");
+                            " -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3', 'exp' and 'no' (for transfer). Default 'fc'\n");
 
 // Initialize structs
 struct variables var;       // Every layer-correspondent variable
@@ -46,7 +36,7 @@ float lr = 0.045;           // original: 0.045
 float lr_decay = 0.98;      // original: 0.98
 
 // Initialize transfer index
-int class = 2;
+int class;
 
 // Initialize test parameters
 int n_val = 50;
@@ -127,7 +117,7 @@ int main(int argc, char* argv[]) {
     else if (strcmp(argv[1],"train") == 0 ) {
 
         if (argc % 2 != 0) {
-            TRAIN_MESSAGE
+            ARG_MSG
             exit(EXIT_FAILURE);
         }
 
@@ -200,7 +190,7 @@ int main(int argc, char* argv[]) {
             }
 
             else {
-                TRAIN_MESSAGE
+                ARG_MSG
                 exit(EXIT_FAILURE);
             }
 
@@ -218,7 +208,7 @@ int main(int argc, char* argv[]) {
         // Train
         for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
             for (int i = 0; i < n_img; ++i) {
-                printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
+                printf("\nEpoch %d Image %d\n",epoch_count + 1, i + 1);
                 import_image(imagebin);
                 rewind(parbin);
                 train(class, predictions, fc_w, fc_b);
@@ -239,10 +229,8 @@ int main(int argc, char* argv[]) {
         // TRANSFER Option
     else if (strcmp(argv[1],"transfer") == 0 ) {
 
-        char LF[] = "../newlabels.txt";
-
         if (argc % 2 != 0) {
-            TRANSFER_MESSAGE
+            ARG_MSG
             exit(EXIT_FAILURE);
         }
 
@@ -317,25 +305,14 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            else if (strcmp(argv[i],"-C") == 0) {
-                if (strtol(argv[i+1], &temp, 10) < 2 || strtol(argv[i+1], &temp, 10) > 1000) {
-                    printf("Invalid class number (2 - 1000)\n");
-                    exit(EXIT_FAILURE);
-                }
-                else class = strtol(argv[i+1], &temp, 10);
-            }
-
-            else if (strcmp(argv[i],"-LF") == 0)
-                strcpy(LF, argv[i+1]);
-
             else {
-                TRANSFER_MESSAGE
+                ARG_MSG
                 exit(EXIT_FAILURE);
             }
 
         }
 
-        copyLabels(LF);
+        importClass();
 
         srand(1);               // Used for consistent results
         //srand(time(NULL));

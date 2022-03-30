@@ -81,6 +81,12 @@ def read(x):    # Reads and plots file exported by EmbeddedNet
     plt.imshow(fromC)
     file.close()
     
+
+def savelabels(file=1, path="../data/"):
+    import shutil
+    shutil.copyfile("newlabels" + str(file) + ".txt", path + "labels.txt")
+    print("Saved new labels")
+    
     
 def savepar(s, path="../data"):    # Saves all parameters as .csv files
     if s == 1:
@@ -246,19 +252,19 @@ def savebin(s, path="../data"):    # Saves all parameters in a binary file
                 float_array.tofile(outfile)    
              
                 
-def saveimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels as separate .csv files
+def saveimages(s, rang=2000, train=2000, load="data/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels as separate .csv files
     folders = next(os.walk(load))[1]    
     if (rang % len(folders)) != 0:  
         print("Range must be divisible by number of classes")
         sys.exit();
     if s == 0:   # Save train images
-        if (rang < 1 or rang > 2600):
-            print("Train range must be between 1 and 2600")
+        if (rang < 1 or rang > 5000):
+            print("Train range must be between 1 and 5000")
             sys.exit();
         z = 0
         test = ''
     elif s == 1: # Save test images
-        if (rang == 2600):
+        if (rang == 2000):
             rang = 400
             print("Assuming default = 400 images")
         if (rang < 1 or rang > 400):
@@ -272,13 +278,13 @@ def saveimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="..
     
     div = rang / len(folders)
     random.seed(72)
-    num = random.sample(range(rang), rang) # 2600 train / 400 test
+    num = random.sample(range(rang), rang)
     
     for x in range(rang):
         count = 0
         for folder in folders:
             count += 1
-            if ( num[x] < div * (int(folder[0]) + 1) ):
+            if ( num[x] < div * count ):
                 index = str(int( ( num[x] - div * (count-1) ) + z ))
                 filename = 'data/' + folder + '/' + folder[(len(str(count))+1):] + index + '.jpg'
                 original = load_img(filename, target_size=(224, 224))
@@ -290,7 +296,7 @@ def saveimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="..
                 processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
                 label = str(count-1) + ' '
                 
-                print("Saving image " + str(x) + " (" + index + ")")
+                print("Saving image " + str(x+1) + " (" + index + ")")
                 data = processed_image[0,:,:,:]
                 with open(save + 'image' + test + str(x) + '.csv', 'w') as outfile:
                     for twoD_data_slice in data:
@@ -301,19 +307,19 @@ def saveimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="..
                 break       
 
 
-def savebinimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels in a single binary file
+def savebinimages(s, rang=2000, train=2000, load="data/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels in a single binary file
     folders = next(os.walk(load))[1]
     if (rang % len(folders)) != 0:  
         print("Range must be even")
         sys.exit();
     if s == 0:   # Save train images
-        if (rang < 1 or rang > 2600):
-            print("Train range must be between 1 and 2600")
+        if (rang < 1 or rang > 5000):
+            print("Train range must be between 1 and 5000")
             sys.exit();
         z = 0
         test = ''
     elif s == 1: # Save test images
-        if (rang == 2600):
+        if (rang == 2000):
             rang = 400
             print("Assuming default = 400 images")
         if (rang < 1 or rang > 400):
@@ -331,13 +337,13 @@ def savebinimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save=
 
     div = rang / len(folders)
     random.seed(72)
-    num = random.sample(range(rang), rang) # 2600 train / 400 test
+    num = random.sample(range(rang), rang)
     
     for x in range(rang):
         count = 0
         for folder in folders:
             count += 1
-            if ( num[x] < div * (int(folder[0]) + 1) ):
+            if ( num[x] < div * count ):
                 index = str(int( ( num[x] - div * (count-1) ) + z ))
                 filename = load + folder + '/' + folder[(len(str(count))+1):] + index + '.jpg'
                 original = load_img(filename, target_size=(224, 224))
@@ -349,7 +355,7 @@ def savebinimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save=
                 processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
                 label = str.encode(str(count-1))
                 
-                print("Saving image " + str(x) + " (" + folder[(len(str(count))+1):] + index + ")")
+                print("Saving image " + str(x+1) + " (" + folder[(len(str(count))+1):] + index + ")")
                 data = processed_image[0,:,:,:]
                 with open(name, 'ab') as outfile:
                     for twoD_data_slice in data:

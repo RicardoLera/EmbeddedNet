@@ -1,0 +1,4 @@
+{0: 'no tumor',
+ 1: 'glioma',
+ 2: 'meningioma',
+ 3: 'pituitary tumor'}
