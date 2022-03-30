@@ -2,17 +2,16 @@ import tensorflow as tf
 import keras.backend as K
 import numpy as np
 import matplotlib.pyplot as plt
-from array import array
+import random
 import os
 import os.path
 import sys
 
+from array import array
 from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.applications.imagenet_utils import decode_predictions
 from tensorflow.keras.applications import (mobilenet_v2)
-
-import random
 
 indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]
 indexBN = [2, 5, 8, 10, 14, 17, 19, 22, 25, 28, 32, 35, 37, 40, 43, 46, 49, 52, 55, 59, 62, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 99, 102, 105, 108, 111, 114, 117, 121, 124, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152]
