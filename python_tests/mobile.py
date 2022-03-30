@@ -247,7 +247,7 @@ def savebin(s, path="../data"):    # Saves all parameters in a binary file
                 float_array.tofile(outfile)    
              
                 
-def saveimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="../data"):    # Saves train/test images and labels as separate .csv files
+def saveimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels as separate .csv files
     folders = next(os.walk(load))[1]    
     if (rang % len(folders)) != 0:  
         print("Range must be divisible by number of classes")
@@ -293,16 +293,16 @@ def saveimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="..
                 
                 print("Saving image " + str(x) + " (" + index + ")")
                 data = processed_image[0,:,:,:]
-                with open(save + '/image' + test + str(x) + '.csv', 'w') as outfile:
+                with open(save + 'image' + test + str(x) + '.csv', 'w') as outfile:
                     for twoD_data_slice in data:
                         for oneD_data_slice in twoD_data_slice:
                             np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
-                with open(save + '/label' + test + str(x) + '.csv', 'w') as outfile:
+                with open(save + 'label' + test + str(x) + '.csv', 'w') as outfile:
                     outfile.write(label)   
                 break       
 
 
-def savebinimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="../data"):    # Saves train/test images and labels in a single binary file
+def savebinimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels in a single binary file
     folders = next(os.walk(load))[1]
     if (rang % len(folders)) != 0:  
         print("Range must be even")
@@ -326,7 +326,7 @@ def savebinimages(s, rang=2600, train=2600, load="data/tumor1/", plot = 0, save=
         print("Invalid argument")
         sys.exit();
 
-    name = save + '/image' + test + '.bin'
+    name = save + 'image' + test + '.bin'
     if (os.path.exists(name)):
         os.remove(name)
 
