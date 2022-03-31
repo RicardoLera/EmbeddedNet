@@ -88,91 +88,7 @@ def savelabels(file=1, path="../data/"):
     print("Saved new labels")
     
     
-def savepar(s, path="../data/"):    # Saves all parameters as .csv files
-    if s == 1:
-        weight = "imagenet"
-    elif s == 0:
-        weight = None
-    else:
-        print("Invalid argument")
-        sys.exit();
-    
-    model = tf.keras.applications.MobileNetV2(
-    input_shape=(224,224,3),
-    alpha=1.0,
-    include_top=True,
-    weights=weight,
-    input_tensor=None,
-    pooling=None,
-    classes=1000,
-    classifier_activation="softmax",)
-    
-    # Reset plots
-    files_in_directory = os.listdir(path)
-    filtered_files = [file for file in files_in_directory if file.endswith(".dat")]
-    for file in filtered_files:
-        path_to_file = os.path.join(path, file)
-        os.remove(path_to_file)
-    
-    # Save Classification Labels
-    print("Saving classification labels")
-    import shutil
-    shutil.copyfile("labelfiles/imagenetlabels.txt", path + "labels.txt")
-
-    # Save Transfer Parameter
-    print("Saving transfer parameter")
-    with open(path + '/transfer.csv', 'w') as outfile:
-        outfile.write("1000 ")
-    
-    # Save Conv2D Weights
-    i = 1
-    for x in indexC:
-        print("Saving weights" + str(i) + ".csv")
-        data = np.array(model.layers[x].get_weights())[0,:,:,:,:]
-        name = path + '/weights' + str(i) + '.csv'
-        i = i + 1
-        with open(name, 'w') as outfile:
-            for threeD_data_slice in data:
-                for twoD_data_slice in threeD_data_slice:
-                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.8e')
-    
-    # Save Batch Normalization Weights
-    i = 1
-    for x in indexBN:
-        print("Saving param" + str(i) + ".csv")
-        data = np.array(model.layers[x].get_weights())
-        name = path + '/param' + str(i) + '.csv'
-        i = i + 1
-        with open(name, 'w') as outfile:
-            for twoD_data_slice in data: 
-                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
-    
-    # Save Depthwise Convolution Weights
-    i = 1
-    for x in indexD:
-        print("Saving dweights" + str(i) + ".csv")
-        data = np.array(model.layers[x].get_weights())[0,:,:,:,0]
-        name = path + '/dweights' + str(i) + '.csv'
-        i = i + 1
-        with open(name, 'w') as outfile:
-            for threeD_data_slice in data:
-                for twoD_data_slice in threeD_data_slice:
-                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
-    
-    # Save Fully Connected Weights/Biases
-    print("Saving fc_w.csv")
-    data = model.layers[155].get_weights()[0]
-    with open(path + '/fc_w.csv', 'w') as outfile:
-        for twoD_data_slice in data:
-            np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
-            
-    print("Saving fc_b.csv")
-    data = model.layers[155].get_weights()[1]
-    with open(path + '/fc_b.csv', 'w') as outfile:
-        np.savetxt(outfile, data, fmt='%-1.7e')
-    
-    
-def savebin(s, path="../data/"):    # Saves all parameters in a binary file
+def savepar(s, path="../data/"):    # Saves all parameters in a binary file
     if s == 1:
         weight = "imagenet"
     elif s == 0:
@@ -252,62 +168,7 @@ def savebin(s, path="../data/"):    # Saves all parameters in a binary file
                 float_array.tofile(outfile)    
              
                 
-def saveimages(s, rang=2000, train=2000, load="datasets/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels as separate .csv files
-    folders = next(os.walk(load))[1]    
-    if (rang % len(folders)) != 0:  
-        print("Range must be divisible by number of classes")
-        sys.exit();
-    if s == 0:   # Save train images
-        if (rang < 1 or rang > 5000):
-            print("Train range must be between 1 and 5000")
-            sys.exit();
-        z = 0
-        test = ''
-    elif s == 1: # Save test images
-        if (rang == 2000):
-            rang = 400
-            print("Assuming default = 400 images")
-        if (rang < 1 or rang > 400):
-            print("Test range must be between 1 and 400")
-            sys.exit();
-        z = train / len(folders)
-        test = 'test'
-    else:
-        print("Invalid argument")
-        sys.exit();
-    
-    div = rang / len(folders)
-    random.seed(72)
-    num = random.sample(range(rang), rang)
-    
-    for x in range(rang):
-        count = 0
-        for folder in folders:
-            count += 1
-            if ( num[x] < div * count ):
-                index = str(int( ( num[x] - div * (count-1) ) + z ))
-                filename = load + folder + '/' + folder[(len(str(count))+1):] + index + '.jpg'
-                original = load_img(filename, target_size=(224, 224))
-                numpy_image = img_to_array(original)
-                image_batch = np.expand_dims(numpy_image, axis=0)
-                if plot:
-                    plt.imshow(np.uint8(image_batch[0]))
-                    plt.show()
-                processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
-                label = str(count-1) + ' '
-                
-                print("Saving image " + str(x+1) + " (" + index + ")")
-                data = processed_image[0,:,:,:]
-                with open(save + 'image' + test + str(x) + '.csv', 'w') as outfile:
-                    for twoD_data_slice in data:
-                        for oneD_data_slice in twoD_data_slice:
-                            np.savetxt(outfile, oneD_data_slice, fmt='%-1.7e')
-                with open(save + 'label' + test + str(x) + '.csv', 'w') as outfile:
-                    outfile.write(label)   
-                break       
-
-
-def savebinimages(s, rang=2000, train=2000, load="datasets/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels in a single binary file
+def saveimages(s, rang=2000, train=2000, load="datasets/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels in a single binary file
     folders = next(os.walk(load))[1]
     if (rang % len(folders)) != 0:  
         print("Range must be even")
@@ -368,27 +229,7 @@ def savebinimages(s, rang=2000, train=2000, load="datasets/tumor1/", plot = 0, s
                 break
 
 
-def savetestimage(x=0, l=282):    # Saves an extra .csv image and label as index 400
-    filename = 'testimages/test' + str(x) + '.jpg'
-    original = load_img(filename, target_size=(224, 224))
-    numpy_image = img_to_array(original)
-    image_batch = np.expand_dims(numpy_image, axis=0)
-    plt.imshow(np.uint8(image_batch[0]))
-    processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
-
-    # Save Image and Label
-    print("Saving test image")
-    data = processed_image[0,:,:,:]
-    with open('../data/imagetest400.csv', 'w') as outfile:
-        for threeD_data_slice in data:
-            for twoD_data_slice in threeD_data_slice:
-                np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
-                
-    with open('../data/labeltest400.csv', 'w') as outfile:
-        outfile.write(str(l) + " ")
-
-
-def savebintestimage(x=0, l=282):    # Saves an extra image and label appendded to the image binary file
+def savetestimage(x=0, l=282):    # Saves an extra image and label appendded to the image binary file
     filename = 'testimages/test' + str(x) + '.jpg'
     original = load_img(filename, target_size=(224, 224))
     numpy_image = img_to_array(original)
@@ -409,8 +250,6 @@ def savebintestimage(x=0, l=282):    # Saves an extra image and label appendded 
         for i in range(3 - len(label)):
             outfile.write(b'0') # Fill space (max 999) for the sake of fseek in C
         outfile.write(label)
-
-    
     
 def train():    # Runs a single iteration of training on the full network
     newmodel = tf.keras.applications.MobileNetV2(
