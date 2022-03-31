@@ -163,197 +163,71 @@ def savepar(s):
     with open('../data/fc_b.csv', 'w') as outfile:
         np.savetxt(outfile, data, fmt='%-1.7e')
     
-    
-def savebin(s):
-    if s == 1:
-        weight = "imagenet"
-    elif s == 0:
-        weight = None
-    else:
-        print("Invalid argument")
-        quit();
-        
-    model = tf.keras.applications.MobileNetV2(
-    input_shape=(224,224,3),
-    alpha=1.0,
-    include_top=True,
-    weights=weight,
-    input_tensor=None,
-    pooling=None,
-    classes=1000,
-    classifier_activation="softmax",)
-    
-    # Reset plots
-    files_in_directory = os.listdir("../data")
-    filtered_files = [file for file in files_in_directory if file.endswith(".dat")]
-    for file in filtered_files:
-        path_to_file = os.path.join("../data", file)
-        os.remove(path_to_file)
-    
-    # Save Classification Labels
-    print("Saving classification labels")
-    import shutil
-    shutil.copyfile("labels.txt", "../data/labels.txt")
-
-    # Save Transfer Parameter
-    print("Saving transfer parameter")
-    with open('../data/transfer.csv', 'w') as outfile:
-        outfile.write("1000 ")
-    
-    # Save All Parameters
-    from array import array
-    name = '../data/par.bin'
-    if (os.path.exists(name)):
-        os.remove(name)
-    indexC = [1, 7, 9, 16, 18, 24, 27, 34, 36, 42, 45, 51, 54, 61, 63, 69, 72, 78, 81, 87, 90, 96, 98, 104, 107, 113, 116, 123, 125, 131, 134, 140, 143, 149, 151]
-    indexBN = [2, 5, 8, 10, 14, 17, 19, 22, 25, 28, 32, 35, 37, 40, 43, 46, 49, 52, 55, 59, 62, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 99, 102, 105, 108, 111, 114, 117, 121, 124, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152]
-    indexD = [4, 13, 21, 31, 39, 48, 58, 66, 75, 84, 93, 101, 110, 120, 128, 137, 146]
-    indexFC = [155]
-    
-    for i in range(156):
-        
-        if (i in indexC):
-            print("Saving C  " + str(i))
-            data = np.array(model.layers[i].get_weights())[0,:,:,:,:]
-            with open(name, 'ab') as outfile:
-                for threeD_data_slice in data:
-                    for twoD_data_slice in threeD_data_slice:
-                        for oneD_data_slice in twoD_data_slice:
-                            float_array = array('f', oneD_data_slice)
-                            float_array.tofile(outfile)
-            
-        elif (i in indexBN):
-            print("Saving BN " + str(i))
-            data = np.array(model.layers[i].get_weights())
-            with open(name, 'ab') as outfile:
-                for twoD_data_slice in data: 
-                    #for oneD_data_slice in twoD_data_slice:
-                        float_array = array('f', twoD_data_slice)
-                        float_array.tofile(outfile)
-                            
-        elif (i in indexD):
-            print("Saving D  " + str(i))
-            data = np.array(model.layers[i].get_weights())[0,:,:,:,0]
-            with open(name, 'ab') as outfile:
-                for threeD_data_slice in data:
-                    for twoD_data_slice in threeD_data_slice:
-                        #for oneD_data_slice in twoD_data_slice:
-                            float_array = array('f', twoD_data_slice)
-                            float_array.tofile(outfile)
-                            
-        elif (i in indexFC):
-            print("Saving FC weights")
-            data = model.layers[i].get_weights()[0]
-            with open(name, 'ab') as outfile:
-                for twoD_data_slice in data:
-                    #for oneD_data_slice in twoD_data_slice:
-                        float_array = array('f', twoD_data_slice)
-                        float_array.tofile(outfile)
-                            
-            print("Saving FC biases")
-            data = model.layers[i].get_weights()[1]
-            with open(name, 'ab') as outfile:
-                float_array = array('f', data)
-                float_array.tofile(outfile)    
              
-def saveimages(s, rang=2600):
-    if (rang % 2) != 0:  
-        print("Range must be even")
-        quit();
+def saveimages(s, rang=2000, train=2000, load="datasets/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels as separate .csv files
+    folders = next(os.walk(load))[1]    
+    if (rang % len(folders)) != 0:  
+        print("Range must be divisible by number of classes")
+        sys.exit();
     if s == 0:   # Save train images
-        if (rang < 1 or rang > 2600):
-            print("Train range must be between 1 and 2600")
-            quit();
+        if (rang < 1 or rang > 5000):
+            print("Train range must be between 1 and 5000")
+            sys.exit();
         z = 0
-        save = ''
+        test = ''
     elif s == 1: # Save test images
-        if (rang == 2600):
+        if (rang == 2000):
             rang = 400
             print("Assuming default = 400 images")
         if (rang < 1 or rang > 400):
             print("Test range must be between 1 and 400")
-            quit();
-        z = 1300
-        save = 'test'
+            sys.exit();
+        z = train / len(folders)
+        test = 'test'
     else:
         print("Invalid argument")
-        quit();
+        sys.exit();
     
-    import random
+    div = rang / len(folders)
     random.seed(72)
-    num = random.sample(range(rang), rang) # 2600 train / 400 test
+    num = random.sample(range(rang), rang)
     
     for x in range(rang):
-        
-        if (num[x] < rang/2):
-            # Load image in PIL format 244x244
-            filename = 'yes/y' + str(num[x] + z) + '.jpg'
-            original = load_img(filename, target_size=(224, 224))
-
-            # Convert to numpy array 244x244x3
-            numpy_image = img_to_array(original)
-            plt.imshow(np.uint8(numpy_image))
-            plt.show()
-        
-            # Add batchsize dimension 1x244x244x3
-            image_batch = np.expand_dims(numpy_image, axis=0)
-            plt.imshow(np.uint8(image_batch[0]))
-            
-            # Preprocess
-            processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
-            
-            label = "1 "
-        else:
-            # Load image in PIL format 244x244
-            filename = 'no/no' + str(num[x] - int(rang/2) + z) + '.jpg'
-            original = load_img(filename, target_size=(224, 224))
-            plt.imshow(original)
-            plt.show()
-            
-            # Convert to numpy array 244x244x3
-            numpy_image = img_to_array(original)
-            plt.imshow(np.uint8(numpy_image))
-            plt.show()
-            
-            # Add batchsize dimension 1x244x244x3
-            image_batch = np.expand_dims(numpy_image, axis=0)
-            plt.imshow(np.uint8(image_batch[0]))
-            
-            # Preprocess
-            processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
-    
-            label = "0 "
-        
-        # Save Images and Labels
-        print("Saving image " + str(x) + " (" + str(num[x]+z) + ")")
-        data = processed_image[0,:,:,:]
-        with open('../data/image' + save + str(x) + '.csv', 'w') as outfile:
-            for threeD_data_slice in data:
-                for twoD_data_slice in threeD_data_slice:
-                    np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+        count = 0
+        for folder in folders:
+            count += 1
+            if ( num[x] < div * count ):
+                index = str(int( ( num[x] - div * (count-1) ) + z ))
+                filename = load + folder + '/' + folder[(len(str(count))+1):] + index + '.jpg'
+                original = load_img(filename, target_size=(224, 224))
+                numpy_image = img_to_array(original)
+                image_batch = np.expand_dims(numpy_image, axis=0)
+                if plot:
+                    plt.imshow(np.uint8(image_batch[0]))
+                    plt.show()
+                processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
+                label = str(count-1) + ' '
                 
-        with open('../data/label' + save + str(x) + '.csv', 'w') as outfile:
-            outfile.write(label)        
+                print("Saving image " + str(x+1) + " (" + index + ")")
+                data = processed_image[0,:,:,:]
+                with open(save + 'image' + test + str(x) + '.csv', 'w') as outfile:
+                    for twoD_data_slice in data:
+                        for oneD_data_slice in twoD_data_slice:
+                            np.savetxt(outfile, oneD_data_slice, fmt='%-1.7e')
+                with open(save + 'label' + test + str(x) + '.csv', 'w') as outfile:
+                    outfile.write(label)
+                break
 
-def savetestimage(x, l):
-    
-    # Load image in PIL format 244x244
-    filename = 'test' + str(x) + '.jpg'
+
+def savetestimage(x=0, l=282):    # Saves an extra .csv image and label as index 400
+    filename = 'testimages/test' + str(x) + '.jpg'
     original = load_img(filename, target_size=(224, 224))
-
-    # Convert to numpy array 244x244x3
     numpy_image = img_to_array(original)
-    plt.imshow(np.uint8(numpy_image))
-    plt.show()
-        
-    # Add batchsize dimension 1x244x244x3
     image_batch = np.expand_dims(numpy_image, axis=0)
     plt.imshow(np.uint8(image_batch[0]))
-            
-    # Preprocess
     processed_image = mobilenet_v2.preprocess_input(image_batch.copy())
 
-    # Save Images and Labels
+    # Save Image and Label
     print("Saving test image")
     data = processed_image[0,:,:,:]
     with open('../data/imagetest400.csv', 'w') as outfile:
@@ -363,6 +237,7 @@ def savetestimage(x, l):
                 
     with open('../data/labeltest400.csv', 'w') as outfile:
         outfile.write(str(l) + " ")
+        
 
 def testlayer(n, l):
     import keras.backend as K
