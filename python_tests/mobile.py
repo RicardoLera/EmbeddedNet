@@ -303,7 +303,7 @@ def saveimages(s, rang=2000, train=2000, load="datasets/tumor1/", plot = 0, save
                         for oneD_data_slice in twoD_data_slice:
                             np.savetxt(outfile, oneD_data_slice, fmt='%-1.7e')
                 with open(save + 'label' + test + str(x) + '.csv', 'w') as outfile:
-                    outfile.write(label)   
+                    outfile.write(label)
                 break       
 
 
