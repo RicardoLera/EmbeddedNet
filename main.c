@@ -7,7 +7,7 @@
 #include "data_manip.h"
 #include "var.h"
 
-#define ARG_MSG printf("Invalid arguments for TRANSFER command.\n" \
+#define ARG_MSG printf("Invalid arguments.\n" \
                             " -I: Number of images (1 - 3000). Default: 100\n" \
                             " -E: Number of epochs (1 - 100). Default: 3\n" \
                             " -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n" \
