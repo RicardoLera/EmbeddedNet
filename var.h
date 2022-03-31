@@ -1,7 +1,16 @@
 #ifndef VAR_H
 #define VAR_H
 
-// Count index
+#define FSIZE sizeof(float)
+#define LSIZE 3
+
+// Parameter file pointer (par.bin) Image file pointer (image.bin) Test Image file pointer (imagetest.bin) and Buffer
+extern FILE* parbin;
+extern FILE* imagebin;
+extern FILE* imagetestbin;
+extern unsigned char buf[FSIZE];
+
+// Epoch index
 extern int epoch_count;
 
 // Training parameters
@@ -17,13 +26,13 @@ extern int class;
 // Test parameters
 extern int n_val;   // Also acts as n_test
 extern int inf_idx;
-extern float inf_pred;
 extern float inf_correct;
+extern float inf_yes;
 extern float loss;
 
 // Declare image and label
 extern float image[224][224][3];
-extern int label;
+extern unsigned int label;
 
 
 // The following indexes refer to the OUTPUT of the respective layers. These are necessary for the backpropagation step.

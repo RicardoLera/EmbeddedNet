@@ -7,27 +7,23 @@
 #include "data_manip.h"
 #include "var.h"
 
-#define TRAIN_MESSAGE printf("Invalid arguments for TRAIN command.\n" \
-                			" -I: Number of images (1 - 3000). Default: 100\n" \
-							" -E: Number of epochs (1 - 100). Default: 3\n" \
-							" -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n" \
-							" -LR: Learning Rate (0 - 10). Default 0.045\n" \
-							" -LD: Learning Rate Decay (0 - 1). Default 0.98\n" \
-							" -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3' and 'exp'. Default 'fc'\n");
-
-#define TRANSFER_MESSAGE printf("Invalid arguments for TRANSFER command.\n" \
-							" -I: Number of images (1 - 3000). Default: 100\n" \
-                    		" -E: Number of epochs (1 - 100). Default: 3\n" \
-                    		" -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n" \
-							" -LR: Learning Rate (0 - 10). Default 0.045\n" \
-							" -LD: Learning Rate Decay (0 - 1). Default 0.98\n" \
-							" -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3', 'exp' and 'no'. Default 'fc'\n" \
-							" -C: How many classification neurons are in the last layer of the new model. Default: 2\n" \
-							" -LF: Destination of new classification labels file. Default: '../newlabels.txt'\n");
+#define ARG_MSG printf("Invalid arguments for TRANSFER command.\n" \
+                            " -I: Number of images (1 - 3000). Default: 100\n" \
+                            " -E: Number of epochs (1 - 100). Default: 3\n" \
+                            " -V: Number of validation images (0 - 400). Default: 50. 0 does not validate every epoch\n" \
+                            " -LR: Learning Rate (0 - 10). Default 0.045\n" \
+                            " -LD: Learning Rate Decay (0 - 1). Default 0.98\n" \
+                            " -F: Which layers to freeze. Possible values are: 'fc', 'b18'-'b3', 'exp' and 'no' (for transfer). Default 'fc'\n");
 
 // Initialize structs
 struct variables var;       // Every layer-correspondent variable
 struct parameters par;      // Every parameter and its respective moving squared mean
+
+// Initialize file pointers and buffer
+FILE* parbin;
+FILE* imagebin;
+FILE* imagetestbin;
+unsigned char buf[FSIZE];
 
 // Initialize epoch counter
 int epoch_count;
@@ -40,26 +36,41 @@ float lr = 0.045;           // original: 0.045
 float lr_decay = 0.98;      // original: 0.98
 
 // Initialize transfer index
-int class = 2;
+int class;
 
 // Initialize test parameters
 int n_val = 50;
 int inf_idx;
 float inf_pred;
 float inf_correct;
+float inf_yes;
 float loss;
 
 // Initialize image and label
 float image[224][224][3];
-int label;
+unsigned int label;
 
 // Pointer for string operations
 char *temp;
 
-// CONV2D TESTING
-double conv_time = 0;
+int main(int argc, char* argv[]) {
 
-int main(int argc, char *argv[]) {
+    // Open files
+    parbin = fopen("../data/par.bin", "r+");
+    if (parbin == NULL) {
+        perror("../data/par.bin");
+        exit(EXIT_FAILURE);
+    }
+    imagebin = fopen("../data/image.bin", "r+");
+    if (parbin == NULL) {
+        perror("../data/image.bin");
+        exit(EXIT_FAILURE);
+    }
+    imagetestbin = fopen("../data/imagetest.bin", "r+");
+    if (parbin == NULL) {
+        perror("../data/imagetest.bin");
+        exit(EXIT_FAILURE);
+    }
 
         // RUN Option
     if (strcmp(argv[1],"run") == 0 ) {
@@ -81,15 +92,18 @@ int main(int argc, char *argv[]) {
             else img_idx = strtol(argv[2], &temp, 10);
         }
 
-        importTransfer();
+        importClass();
 
         // Allocate FC
         float predictions[class];
         float (*fc_w)[class] = calloc(1280, sizeof *fc_w);
         float fc_b[class];
 
+        // Skip to test image
+        fseek(imagetestbin, (FSIZE*150528 + LSIZE)*img_idx, SEEK_SET); // 224*224*3 = 150528
+
         // Fill input using data0[y][x][d] syntax (y are lines, x are columns)
-        import_image(img_idx, 1);
+        import_image(imagetestbin);
 
         inference(class, predictions, fc_w, fc_b);
 
@@ -103,8 +117,8 @@ int main(int argc, char *argv[]) {
     else if (strcmp(argv[1],"train") == 0 ) {
 
         if (argc % 2 != 0) {
-        	TRAIN_MESSAGE
-			exit(EXIT_FAILURE);
+            ARG_MSG
+            exit(EXIT_FAILURE);
         }
 
         for (int i = 2; i < argc; i = i + 2) {
@@ -176,13 +190,13 @@ int main(int argc, char *argv[]) {
             }
 
             else {
-            	TRAIN_MESSAGE
-				exit(EXIT_FAILURE);
+                ARG_MSG
+                exit(EXIT_FAILURE);
             }
 
         }
 
-        importTransfer();
+        importClass();
 
         // Allocate FC
         float predictions[class];
@@ -194,12 +208,14 @@ int main(int argc, char *argv[]) {
         // Train
         for (epoch_count = 0; epoch_count < n_epoch; ++epoch_count) {
             for (int i = 0; i < n_img; ++i) {
-                printf("Epoch %d Image %d\n",epoch_count + 1, i + 1);
-                import_image(i, 0);
+                printf("\nEpoch %d Image %d\n",epoch_count + 1, i + 1);
+                import_image(imagebin);
+                rewind(parbin);
                 train(class, predictions, fc_w, fc_b);
-                printf("\n");
             }
             if (n_val) test(class, predictions, fc_w, fc_b, n_val);
+            rewind(imagebin);
+            rewind(imagetestbin);
         }
 
         clock_t end = clock();
@@ -213,11 +229,9 @@ int main(int argc, char *argv[]) {
         // TRANSFER Option
     else if (strcmp(argv[1],"transfer") == 0 ) {
 
-        char LF[] = "../newlabels.txt";
-
         if (argc % 2 != 0) {
-        	TRANSFER_MESSAGE
-			exit(EXIT_FAILURE);
+            ARG_MSG
+            exit(EXIT_FAILURE);
         }
 
 
@@ -291,30 +305,17 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            else if (strcmp(argv[i],"-C") == 0) {
-                if (strtol(argv[i+1], &temp, 10) < 2 || strtol(argv[i+1], &temp, 10) > 1000) {
-                    printf("Invalid class number (2 - 1000)\n");
-                    exit(EXIT_FAILURE);
-                }
-                else class = strtol(argv[i+1], &temp, 10);
-            }
-
-            else if (strcmp(argv[i],"-LF") == 0)
-            	strcpy(LF, argv[i+1]);
-
             else {
-            	TRANSFER_MESSAGE
-    			exit(EXIT_FAILURE);
+                ARG_MSG
+                exit(EXIT_FAILURE);
             }
 
         }
 
-        copyLabels(LF);
+        importClass();
 
         srand(1);               // Used for consistent results
         //srand(time(NULL));
-
-        exportTransfer();
 
         transfer();
 
@@ -340,7 +341,7 @@ int main(int argc, char *argv[]) {
             else n_val = strtol(argv[2], &temp, 10);
         }
 
-        importTransfer();
+        importClass();
 
         // Allocate FC
         float predictions[class];
@@ -357,5 +358,7 @@ int main(int argc, char *argv[]) {
         printf("Invalid action. Valid actions are: run, train, transfer and test.\n");
         exit(EXIT_FAILURE);
     }
+
+    fclose(parbin);
     return 0;
 }

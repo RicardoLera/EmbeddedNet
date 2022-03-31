@@ -1,6 +1,7 @@
 .*
 data
-python_tests/no
-python_tests/yes
+python_tests/datasets
+Debug
+Release
+other
 !/.gitignore
-/Release/

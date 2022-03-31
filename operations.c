@@ -20,12 +20,10 @@ void convolution2D(int isize,   // width/height of input
         int stride,             // shift between input pixels, between consecutive outputs
         int pad,                // offset between (0,0) pixels between input and output
         int idepth, int odepth, // number of input and output channels
-        float idata[isize][isize][idepth],
-        float odata[osize][osize][odepth],
-        float kdata[odepth][ksize][ksize][idepth])
+        float idata[restrict isize][isize][idepth],
+        float odata[restrict osize][osize][odepth],
+        float kdata[restrict odepth][ksize][ksize][idepth])
 {
-    float sum = 0;
-
     // iterate over the output
     for (int oy = 0; oy < osize; ++oy) {
     for (int ox = 0; ox < osize; ++ox) {
@@ -39,11 +37,9 @@ void convolution2D(int isize,   // width/height of input
             // use only valid inputs
             if (iy >= 0 && iy < isize && ix >= 0 && ix < isize) {
                 for (int id = 0; id < idepth; ++id)
-                    sum += kdata[od][ky][kx][id] * idata[iy][ix][id];
+                    odata[oy][ox][od] += kdata[od][ky][kx][id] * idata[iy][ix][id];
             }
         }}
-        odata[oy][ox][od] = sum;
-        sum = 0;
     }}}
 
 
@@ -234,9 +230,9 @@ void decode(float *pred) {
 
     // Acquire relevant predictions
     inf_correct = cor[label].prediction;
+    if (class == 2) inf_yes = cor[1].prediction;
     qsort(cor, class, sizeof(struct Correlation), compare);
     inf_idx = cor[0].idx;
-    inf_pred = cor[0].prediction;
 
     // Print correlations
     int n_cor;
@@ -246,19 +242,16 @@ void decode(float *pred) {
         n_cor = class;
 
     printf("\n");
-    for (int n = 0; n < n_cor; n++)
-        printf("Correlation %d: %e / Index = %d\n", n+1, cor[n].prediction, cor[n].idx);
-    printf("\n");
 
     // Print label correlations
     FILE *fptr;
     fptr = fopen("../data/labels.txt", "r");
     if (fptr == NULL) {
-        perror("fopen()");
+        perror("../data/labels.txt");
         exit(EXIT_FAILURE);
     }
 
-    char s[122];
+    char s[122];    // Measured by hand
     int j;
 
     for (int n = 0; n < n_cor; n++)
@@ -276,7 +269,7 @@ void decode(float *pred) {
             c = fgetc(fptr);
         }
         s[j] = '\0';
-        printf("'%s', %.8e\n", s, cor[n].prediction);
+        printf("Index %d: '%s', %.7e\n", cor[n].idx, s, cor[n].prediction);
         rewind(fptr);
     }
     fclose(fptr);
@@ -341,7 +334,7 @@ void backprop_fc(int c,
     }
     free(dLdW);
 
-    // For analyzing overfitting
+    // For analyzing overfitting:
     //printf("fc_w convergence index: %.7e\n\n", fabs( fabs(fc_w[0][0][0]) - fabs(fc_w[0][1][0]) ) );
 
     export_fc(1280, c, fc_w, fc_b);
@@ -480,8 +473,8 @@ void backprop_bn(int s, int d,
     }
 
     // Export
-    char name[20]; // maximum number of characters is "../data/paramxx.csv" = 19
-    sprintf(name, "../data/param%d.csv", idx);
+    char name[9]; // maximum number of characters is "param xx" = 8
+    sprintf(name, "param %d", idx);
     export_bn(name, d, par);
 }
 
@@ -527,7 +520,7 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
             if (iy >= 0 && iy < isize && ix >= 0 && ix < isize)
                 for (int id = 0; id < idepth; ++id) { // c
                     dLdW[od][ky][kx][id] += O[oy][ox][od] * I[iy][ix][id];          // Calculate Gradient
-                    if (backprop != 0)
+                    if (backprop == 1)
                         error[iy][ix][id] += O[oy][ox][od] * par[od][ky][kx][id];   // Backpropagate
                 }
         }}
@@ -556,9 +549,9 @@ void backprop_conv2d(int isize, int osize, int ksize, int idepth, int odepth,
     free(dLdW);
 
     // Export
-    char name[22]; // maximum number of characters is "../data/weightsxx.csv" = 21
-    sprintf(name, "weights%d.csv", idx);
-    export_conv2d(name,odepth,ksize,ksize,idepth,par);
+    char name[11]; // maximum number of characters is "weights xx" = 10
+    sprintf(name, "weights %d", idx);
+    export_conv2d(name,odepth,ksize,idepth,par);
 }
 
 void backprop_dw(int isize, int osize, int ksize, int depth,
@@ -616,8 +609,8 @@ void backprop_dw(int isize, int osize, int ksize, int depth,
     free(dLdW);
 
     // Export
-    char name[23]; // maximum number of characters is "../data/dweightsxx.csv" = 22
-    sprintf(name, "../data/dweights%d.csv", idx);
+    char name[12]; // maximum number of characters is "dweights xx" = 11
+    sprintf(name, "dweights %d", idx);
     export_depth(name, ksize, depth, par);
 }
 

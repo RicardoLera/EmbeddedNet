@@ -1,11 +1,11 @@
 #ifndef OP_H
 #define OP_H
 
-void convolution2D(int isize,  // width/height of input
-        int osize,  // width/height of output
-        int ksize,  // width/height of kernel
-        int stride, // shift between input pixels, between consecutive outputs
-        int pad,    // offset between (0,0) pixels between input and output
+void convolution2D(int isize,   // width/height of input
+        int osize,              // width/height of output
+        int ksize,              // width/height of kernel
+        int stride,             // shift between input pixels, between consecutive outputs
+        int pad,                // offset between (0,0) pixels between input and output
         int idepth, int odepth, // number of input and output channels
         float idata[restrict isize][isize][idepth],
         float odata[restrict osize][osize][odepth],

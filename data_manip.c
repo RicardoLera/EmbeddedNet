@@ -1,467 +1,151 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "var.h"
 
-//for testing
-#include <assert.h>
-#define NDEBUG
+// These functions depend on the existence of a unix-like file system
 
+void import_image(FILE* file) {
 
-// These functions depend on the architecture of the processor and interface used
+    for (int y = 0; y < 224; ++y) // lines
+    for (int x = 0; x < 224; ++x) // columns
+    for (int d = 0; d < 3; ++d)   // depth
+        fread(buf,FSIZE,1,file) ? image[y][x][d] = *(float*)&buf : (printf("Failed to read image\n"), exit(EXIT_FAILURE));
 
-
-
-
-
-
-
-// These functions are for testing on the PC
-
-// We import everything as CSV files
-
-void import_image(int l, int t) {
-
-    // Define name from index
-    char name[25]; // maximum number of characters is "../data/imagetestxxx.csv" = 24
-    if (t)
-        sprintf(name, "../data/imagetest%d.csv", l);
-    else
-        sprintf(name, "../data/image%d.csv", l);
-
-    // open file
-    FILE *fptr;
-    fptr = fopen(name, "r");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    char c = fgetc(fptr); // generic char
-    char s[15];           // mantissa, maximum number of characters is "-x.xxxxxxxe-xx" = 14
-
-    for (int y = 0; y < 224; ++y) {         // lines
-        for (int x = 0; x < 224; ++x) {     // columns
-            for (int d = 0; d < 3; ++d) {   // depth
-                // write string
-                int i;
-                for (i = 0; c != '\n' && c != ' '; ++i) {
-                    assert( 0 <= i && i <= 14 );
-                    s[i] = c;
-                    c = fgetc(fptr);
-                }
-                s[i] = '\0';
-                float f = atof(s);      // convert to float
-                image[y][x][d] = f;     // save on array
-                c = fgetc(fptr);
-            }
-        }
-    }
-    fclose(fptr);
-
-    if (t)
-        sprintf(name, "../data/labeltest%d.csv", l);
-    else
-        sprintf(name, "../data/label%d.csv", l);
-
-    fptr = fopen(name, "r");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    c = fgetc(fptr);
-    char* a;    // pointer for strtol
-    int i;
-    for (i = 0; c != '\n' && c != ' '; ++i) {
-        s[i] = c;
-        c = fgetc(fptr);
-    }
-    s[i] = '\0';
-    label = strtol(s,&a,10);
-
-    printf("\nCurrent label: %d\n\n", label);
-
-    fclose(fptr);
+    for (int i = 0; i < LSIZE; ++i) buf[i] = fgetc(file);
+    label = strtol((char*)buf, (char **) NULL, 10);
+    printf("Label = %d\n", label);
 }
 
-void import_conv2d(int id, int size, int od, int idx, float kdata[od][size][size][id]) {
-
-    // Define name from index
-    char name[22]; // maximum number of characters is "../data/weightsxx.csv" = 21
-    sprintf(name, "../data/weights%d.csv", idx);
-
-    // open file
-    FILE *fptr;
-    fptr = fopen(name, "r");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    char c = fgetc(fptr); // generic char
-    char s[15];           // mantissa, maximum number of characters is "-x.xxxxxxxe-xx" = 14
-
-    for (int y = 0; y < size; ++y) {            // lines
-        for (int x = 0; x < size; ++x) {        // columns
-            for (int l = 0; l < id; ++l) {      // input depth (layers)
-                for (int d = 0; d < od; ++d) {  // output depth (number of filters)
-                    // write string
-                    int i;
-                    for (i = 0; c != '\n' && c != ' '; ++i) {
-                        assert( 0 <= i && i <= 14 );
-                        s[i] = c;
-                        c = fgetc(fptr);
-                    }
-                    s[i] = '\0';
-                    float f = atof(s);      // convert to float
-                    kdata[d][y][x][l] = f;  // save on array
-                    c = fgetc(fptr);
-                }
-            }
-        }
-    }
-    fclose(fptr);
+void import_conv2d(int id, int ksize, int od, int idx, float kdata[od][ksize][ksize][id]) {
+    for (int y = 0; y < ksize; ++y) // lines
+    for (int x = 0; x < ksize; ++x) // columns
+    for (int l = 0; l < id; ++l)    // input depth (layers)
+    for (int d = 0; d < od; ++d)    // output depth (number of filters)
+        fread(buf,FSIZE,1,parbin) ? kdata[d][y][x][l] = *(float*)&buf : (printf("Failed to read conv2d at idx = %d\n", idx), exit(EXIT_FAILURE));
 }
 
 void import_bn(int depth, int idx, float pdata[4][depth]) {
-
     // [0][:] is gamma, [1][:] is beta, [2][:] is moving mean, [3][:] is moving variance
-    // NOTE: only gamma and beta are imported here, the other two are imported in the next function
-
-    // Define name from index
-    char name[20]; // maximum number of characters is "../data/paramxx.csv" = 19
-    sprintf(name, "../data/param%d.csv", idx);
-
-    // open file
-    FILE *fptr;
-    fptr = fopen(name, "r");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    char c = fgetc(fptr); // generic char
-    char s[15];           // mantissa, maximum number of characters is "-x.xxxxxxxe-xx" = 14
-
-    for (int t = 0; t < 2; ++t) {           // type
-        for (int d = 0; d < depth; ++d) {   // depth
-            // write string
-            int i;
-            for (i = 0; c != '\n' && c != ' '; ++i) {
-                assert( 0 <= i && i <= 14 );
-                s[i] = c;
-                c = fgetc(fptr);
-            }
-            s[i] = '\0';
-            float f = atof(s);      // convert to float
-            pdata[t][d] = f;        // save on array
-            c = fgetc(fptr);
-        }
-    }
-    fclose(fptr);
+    for (int y = 0; y < 4; ++y)     // type
+    for (int x = 0; x < depth; ++x) // depth
+        fread(buf,FSIZE,1,parbin) ? pdata[y][x] = *(float*)&buf : (printf("Failed to read batch normalization at idx = %d\n", idx), exit(EXIT_FAILURE));
 }
-
-void import_moving(int depth, int idx, float pdata[4][depth]) {
-
-    // [0][:] is gamma, [1][:] is beta, [2][:] is moving mean, [3][:] is moving variance
-
-    // Define name from index
-    char name[20]; // maximum number of characters is "../data/paramxx.csv" = 19
-    sprintf(name, "../data/param%d.csv", idx);
-
-    // open file
-    FILE *fptr;
-    fptr = fopen(name, "r");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    char c = fgetc(fptr); // generic char
-    char s[15];           // mantissa, maximum number of characters is "-x.xxxxxxxe-xx" = 14
-
-    // Skip gamma and beta
-    for (int t = 0; t < 2; ++t) {           // type
-        for (int d = 0; d < depth; ++d) {   // depth
-            for (int i = 0; c != '\n' && c != ' '; ++i) {
-                c = fgetc(fptr);
-            }
-            c = fgetc(fptr);
-        }
-    }
-
-    for (int t = 2; t < 4; ++t) {           // type
-        for (int d = 0; d < depth; ++d) {   // depth
-            // write string
-            int i;
-            for (i = 0; c != '\n' && c != ' '; ++i) {
-                assert( 0 <= i && i <= 14 );
-                s[i] = c;
-                c = fgetc(fptr);
-            }
-            s[i] = '\0';
-            float f = atof(s);      // convert to float
-            pdata[t][d] = f;        // save on array
-            c = fgetc(fptr);
-        }
-    }
-    fclose(fptr);
-}
-
 
 void import_depth(int depth, int ksize, int idx, float kdata[ksize][ksize][depth]) {
-
-    // Define name from index
-    char name[23]; // maximum number of characters is "../data/dweightsxx.csv" = 22
-    sprintf(name, "../data/dweights%d.csv", idx);
-
-    // open file
-    FILE *fptr;
-    fptr = fopen(name, "r");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    char c = fgetc(fptr); // generic char
-    char s[15];           // mantissa, maximum number of characters is "-x.xxxxxxxe-xx" = 14
-
-    for (int y = 0; y < ksize; ++y) {           // lines
-        for (int x = 0; x < ksize; ++x) {       // columns
-            for (int d = 0; d < depth; ++d) {   // depth
-                // write string
-                int i;
-                for (i = 0; c != '\n' && c != ' '; ++i) {
-                    assert( 0 <= i && i <= 14 );
-                    s[i] = c;
-                    c = fgetc(fptr);
-                }
-                s[i] = '\0';
-                float f = atof(s);      // convert to float
-                kdata[y][x][d] = f;     // save on array
-                c = fgetc(fptr);
-            }
-        }
-    }
-    fclose(fptr);
+    for (int y = 0; y < ksize; ++y) // lines
+    for (int x = 0; x < ksize; ++x) // columns
+    for (int d = 0; d < depth; ++d) // depth
+        fread(buf,FSIZE,1,parbin) ? kdata[y][x][d] = *(float*)&buf : (printf("Failed to read depthwise at idx = %d\n", idx), exit(EXIT_FAILURE));
 }
 
 void import_fc(int isize, int osize, float weight[isize][osize], float bias[osize]) {
+    for (int y = 0; y < isize; ++y) // input layer
+    for (int x = 0; x < osize; ++x) // classification layer
+        fread(buf,FSIZE,1,parbin) ? weight[y][x] = *(float*)&buf : (printf("Failed to read fc weights\n"), exit(EXIT_FAILURE));
 
-    // open file
-    FILE *fptr;
-    fptr = fopen("../data/fc_w.csv", "r");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    char c = fgetc(fptr); // generic char
-    char s[15];           // mantissa, maximum number of characters is "-x.xxxxxxxe-xx" = 14
-
-    for (int y = 0; y < isize; ++y) {     // 1280
-        for (int x = 0; x < osize; ++x) { // 1000
-            // write string
-            int i;
-            for (i = 0; c != '\n' && c != ' '; ++i) {
-                assert( 0 <= i && i <= 14 );
-                s[i] = c;
-                c = fgetc(fptr);
-            }
-            s[i] = '\0';
-            float f = atof(s);  // convert to float
-            weight[y][x] = f;   // save on array
-            c = fgetc(fptr);
-        }
-    }
-    fclose(fptr);
-
-    // open file
-    fptr = fopen("../data/fc_b.csv", "r");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    c = fgetc(fptr); // generic char
-
-    for (int x = 0; x < osize; ++x) { // 1000
-        // write string
-        int i;
-        for (i = 0; c != '\n' && c != ' '; ++i) {
-            assert( 0 <= i && i <= 14 );
-            s[i] = c;
-            c = fgetc(fptr);
-        }
-        s[i] = '\0';
-        float f = atof(s);  // convert to float
-        bias[x] = f;        // save on array
-        c = fgetc(fptr);
-    }
-    fclose(fptr);
+    for (int x = 0; x < osize; ++x) // classification layer
+        fread(buf,FSIZE,1,parbin) ? bias[x] = *(float*)&buf : (printf("Failed to read fc biases\n"), exit(EXIT_FAILURE));
 }
 
 void export_fc(int d, int c, float w[d][c], float b[c]) {
-    FILE *fptr;
-    fptr = fopen("../data/fc_w.csv", "w");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
+    for (int i = c-1; i >= 0; --i) {
+        memcpy(buf,&b[i],FSIZE);
+        fseek(parbin,-FSIZE,SEEK_CUR);
+        fwrite(buf,FSIZE,1,parbin);
+        fseek(parbin,-FSIZE,SEEK_CUR);
     }
-    for (int i = 0; i < d; ++i) {
-        for (int j = 0; j < c; ++j) {
-            fprintf(fptr, "%.7e\n", w[i][j]);
-        }
-    }
-    fclose(fptr);
-    printf("Saved ../data/fc_w.csv\n");
-
-    FILE *fp;
-    fp = fopen("../data/fc_b.csv", "w");
-    if (fp == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-    for (int j = 0; j < c; ++j) {
-        fprintf(fp, "%.7e\n", b[j]);
-    }
-    fclose(fp);
-    printf("Saved ../data/fc_b.csv\n");
+    printf("Saved fc biases\n");
+    for (int y = d-1; y >= 0; --y) {
+    for (int x = c-1; x >= 0; --x) {
+        memcpy(buf,&w[y][x],FSIZE);
+        fseek(parbin,-FSIZE,SEEK_CUR);
+        fwrite(buf,FSIZE,1,parbin);
+        fseek(parbin,-FSIZE,SEEK_CUR);
+    }}
+    printf("Saved fc weights\n");
 }
 
-void export_depth(char* name, int ks, int d, float data[ks][ks][d]) {
-    FILE *fptr;
-    fptr = fopen(name, "w");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-    for (int i = 0; i < ks; ++i) {
-        for (int j = 0; j < ks; ++j) {
-            for (int k = 0; k < d; ++k) {
-                fprintf(fptr, "%.7e\n", data[i][j][k]);
-            }
-        }
-    }
-    fclose(fptr);
+void export_depth(char* name, int ksize, int depth, float kdata[ksize][ksize][depth]) {
+    for (int y = ksize-1; y >= 0; --y) {
+    for (int x = ksize-1; x >= 0; --x) {
+    for (int d = depth-1; d >= 0; --d) {
+        memcpy(buf,&kdata[y][x][d],FSIZE);
+        fseek(parbin,-FSIZE,SEEK_CUR);
+        fwrite(buf,FSIZE,1,parbin);
+        fseek(parbin,-FSIZE,SEEK_CUR);
+    }}}
     printf("Saved %s\n", name);
 }
 
-void export_bn(char* name, int d, float data[d][4]) {
-    FILE *fptr;
-    fptr = fopen(name, "w");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-    for (int i = 0; i < d; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            fprintf(fptr, "%.7e\n", data[i][j]);
-        }
-    }
-    fclose(fptr);
+void export_bn(char* name, int depth, float data[4][depth]) {
+    for (int y = 3; y >= 0; --y) {
+    for (int x = depth-1; x >= 0; --x) {
+        memcpy(buf,&data[y][x],FSIZE);
+        fseek(parbin,-FSIZE,SEEK_CUR);
+        fwrite(buf,FSIZE,1,parbin);
+        fseek(parbin,-FSIZE,SEEK_CUR);
+    }}
     printf("Saved %s\n", name);
 }
 
-void export_conv2d(char* name, int d1, int d2, int d3, int d4, float data[d1][d2][d3][d4]) {
-    FILE *fptr;
-    fptr = fopen(name, "w");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-    for (int i = 0; i < d3; ++i) {
-        for (int j = 0; j < d2; ++j) {
-            for (int k = 0; k < d4; ++k) {
-                for (int l = 0; l < d1; ++l) {
-                    fprintf(fptr, "%.7e\n", data[l][i][j][k]);
-                }
-            }
-        }
-    }
-    fclose(fptr);
+void export_conv2d(char* name, int od, int ksize, int id, float kdata[od][ksize][ksize][id]) {
+    for (int y = ksize-1; y >= 0; --y) {
+    for (int x = ksize-1; x >= 0; --x) {
+    for (int l = id-1; l >= 0; --l) {
+    for (int d = od-1; d >= 0; --d) {
+        memcpy(buf,&kdata[d][y][x][l],FSIZE);
+        fseek(parbin,-FSIZE,SEEK_CUR);
+        fwrite(buf,FSIZE,1,parbin);
+        fseek(parbin,-FSIZE,SEEK_CUR);
+    }}}}
     printf("Saved %s\n", name);
 }
 
-void importTransfer() {
-    // open file
+void importClass() {
+    // Open file
     FILE *fptr;
-    fptr = fopen("../data/transfer.csv", "r");
+    fptr = fopen("../data/labels.txt", "r");
     if (fptr == NULL) {
-        perror("fopen()");
+        perror("../data/labels.txt");
         exit(EXIT_FAILURE);
     }
 
-    char c = fgetc(fptr); // generic char
+    // Go to end of file and disregard random-ass extra linebreak
+    fseek(fptr,-1,SEEK_END);
+
+    // Go back until you find last line break
+    char ch = 0;
+    while (ch != '\n') {
+        fseek(fptr,-2,SEEK_CUR);
+        ch = fgetc(fptr);
+    }
+
+    // Get value in string and convert
     char s[5];
-    char *p;
+    char* p;
     int i = 0;
-
-    while (c != ' ') {
-        s[i] = c;
-        c = fgetc(fptr);
-        ++i;
+    ch = fgetc(fptr);   // Discard space
+    ch = fgetc(fptr);   // Move to first number
+    for (i = 0; ch != ':'; ++i) {
+        s[i] = ch;
+        ch = fgetc(fptr);
     }
     s[i] = '\0';
-    class = strtol(s, &p, 10);
+    class = strtol(s, &p, 10) + 1;
+
+    printf("Class = %d\n", class);
 
     fclose(fptr);
-}
-
-void exportTransfer() {
-    FILE *fptr;
-    fptr = fopen("../data/transfer.csv", "w");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    char s[4];
-    sprintf(s, "%d", class);
-    fprintf(fptr, "%s ", s);
-
-    fclose(fptr);
-    printf("Saved Transfer Parameters\n");
-}
-
-void copyLabels(char* path) {
-    FILE *source, *target;
-    char ch;
-
-    source = fopen(path, "r");
-    if (source == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    target = fopen("../data/labels.txt", "w");
-    if (target == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    while ((ch = fgetc(source)) != EOF)
-       fputc(ch, target);
-
-    fclose(source);
-    fclose(target);
-
-    printf("Labels copied successfully\n");
 }
 
 void fillRandom(char* name, int n) {
-    FILE *fptr;
-    fptr = fopen(name, "w");
-    if (fptr == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
+    for (int i = 0; i < n; ++i) {
+        float f = (float)rand()/RAND_MAX;
+        memcpy(buf,&f,FSIZE);
+        fseek(parbin,-FSIZE,SEEK_CUR);
+        fwrite(buf,FSIZE,1,parbin);
+        fseek(parbin,-FSIZE,SEEK_CUR);
     }
-
-    for(int i = 0; i < n; ++i) {
-        double f = (float)rand()/RAND_MAX;
-        fprintf(fptr, "%.7e ", f);
-    }
-    fclose(fptr);
-
     printf("Randomized %s\n", name);
 }

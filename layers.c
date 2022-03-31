@@ -37,10 +37,6 @@ void batch_normalization(int size,  // width/height of input
             idx,
             pdata);
 
-    import_moving(depth,
-                idx,
-                pdata);
-
     batch_normalize(size,
             depth,
             0.001,  // epsilon
