@@ -139,31 +139,6 @@ void importClass() {
     fclose(fptr);
 }
 
-void copyLabels(char* path) {
-    FILE *source, *target;
-    char ch;
-
-    source = fopen(path, "r");
-    if (source == NULL) {
-        perror(path);
-        exit(EXIT_FAILURE);
-    }
-
-    target = fopen("../data/labels.txt", "w");
-    if (target == NULL) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
-
-    while ((ch = fgetc(source)) != EOF)
-       fputc(ch, target);
-
-    fclose(source);
-    fclose(target);
-
-    printf("Labels copied successfully\n");
-}
-
 void fillRandom(char* name, int n) {
     for (int i = 0; i < n; ++i) {
         float f = (float)rand()/RAND_MAX;

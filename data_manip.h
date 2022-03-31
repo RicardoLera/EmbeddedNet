@@ -15,7 +15,6 @@ void export_bn(char* name, int depth, float data[4][depth]);
 void export_conv2d(char* name, int od, int ksize, int id, float kdata[od][ksize][ksize][id]);
 
 void importClass();
-void copyLabels(char* path);
 void fillRandom(char* name, int n);
 
 #endif

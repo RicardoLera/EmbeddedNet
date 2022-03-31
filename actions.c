@@ -35,7 +35,7 @@ void inference(int c, float predictions[c], float fc_w[1280][c], float fc_b[c]) 
     printf("weight Last = %.8e\n", par.initial_par_conv2d[31][2][2][2]);
 
     FILE *fp;
-    fp = fopen("../output.txt", "w");
+    fp = fopen("../data/output.txt", "w");
 
     for (int i = 0; i < 112; ++i) {
         for (int j = 0; j < 112; ++j) {

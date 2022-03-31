@@ -34,7 +34,7 @@ classes=1000,
 classifier_activation="softmax",)
 
 # Load image in PIL format 244x244
-filename = '/home/ricardo/EmbeddedNet/python_tests/test0.jpg'
+filename = 'testimages/test0.jpg'
 original = load_img(filename, target_size=(224, 224))
 
 # Convert to numpy array 244x244x3
@@ -76,7 +76,7 @@ def testlayer(n, l):    # Displays output of specific layer for sample image
     
     
 def read(x):    # Reads and plots file exported by EmbeddedNet
-    file = open("../output.txt")
+    file = open("../data/output.txt")
     fromC = np.loadtxt(file, delimiter=", ", usecols=range(x))
     plt.imshow(fromC)
     file.close()
@@ -84,11 +84,11 @@ def read(x):    # Reads and plots file exported by EmbeddedNet
 
 def savelabels(file=1, path="../data/"):
     import shutil
-    shutil.copyfile("newlabels" + str(file) + ".txt", path + "labels.txt")
+    shutil.copyfile("labelfiles/newlabels" + str(file) + ".txt", path + "labels.txt")
     print("Saved new labels")
     
     
-def savepar(s, path="../data"):    # Saves all parameters as .csv files
+def savepar(s, path="../data/"):    # Saves all parameters as .csv files
     if s == 1:
         weight = "imagenet"
     elif s == 0:
@@ -117,7 +117,7 @@ def savepar(s, path="../data"):    # Saves all parameters as .csv files
     # Save Classification Labels
     print("Saving classification labels")
     import shutil
-    shutil.copyfile("labels.txt", path + "/labels.txt")
+    shutil.copyfile("labelfiles/imagenetlabels.txt", path + "labels.txt")
 
     # Save Transfer Parameter
     print("Saving transfer parameter")
@@ -172,7 +172,7 @@ def savepar(s, path="../data"):    # Saves all parameters as .csv files
         np.savetxt(outfile, data, fmt='%-1.7e')
     
     
-def savebin(s, path="../data"):    # Saves all parameters in a binary file
+def savebin(s, path="../data/"):    # Saves all parameters in a binary file
     if s == 1:
         weight = "imagenet"
     elif s == 0:
@@ -201,7 +201,7 @@ def savebin(s, path="../data"):    # Saves all parameters in a binary file
     # Save Classification Labels
     print("Saving classification labels")
     import shutil
-    shutil.copyfile("labels.txt", path + "/labels.txt")
+    shutil.copyfile("labelfiles/imagenetlabels.txt", path + "labels.txt")
     
     # Save All Parameters
     name = path + '/par.bin'
@@ -252,7 +252,7 @@ def savebin(s, path="../data"):    # Saves all parameters in a binary file
                 float_array.tofile(outfile)    
              
                 
-def saveimages(s, rang=2000, train=2000, load="data/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels as separate .csv files
+def saveimages(s, rang=2000, train=2000, load="datasets/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels as separate .csv files
     folders = next(os.walk(load))[1]    
     if (rang % len(folders)) != 0:  
         print("Range must be divisible by number of classes")
@@ -286,7 +286,7 @@ def saveimages(s, rang=2000, train=2000, load="data/tumor1/", plot = 0, save="..
             count += 1
             if ( num[x] < div * count ):
                 index = str(int( ( num[x] - div * (count-1) ) + z ))
-                filename = 'data/' + folder + '/' + folder[(len(str(count))+1):] + index + '.jpg'
+                filename = load + folder + '/' + folder[(len(str(count))+1):] + index + '.jpg'
                 original = load_img(filename, target_size=(224, 224))
                 numpy_image = img_to_array(original)
                 image_batch = np.expand_dims(numpy_image, axis=0)
@@ -301,13 +301,13 @@ def saveimages(s, rang=2000, train=2000, load="data/tumor1/", plot = 0, save="..
                 with open(save + 'image' + test + str(x) + '.csv', 'w') as outfile:
                     for twoD_data_slice in data:
                         for oneD_data_slice in twoD_data_slice:
-                            np.savetxt(outfile, twoD_data_slice, fmt='%-1.7e')
+                            np.savetxt(outfile, oneD_data_slice, fmt='%-1.7e')
                 with open(save + 'label' + test + str(x) + '.csv', 'w') as outfile:
                     outfile.write(label)   
                 break       
 
 
-def savebinimages(s, rang=2000, train=2000, load="data/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels in a single binary file
+def savebinimages(s, rang=2000, train=2000, load="datasets/tumor1/", plot = 0, save="../data/"):    # Saves train/test images and labels in a single binary file
     folders = next(os.walk(load))[1]
     if (rang % len(folders)) != 0:  
         print("Range must be even")
@@ -369,7 +369,7 @@ def savebinimages(s, rang=2000, train=2000, load="data/tumor1/", plot = 0, save=
 
 
 def savetestimage(x=0, l=282):    # Saves an extra .csv image and label as index 400
-    filename = 'test' + str(x) + '.jpg'
+    filename = 'testimages/test' + str(x) + '.jpg'
     original = load_img(filename, target_size=(224, 224))
     numpy_image = img_to_array(original)
     image_batch = np.expand_dims(numpy_image, axis=0)
@@ -389,7 +389,7 @@ def savetestimage(x=0, l=282):    # Saves an extra .csv image and label as index
 
 
 def savebintestimage(x=0, l=282):    # Saves an extra image and label appendded to the image binary file
-    filename = 'test' + str(x) + '.jpg'
+    filename = 'testimages/test' + str(x) + '.jpg'
     original = load_img(filename, target_size=(224, 224))
     numpy_image = img_to_array(original)
     image_batch = np.expand_dims(numpy_image, axis=0)
