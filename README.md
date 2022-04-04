@@ -42,10 +42,9 @@ A Keras application of MobileNetV2 is used for pre-training as well as developme
  
 ## TO DO
 
-Current Main Task: **Understand problem with Conv2D transfer learning convergence.**
+Current Main Task: **Implement on Embedded System**.
 
 Other Tasks:
- - Application on embedded system (import/export/conv etc).
  - Finish commenting all functions.
 
 ## Getting Started
@@ -54,17 +53,28 @@ Prerequisites: `python3` with `tensorflow` and other common python tools. We uti
 
 Clone the repository: `git clone git@github.com:RicardoLera/EmbeddedNet.git`
 
-Download the [Br35H Dataset by Ahmed Hamada](https://www.kaggle.com/ahmedhamada0/brain-tumor-detection) on Kaggle. Place the `yes` and `no` folders in `/python_tests`.
-In a terminal, change directory to the `no` file and run: `rename 's/./\L$&/' *` to change the first letter of files 12-19 to lowercase.
+Download a dataset to work with. You have to rename the files and directories accordingly in order for `EmbeddedNet.py`to be able to recognize them:
+ - By default, the dataset folder is located at `python/datasets/`, however you can change that directory through the `load` argument in the `saveimages()` python function.
+ - The dataset folder must contain a subfolder for each class of image, labeled with `X_name`, where `X` is the index of the classification. For instance, the `binary_brain_tumor` folder would contain the subfolders `0_no` and `1_yes`.
+ - Each image within a subfolder `X_name` must be named `nameY.jpg`, where `Y` is the index of the image. To aid you in doing this, you can use the `number.sh` script. Argument 1 is the new name of the files and argument 2 is the path to the file in which the images will be renamed. E.g. `./number.sh "name" "datasets/dataset/0_name"` (omit the last `/`).
+ - Training and Testing/Validation sets are located in the same folder. You will define the division of the sets in the arguments of the `saveimages()` python function.
+ - Write a file called `newlabelsX.txt` in the `labelfiles` directory, where X is whatever number you wish. The file must have this specific shape exemplified in the files at `labelfiles`. I.e. starting with a `{`, then each label declared as `X: 'name',` separated by a linebreak, and ending with `}`.
 
-Next, open `python_tests/mobile.py`. Running it will create the `data` folder in the main directory.
+Now, open `python/EmbeddedNet.py`. Running it will create the `data` folder in the main directory (and also show you a picture of a cute kitty).
 
-In the Python terminal run: `savepar(1)` to load pre-trained parameters or `savepar(0)` for random parameters.
+In the Python terminal run: `savepar(1)` to load pre-trained parameters or `savepar(0)` for random parameters into a binary file.
 
-To preprocess the images, run `saveimages(0, X)` where `X` is how many images per epoch your network will be trained with (max 2600).
-Then run `saveimages(1, X)` where `X` is the number of test images utilized (max 400). These two processes can take a while.
+To preprocess the images, run `saveimages(0, rang, rang, "datasets/dataset")` where `rang` is how many images per epoch your network will be trained with.
 
-Finally, run `./EmbeddedNet transfer` in either `Debug` or `Release` with your preferred arguments.
+Then run `saveimages(1, test_rang, rang, "datasets/dataset)` where `test_rang` is the number of test images utilized (`rang` is the same number as before). These two processes can take a while.
+
+Finally, run `savelabels(x)` where x is the number you gave to your newlabels file. All the default paths of these functions are `../data/`, but can be altered.
+
+You can now compile EmbeddedNet using your preferred compiler or IDE. Recommended arguments are:
+ - `gcc -O3 -mavx2 -Wall -fmessage-length=0 -fPIC` for Release.
+ - `gcc -O0 -Og -g3 -pg -Wall -Wextra -fmessage-length=0 -fPIC` for Debug.
+
+To test the network, run `./EmbeddedNet transfer` with your preferred arguments. To reset to the original state before transfer, run `savepar(x)`.
 
 ## Command Line Arguments
 
