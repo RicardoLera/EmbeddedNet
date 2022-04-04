@@ -66,7 +66,7 @@ In the Python terminal run: `savepar(1)` to load pre-trained parameters or `save
 
 To preprocess the images, run `saveimages(0, rang, rang, "datasets/dataset")` where `rang` is how many images per epoch your network will be trained with.
 
-Then run `saveimages(1, test_rang, rang, "datasets/dataset)` where `test_rang` is the number of test images utilized (`rang` is the same number as before). These two processes can take a while.
+Then run `saveimages(1, test_rang, rang, "datasets/dataset")` where `test_rang` is the number of test images utilized (`rang` is the same number as before). These two processes can take a while.
 
 Finally, run `savelabels(x)` where x is the number you gave to your newlabels file. All the default paths of these functions are `../data/`, but can be altered.
 
@@ -74,7 +74,7 @@ You can now compile EmbeddedNet using your preferred compiler or IDE. Recommende
  - `gcc -O3 -mavx2 -Wall -fmessage-length=0 -fPIC` for Release.
  - `gcc -O0 -Og -g3 -pg -Wall -Wextra -fmessage-length=0 -fPIC` for Debug.
 
-To test the network, run `./EmbeddedNet transfer` with your preferred arguments. To reset to the original state before transfer, run `savepar(x)`.
+To test the network, run `./EmbeddedNet transfer` with your preferred arguments. To reset to the original state before transfer, run `savepar(x)` (this will replace the labels file as well).
 
 ## Command Line Arguments
 
